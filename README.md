@@ -10,3 +10,7 @@
   Algoと画像認識で用いるピースと座標、その他の拡張メソッド群があります
   
 ## サンプル
+'''cs
+///PieceクラスにGetAngle(int Vertex)、PointクラスにGetLength(Point To)を追加します
+using ProCon28.Linker.Extensions;
+'''

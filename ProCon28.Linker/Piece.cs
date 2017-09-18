@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ProCon28.Linker.Extensions;
 
 namespace ProCon28.Linker
 {
@@ -19,4 +21,6 @@ namespace ProCon28.Linker
             return p;
         }
     }
+
+    public class PieceCollection : ObservableCollection<Piece> { }
 }

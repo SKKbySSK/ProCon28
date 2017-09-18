@@ -29,10 +29,22 @@ namespace ProCon28.Windows
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             Linker.Piece p = new Linker.Piece();
-            p.Vertexes.Add(new Linker.Point(0, 0));
-            p.Vertexes.Add(new Linker.Point(0, 1));
-            p.Vertexes.Add(new Linker.Point(1, 0));
-            Console.WriteLine("Angle 0({0} deg):{1}", Math.PI / 2, p.GetAngle(0));
+
+            Random rnd = new Random();
+            int count = rnd.Next(3, 5);
+
+            for(int i = 0; count > i; i++)
+            {
+                Linker.Point point = new Linker.Point(new Random(Environment.TickCount + 1 + (i * i)).Next(0, 30), new Random(Environment.TickCount + 2 + (i * i)).Next(0, 30));
+                p.Vertexes.Add(point);
+            }
+            
+            for(int i = 0;p.Vertexes.Count > i; i++)
+            {
+                Console.WriteLine("Angle 0({0} deg):{1}", Math.PI / 2, p.GetAngle(i));
+            }
+
+            PieceG.Pieces.Add(p);
         }
     }
 }

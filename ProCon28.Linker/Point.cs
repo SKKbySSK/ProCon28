@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,5 +19,5 @@ namespace ProCon28.Linker
         public int Y { get; set; }
     }
 
-    public class PointCollection : List<Point> { }
+    public class PointCollection : ObservableCollection<Point> { }
 }

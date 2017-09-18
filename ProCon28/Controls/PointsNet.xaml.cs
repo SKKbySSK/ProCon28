@@ -75,6 +75,9 @@ namespace ProCon28.Controls
                     i--;
                 }
             }
+
+            foreach (PointRectangle pr in rect)
+                pr.Reactangle.Fill = Brushes.Black;
             
             foreach (Piece piece in Pieces)
             {
@@ -89,8 +92,11 @@ namespace ProCon28.Controls
                     PointRectangle pr2 = FindPoint(p2);
                     if (pr1 != null && pr2 != null)
                     {
+                        pr1.Reactangle.Fill = Brushes.Orange;
+                        pr2.Reactangle.Fill = Brushes.Orange;
+
                         Line line = new Line();
-                        line.Stroke = Brushes.Red;
+                        line.Stroke = Brushes.Purple;
                         line.StrokeThickness = 10;
                         line.HorizontalAlignment = HorizontalAlignment.Left;
                         line.VerticalAlignment = VerticalAlignment.Top;
@@ -181,50 +187,18 @@ namespace ProCon28.Controls
             UpdatePoints();
         }
 
-        class PointRectangle
-        {
-            Rectangle rect = new Rectangle();
-            public PointRectangle()
-            {
-                rect.Fill = Brushes.Black;
-                rect.Width = 10;
-                rect.Height = 10;
-                rect.HorizontalAlignment = HorizontalAlignment.Left;
-                rect.VerticalAlignment = VerticalAlignment.Top;
-            }
-
-            public int X { get; set; }
-            public int Y { get; set; }
-
-            public double Left { get { return rect.Margin.Left; } }
-            public double Top { get { return rect.Margin.Top; } }
-
-            public Rectangle Reactangle { get { return rect; } }
-        }
-
         bool drag = false;
-        List<PointRectangle> DPieces = new List<PointRectangle>();
         Linker.Point LastPoint;
 
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            DPieces.Clear();
-            drag = true;
-            MouseCanvas.CaptureMouse();
             System.Windows.Point mouse = e.GetPosition(MouseCanvas);
             PointRectangle pr = FindNearbyPoint(mouse.X, mouse.Y, 20);
+            if (pr == null) return;
+
+            drag = true;
+            MouseCanvas.CaptureMouse();
             LastPoint = new Linker.Point(pr.X, pr.Y);
-            foreach(Piece p in Pieces)
-            {
-                foreach(Linker.Point vertex in p.Vertexes)
-                {
-                    if(pr.X == vertex.X && pr.Y == vertex.Y)
-                    {
-                        DPieces.Add(pr);
-                        break;
-                    }
-                }
-            }
         }
 
         private void MouseCanvas_MouseUp(object sender, MouseButtonEventArgs e)
@@ -254,8 +228,28 @@ namespace ProCon28.Controls
                     }
                 }
                 UpdateLines();
-                pr.Reactangle.Fill = Brushes.Purple;
             }
+        }
+
+        class PointRectangle
+        {
+            Rectangle rect = new Rectangle();
+            public PointRectangle()
+            {
+                rect.Fill = Brushes.Black;
+                rect.Width = 10;
+                rect.Height = 10;
+                rect.HorizontalAlignment = HorizontalAlignment.Left;
+                rect.VerticalAlignment = VerticalAlignment.Top;
+            }
+
+            public int X { get; set; }
+            public int Y { get; set; }
+
+            public double Left { get { return rect.Margin.Left; } }
+            public double Top { get { return rect.Margin.Top; } }
+
+            public Rectangle Reactangle { get { return rect; } }
         }
     }
 }

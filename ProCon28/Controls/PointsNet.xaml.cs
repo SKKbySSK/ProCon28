@@ -29,10 +29,37 @@ namespace ProCon28.Controls
         public static DependencyProperty VerticalPointsProperty { get; }
             = DependencyProperty.Register("VerticalPoints", typeof(int), typeof(PointsNet),
                 new FrameworkPropertyMetadata(10, new PropertyChangedCallback(Points_PropertyChanged)));
+        public static DependencyProperty MaximumVertexCountProperty { get; }
+            = DependencyProperty.Register("MaximumVertexCount", typeof(int), typeof(PointsNet),
+                new FrameworkPropertyMetadata(-1, new PropertyChangedCallback(Points_PropertyChanged)));
 
         List<PointRectangle> rect = new List<PointRectangle>();
 
-        public PieceCollection Pieces { get; } = new PieceCollection();
+        Piece _piece = null;
+        public Piece Piece
+        {
+            get { return _piece; }
+            set
+            {
+                _piece = value;
+                UpdateLines();
+            }
+        }
+
+        public void RedrawPiece()
+        {
+            UpdateLines();
+        }
+        
+        public int MaximumVertexCount
+        {
+            get { return (int)GetValue(MaximumVertexCountProperty); }
+            set
+            {
+                SetValue(MaximumVertexCountProperty, value);
+                UpdateLines();
+            }
+        }
 
         public int HorizontalPoints
         {
@@ -49,13 +76,6 @@ namespace ProCon28.Controls
         public PointsNet()
         {
             InitializeComponent();
-
-            Pieces.CollectionChanged += Pieces_CollectionChanged;
-            UpdatePoints();
-        }
-
-        private void Pieces_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
             UpdatePoints();
         }
 
@@ -78,34 +98,34 @@ namespace ProCon28.Controls
 
             foreach (PointRectangle pr in rect)
                 pr.Reactangle.Fill = Brushes.Black;
-            
-            foreach (Piece piece in Pieces)
+
+            if (Piece == null) return;
+
+            int count = MaximumVertexCount > -1 ? Math.Min(Piece.Vertexes.Count, MaximumVertexCount) : Piece.Vertexes.Count;
+            for (int i = 0; count > i; i++)
             {
-                for (int i = 0; piece.Vertexes.Count > i; i++)
+                Linker.Point p1;
+                if (i == 0) p1 = Piece.Vertexes[count - 1];
+                else p1 = Piece.Vertexes[i - 1];
+                Linker.Point p2 = Piece.Vertexes[i];
+
+                PointRectangle pr1 = FindPoint(p1);
+                PointRectangle pr2 = FindPoint(p2);
+                if (pr1 != null && pr2 != null)
                 {
-                    Linker.Point p1;
-                    if (i == 0) p1 = piece.Vertexes[piece.Vertexes.Count - 1];
-                    else p1 = piece.Vertexes[i - 1];
-                    Linker.Point p2 = piece.Vertexes[i];
+                    pr1.Reactangle.Fill = Brushes.Orange;
+                    pr2.Reactangle.Fill = Brushes.Orange;
 
-                    PointRectangle pr1 = FindPoint(p1);
-                    PointRectangle pr2 = FindPoint(p2);
-                    if (pr1 != null && pr2 != null)
-                    {
-                        pr1.Reactangle.Fill = Brushes.Orange;
-                        pr2.Reactangle.Fill = Brushes.Orange;
-
-                        Line line = new Line();
-                        line.Stroke = Brushes.Purple;
-                        line.StrokeThickness = 10;
-                        line.HorizontalAlignment = HorizontalAlignment.Left;
-                        line.VerticalAlignment = VerticalAlignment.Top;
-                        line.X1 = pr1.Left + 5;
-                        line.Y1 = pr1.Top + 5;
-                        line.X2 = pr2.Left + 5;
-                        line.Y2 = pr2.Top + 5;
-                        ParentG.Children.Insert(0, line);
-                    }
+                    Line line = new Line();
+                    line.Stroke = Brushes.Purple;
+                    line.StrokeThickness = 10;
+                    line.HorizontalAlignment = HorizontalAlignment.Left;
+                    line.VerticalAlignment = VerticalAlignment.Top;
+                    line.X1 = pr1.Left + 5;
+                    line.Y1 = pr1.Top + 5;
+                    line.X2 = pr2.Left + 5;
+                    line.Y2 = pr2.Top + 5;
+                    ParentG.Children.Insert(0, line);
                 }
             }
         }
@@ -188,17 +208,44 @@ namespace ProCon28.Controls
         }
 
         bool drag = false;
-        Linker.Point LastPoint;
+        int vertex = -1;
 
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             System.Windows.Point mouse = e.GetPosition(MouseCanvas);
             PointRectangle pr = FindNearbyPoint(mouse.X, mouse.Y, 20);
-            if (pr == null) return;
+            if (pr == null || Piece == null) return;
 
-            drag = true;
-            MouseCanvas.CaptureMouse();
-            LastPoint = new Linker.Point(pr.X, pr.Y);
+            if(e.LeftButton == MouseButtonState.Pressed)
+            {
+                drag = true;
+                vertex = -1;
+                MouseCanvas.CaptureMouse();
+                for(int i = 0;Piece.Vertexes.Count > i; i++)
+                {
+                    Linker.Point point = Piece.Vertexes[i];
+                    if (point.X == pr.X && point.Y == pr.Y)
+                    {
+                        vertex = i;
+                        break;
+                    }
+                }
+            }
+            else if(e.MiddleButton == MouseButtonState.Pressed)
+            {
+                Piece.Vertexes.Add(new Linker.Point(pr.X, pr.Y));
+                UpdateLines();
+            }
+            else if(e.RightButton == MouseButtonState.Pressed)
+            {
+                for (int i = 0; Piece.Vertexes.Count > i; i++)
+                {
+                    Linker.Point point = Piece.Vertexes[i];
+                    if (point.X == pr.X && point.Y == pr.Y)
+                        Piece.Vertexes.RemoveAt(i);
+                }
+                UpdateLines();
+            }
         }
 
         private void MouseCanvas_MouseUp(object sender, MouseButtonEventArgs e)
@@ -213,20 +260,9 @@ namespace ProCon28.Controls
             {
                 System.Windows.Point mouse = e.GetPosition(MouseCanvas);
                 PointRectangle pr = FindNearbyPoint(mouse.X, mouse.Y, 30);
-                if (pr == null) return;
-                foreach (Piece p in Pieces)
-                {
-                    for (int i = 0; p.Vertexes.Count > i; i++)
-                    {
-                        Linker.Point vertex = p.Vertexes[i];
-                        if (LastPoint.X == vertex.X && LastPoint.Y == vertex.Y)
-                        {
-                            vertex = new Linker.Point(pr.X, pr.Y);
-                            p.Vertexes[i] = vertex;
-                            LastPoint = vertex;
-                        }
-                    }
-                }
+                if (pr == null || Piece == null || vertex < 0) return;
+
+                Piece.Vertexes[vertex] = new Linker.Point(pr.X, pr.Y);
                 UpdateLines();
             }
         }

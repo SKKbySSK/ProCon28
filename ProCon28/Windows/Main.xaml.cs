@@ -44,7 +44,13 @@ namespace ProCon28.Windows
                 Console.WriteLine("Angle 0({0} deg):{1}", Math.PI / 2, p.GetAngle(i));
             }
 
-            PieceG.Pieces.Add(p);
+            PieceG.Piece = p;
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            PieceG.Piece?.SortVertexes(Linker.PointSortation.Clockwise);
+            PieceG.RedrawPiece();
         }
     }
 }

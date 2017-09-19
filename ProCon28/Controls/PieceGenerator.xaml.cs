@@ -25,6 +25,23 @@ namespace ProCon28.Controls
             InitializeComponent();
         }
 
-        public Linker.PieceCollection Pieces { get { return Net.Pieces; } }
+        public Linker.Piece Piece
+        {
+            get { return Net.Piece; }
+            set { Net.Piece = (Linker.Piece)value.Clone(); }
+        }
+
+        public void RedrawPiece()
+        {
+            Net.RedrawPiece();
+        }
+
+        public void Fit()
+        {
+            if(Piece != null)
+            {
+
+            }
+        }
     }
 }

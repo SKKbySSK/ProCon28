@@ -5,8 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProCon28.Algo"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="5*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Button Content="Button" Grid.Column="1" HorizontalAlignment="Left" Margin="450,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Height="120"/>
+        <Button Content="Button" Grid.Column="1" HorizontalAlignment="Left" Margin="345,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Height="120"/>
+        <Button Content="Button" Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Height="120"/>
+        <Button Content="Button" Grid.Column="1" HorizontalAlignment="Left" Margin="115,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Height="120"/>
+        <Button Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Grid.Column="1" Margin="220,10,0,0" Grid.Row="1" Height="57"/>
+        <Button Content="Button" Grid.Column="1" HorizontalAlignment="Left" Margin="220,73,0,0" Grid.Row="1" VerticalAlignment="Top" Width="120" Height="57"/>
     </Grid>
 </Window>

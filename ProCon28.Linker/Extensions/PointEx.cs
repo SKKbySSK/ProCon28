@@ -43,7 +43,6 @@ namespace ProCon28.Linker.Extensions
         public static IList<(Point, Point, double)> AsLinesWithLength(this PointCollection Points)
         {
             var lines = AsLines(Points);
-
             List<(Point, Point, double)> ls = new List<(Point, Point, double)>();
             foreach(var l in lines)
             {

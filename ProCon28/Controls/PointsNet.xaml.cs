@@ -33,6 +33,12 @@ namespace ProCon28.Controls
             = DependencyProperty.Register("MaximumVertexCount", typeof(int), typeof(PointsNet),
                 new FrameworkPropertyMetadata(-1, new PropertyChangedCallback(Points_PropertyChanged)));
 
+        public event EventHandler VertexAdded;
+        public event EventHandler VertexRemoved;
+        public event EventHandler VertexMoved;
+
+       double Vspace = 0, Hspace = 0;
+
         List<PointRectangle> rect = new List<PointRectangle>();
 
         Piece _piece = null;
@@ -140,6 +146,9 @@ namespace ProCon28.Controls
                 double ew = ActualWidth / (hval + 1);
                 double eh = ActualHeight / (vval + 1);
 
+                Hspace = eh;
+                Vspace = ew;
+
                 int rectc = rect.Count;
                 if (rectc > total)
                 {
@@ -187,11 +196,11 @@ namespace ProCon28.Controls
             return null;
         }
 
-        PointRectangle FindNearbyPoint(double X, double Y, double Threshold)
+        PointRectangle FindNearbyPoint(double X, double Y, double ThresholdX, double ThresholdY)
         {
             foreach(PointRectangle pr in rect)
             {
-                if (InRange(pr.Left, X, Threshold) && InRange(pr.Top, Y, Threshold))
+                if (InRange(pr.Left - (pr.Width / 2), X, ThresholdX) && InRange(pr.Top - (pr.Height / 2), Y, ThresholdY))
                     return pr;
             }
             return null;
@@ -213,7 +222,7 @@ namespace ProCon28.Controls
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             System.Windows.Point mouse = e.GetPosition(MouseCanvas);
-            PointRectangle pr = FindNearbyPoint(mouse.X, mouse.Y, 20);
+            PointRectangle pr = FindNearbyPoint(mouse.X, mouse.Y, Hspace / 2, Vspace / 2);
             if (pr == null || Piece == null) return;
 
             if(e.LeftButton == MouseButtonState.Pressed)
@@ -234,6 +243,7 @@ namespace ProCon28.Controls
             else if(e.MiddleButton == MouseButtonState.Pressed)
             {
                 Piece.Vertexes.Add(new Linker.Point(pr.X, pr.Y));
+                VertexAdded?.Invoke(this, new EventArgs());
                 UpdateLines();
             }
             else if(e.RightButton == MouseButtonState.Pressed)
@@ -242,7 +252,10 @@ namespace ProCon28.Controls
                 {
                     Linker.Point point = Piece.Vertexes[i];
                     if (point.X == pr.X && point.Y == pr.Y)
+                    {
                         Piece.Vertexes.RemoveAt(i);
+                        VertexRemoved?.Invoke(this, new EventArgs());
+                    }
                 }
                 UpdateLines();
             }
@@ -259,10 +272,11 @@ namespace ProCon28.Controls
             if (drag)
             {
                 System.Windows.Point mouse = e.GetPosition(MouseCanvas);
-                PointRectangle pr = FindNearbyPoint(mouse.X, mouse.Y, 30);
+                PointRectangle pr = FindNearbyPoint(mouse.X, mouse.Y, Hspace / 2, Vspace / 2);
                 if (pr == null || Piece == null || vertex < 0) return;
 
                 Piece.Vertexes[vertex] = new Linker.Point(pr.X, pr.Y);
+                VertexMoved?.Invoke(this, new EventArgs());
                 UpdateLines();
             }
         }
@@ -277,6 +291,18 @@ namespace ProCon28.Controls
                 rect.Height = 10;
                 rect.HorizontalAlignment = HorizontalAlignment.Left;
                 rect.VerticalAlignment = VerticalAlignment.Top;
+            }
+
+            public double Width
+            {
+                get { return rect.Width; }
+                set { rect.Width = value; }
+            }
+
+            public double Height
+            {
+                get { return rect.Height; }
+                set { rect.Height = value; }
             }
 
             public int X { get; set; }

@@ -20,15 +20,26 @@ namespace ProCon28.Controls
     /// </summary>
     public partial class PieceGenerator : UserControl
     {
+        bool Initializing = false;
         public PieceGenerator()
         {
+            Initializing = true;
             InitializeComponent();
+
+            Net.VertexAdded += (sender, e) => VertexAdded?.Invoke(this, e);
+            Net.VertexRemoved += (sender, e) => VertexRemoved?.Invoke(this, e);
+            Net.VertexMoved += (sender, e) => VertexMoved?.Invoke(this, e);
+            Initializing = false;
         }
+
+        public event EventHandler VertexAdded;
+        public event EventHandler VertexRemoved;
+        public event EventHandler VertexMoved;
 
         public Linker.Piece Piece
         {
             get { return Net.Piece; }
-            set { Net.Piece = (Linker.Piece)value.Clone(); }
+            set { Net.Piece = value; }
         }
 
         public void RedrawPiece()
@@ -41,6 +52,37 @@ namespace ProCon28.Controls
             if(Piece != null)
             {
 
+            }
+        }
+
+        private void KeepRatioC_Checked(object sender, RoutedEventArgs e)
+        {
+            if (Initializing) return;
+            int max = Math.Max((int)SliderH.Value, (int)SliderV.Value);
+            SliderH.Value = max;
+            SliderV.Value = max;
+        }
+
+        bool Ignore = false;
+        private void SliderH_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (Initializing || Ignore) return;
+            if (KeepRatioC.IsChecked ?? false)
+            {
+                Ignore = true;
+                SliderV.Value = SliderH.Value;
+                Ignore = false;
+            }
+        }
+
+        private void SliderV_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (Initializing || Ignore) return;
+            if (KeepRatioC.IsChecked ?? false)
+            {
+                Ignore = true;
+                SliderH.Value = SliderV.Value;
+                Ignore = false;
             }
         }
     }

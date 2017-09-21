@@ -6,11 +6,13 @@
         xmlns:local="clr-namespace:ProCon28"
         xmlns:Controls="clr-namespace:ProCon28.Controls" x:Class="ProCon28.Windows.Main"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="638.719" Width="1131.19">
     <Grid>
-        <Button Content="ランダム生成" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
-        <Button Content="ソート" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
-        <Controls:PieceGenerator x:Name="PieceG" Margin="90,10,10,10"/>
+        <Button Content="ランダム生成" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click" Height="20"/>
+        <Button Content="ソート, 変換" HorizontalAlignment="Left" Margin="90,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1" Height="20"/>
+        <Controls:PieceGenerator x:Name="PieceG" Margin="10,35,216,10"/>
+        <Controls:PieceViewer x:Name="PieceList" HorizontalAlignment="Right" Width="211" Background="#FFF7F7F7" SelectedPieceChanged="PieceList_SelectedPieceChanged"/>
+        <Button x:Name="AddB" Content="リストへ追加" Margin="170,10,0,0" VerticalAlignment="Top" Click="AddB_Click" HorizontalAlignment="Left" Width="75"/>
 
     </Grid>
 </Window>

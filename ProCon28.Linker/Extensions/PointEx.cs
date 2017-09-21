@@ -23,5 +23,21 @@ namespace ProCon28.Linker.Extensions
         {
             return GetLength(new Point(From.X - To.X, From.Y - To.Y));
         }
+
+        public static IEnumerable<(Point, Point)> AsLines(this PointCollection Points)
+        {
+            List<(Point, Point)> ls = new List<(Point, Point)>();
+
+            int c = Points.Count;
+            for(int i = 0; c > i; i++)
+            {
+                if (i == 0)
+                    ls.Add((Points[c - 1], Points[0]));
+                else
+                    ls.Add((Points[i - 1], Points[i]));
+            }
+
+            return ls;
+        }
     }
 }

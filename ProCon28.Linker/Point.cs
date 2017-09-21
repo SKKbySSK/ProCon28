@@ -25,7 +25,15 @@ namespace ProCon28.Linker
         public PointCollection Sort(PointSortation Sortation)
         {
             PointCollection col = new PointCollection();
-            col.AddRange(this.OrderBy(p => Math.Atan2(p.X, p.Y)));
+
+            Point min = this[0];
+            foreach(Point p in this)
+            {
+                if (min.X + min.Y > p.X + p.Y)
+                    min = p;
+            }
+
+            col.AddRange(this.OrderBy(p => Math.Atan2(min.X - p.X, min.Y - p.Y)));
             if (Sortation == PointSortation.AntiClockwise)
             {
                 IEnumerable<Point> rev = col.Reverse();

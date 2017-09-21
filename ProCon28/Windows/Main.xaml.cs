@@ -24,6 +24,13 @@ namespace ProCon28.Windows
         public Main()
         {
             InitializeComponent();
+            PieceG.VertexAdded += PieceG_VertexChanged;
+            PieceG.VertexRemoved += PieceG_VertexChanged;
+            PieceG.VertexMoved += PieceG_VertexChanged;
+        }
+
+        private void PieceG_VertexChanged(object sender, EventArgs e)
+        {
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -49,8 +56,27 @@ namespace ProCon28.Windows
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            PieceG.Piece?.SortVertexes(Linker.PointSortation.Clockwise);
-            PieceG.RedrawPiece();
+            if (PieceG.Piece == null) return;
+            PieceG.Piece.SortVertexes(Linker.PointSortation.Clockwise);
+
+            Linker.Piece p = PieceG.Piece.Convert();
+            PieceG.Piece = p;
+        }
+
+        private void AddB_Click(object sender, RoutedEventArgs e)
+        {
+            if (PieceList.Pieces.Contains(PieceG.Piece))
+                PieceList.Pieces.Remove(PieceG.Piece);
+            
+            PieceList.Pieces.Add(PieceG.Piece);
+        }
+
+        private void PieceList_SelectedPieceChanged(object sender, EventArgs e)
+        {
+            if(PieceList.SelectedPiece != null)
+            {
+                PieceG.Piece = PieceList.SelectedPiece;
+            }
         }
     }
 }

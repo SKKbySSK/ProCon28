@@ -103,12 +103,17 @@ namespace ProCon28.Controls
             get { return SelectedPieceView == null ? null : SelectedPieceView.Piece; }
             set
             {
-                foreach (PieceView pv in PiecesStack.Children)
+                if (value == null)
+                    SelectedPieceView = null;
+                else
                 {
-                    if (pv.Piece == value)
+                    foreach (PieceView pv in PiecesStack.Children)
                     {
-                        SelectedPieceView = pv;
-                        break;
+                        if (pv.Piece == value)
+                        {
+                            SelectedPieceView = pv;
+                            break;
+                        }
                     }
                 }
                 SelectedPieceChanged?.Invoke(this, new EventArgs());

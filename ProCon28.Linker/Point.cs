@@ -24,21 +24,26 @@ namespace ProCon28.Linker
     {
         public PointCollection Sort(PointSortation Sortation)
         {
-            PointCollection col = new PointCollection();
-
             Point min = this[0];
-            foreach(Point p in this)
+            foreach (Point p in this)
             {
                 if (min.X + min.Y > p.X + p.Y)
                     min = p;
             }
+            return Sort(Sortation, min);
+        }
 
-            col.AddRange(this.OrderBy(p => Math.Atan2(min.X - p.X, min.Y - p.Y)));
-            if (Sortation == PointSortation.AntiClockwise)
+        public PointCollection Sort(PointSortation Sortation, Point BasePoint)
+        {
+            PointCollection col = new PointCollection();
+            col.AddRange(this.OrderBy(p => Math.Atan2(BasePoint.X - p.X, BasePoint.Y - p.Y)));
+
+            if (Sortation == PointSortation.Clockwise)
             {
-                IEnumerable<Point> rev = col.Reverse();
-                col.Clear();
-                col.AddRange(rev);
+                IEnumerable<Point> reve = col.Reverse();
+                PointCollection rev = new PointCollection();
+                rev.AddRange(reve);
+                return rev;
             }
 
             return col;

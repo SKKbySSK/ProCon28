@@ -26,13 +26,21 @@ namespace ProCon28.Windows
         public MarshalDialog(MarshalByRefObject Obj)
         {
             InitializeComponent();
+            Closing += MarshalDialog_Closing;
             obj = Obj;
             Marshal();
         }
 
+        private void MarshalDialog_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            server?.Dispose();
+            server = null;
+            obj = null;
+        }
+
         void Marshal()
         {
-            server = new Server(Config.Current.TCP_Channel, Config.Current.TCP_Port, obj, Linker.Constants.RemotePiecesUri);
+            server = new Server(Config.Current.TCP_Port, obj, Linker.Constants.RemotePiecesUri);
             server.Marshal();
 
             string[] urls = server.GetUrls();
@@ -44,13 +52,12 @@ namespace ProCon28.Windows
         private void RetryB_Click(object sender, RoutedEventArgs e)
         {
             DescL.Content = "再試行中";
-            server?.Unmarshal();
             Marshal();
         }
 
         private void CancelB_Click(object sender, RoutedEventArgs e)
         {
-            server?.Unmarshal();
+            server?.Dispose();
             server = null;
             DescL.Content = "停止";
         }

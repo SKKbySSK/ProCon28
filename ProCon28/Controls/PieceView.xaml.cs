@@ -55,7 +55,7 @@ namespace ProCon28.Controls
                     mh = p.Y < mh || mh == -1 ? p.Y : mh;
                 }
 
-                PLabel.Content = string.Format("頂点:{0}, 横幅:{1}, 縦幅:{2}", Piece.Vertexes.Count, w -mw, h - mh);
+                PLabel.Content = string.Format("頂点:{0}, 横幅:{1}, 縦幅:{2}", Piece.Vertexes.Count, w - mw, h - mh);
             }
         }
 

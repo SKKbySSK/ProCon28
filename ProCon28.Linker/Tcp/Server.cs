@@ -9,18 +9,15 @@ using System.Runtime.Remoting.Channels.Tcp;
 
 namespace ProCon28.Linker.Tcp
 {
-    public class Server
+    public class Server : IDisposable
     {
-        string channel;
         int port;
         TcpServerChannel server;
-        ObjRef oref;
         MarshalByRefObject obj;
         string uri;
 
-        public Server(string Channel, int Port, MarshalByRefObject Object, string Uri)
+        public Server(int Port, MarshalByRefObject Object, string Uri)
         {
-            channel = Channel;
             port = Port;
             obj = Object;
             uri = Uri;
@@ -38,24 +35,17 @@ namespace ProCon28.Linker.Tcp
 
         public void Marshal()
         {
-            server = new TcpServerChannel(channel, port);
-            ChannelServices.RegisterChannel(server, true);
-            oref = RemotingServices.Marshal(obj, uri, typeof(RemotePieces));
+            server = new TcpServerChannel(port);
+            ChannelServices.RegisterChannel(server, false);
+            RemotingServices.Marshal(obj, uri, typeof(RemotePieces));
         }
 
-        public void Unmarshal()
+        public void Dispose()
         {
-            RemotingServices.Unmarshal(oref);
-            oref = null;
-
             ChannelServices.UnregisterChannel(server);
             server = null;
-        }
-
-        ~Server()
-        {
-            if (oref != null)
-                Unmarshal();
+            obj = null;
+            GC.SuppressFinalize(this);
         }
     }
 }

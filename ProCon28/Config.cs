@@ -10,17 +10,23 @@ namespace ProCon28
 {
     public class Config
     {
-        public string TCP_Channel { get; set; } = "ProConCh";
         public int TCP_Port { get; set; } = 50000;
 
         static Lazy<Config> config = new Lazy<Config>(() =>
         {
             if (File.Exists(Linker.Constants.ConfigFileName))
             {
-                XmlSerializer ser = new XmlSerializer(typeof(Config));
-                using (StreamReader sr = new StreamReader(Linker.Constants.ConfigFileName))
+                try
                 {
-                    return (Config)ser.Deserialize(sr);
+                    XmlSerializer ser = new XmlSerializer(typeof(Config));
+                    using (StreamReader sr = new StreamReader(Linker.Constants.ConfigFileName))
+                    {
+                        return (Config)ser.Deserialize(sr);
+                    }
+                }
+                catch (Exception)
+                {
+                    return new Config();
                 }
             }
             else

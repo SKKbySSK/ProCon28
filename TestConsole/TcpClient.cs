@@ -26,10 +26,12 @@ namespace TestConsole
                 switch (res)
                 {
                     case 0:
+                        Console.WriteLine("URI");
+                        string uri = Console.ReadLine();
+                        Console.WriteLine(GetObject(ip, port, uri));
                         break;
                     case 1:
-                        Client client = new Client(ip, port, Constants.RemotePiecesUri);
-                        RemotePieces rp = (RemotePieces)client.GetObject(typeof(RemotePieces));
+                        RemotePieces rp = (RemotePieces)GetObject(ip, port, Constants.RemotePiecesUri);
 
                         Console.WriteLine("Date : " + rp.Created);
                         PieceCollection col = new PieceCollection(rp.BytePieces);
@@ -44,6 +46,12 @@ namespace TestConsole
                         break;
                 }
             }
+        }
+
+        MarshalByRefObject GetObject(string IP, int Port, string Uri)
+        {
+            Client client = new Client(IP, Port, Constants.RemotePiecesUri);
+            return client.GetObject(typeof(RemotePieces));
         }
     }
 }

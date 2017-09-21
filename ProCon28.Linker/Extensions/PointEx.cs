@@ -24,7 +24,7 @@ namespace ProCon28.Linker.Extensions
             return GetLength(new Point(From.X - To.X, From.Y - To.Y));
         }
 
-        public static ICollection<(Point, Point)> AsLines(this PointCollection Points)
+        public static IList<(Point, Point)> AsLines(this PointCollection Points)
         {
             List<(Point, Point)> ls = new List<(Point, Point)>();
 
@@ -40,7 +40,7 @@ namespace ProCon28.Linker.Extensions
             return ls;
         }
 
-        public static ICollection<(Point, Point, double)> AsLinesWithLength(this PointCollection Points)
+        public static IList<(Point, Point, double)> AsLinesWithLength(this PointCollection Points)
         {
             var lines = AsLines(Points);
             List<(Point, Point, double)> ls = new List<(Point, Point, double)>();

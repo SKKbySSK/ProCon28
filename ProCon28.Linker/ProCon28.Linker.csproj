@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="DoublePoint.cs" />
     <Compile Include="Extensions\CollectionEx.cs" />
     <Compile Include="Extensions\PieceEx.cs" />
     <Compile Include="Extensions\PointEx.cs" />

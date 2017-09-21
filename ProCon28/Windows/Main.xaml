@@ -8,12 +8,15 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="638.719" Width="1131.19">
     <Grid>
-        <Button Content="ランダム生成" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click" Height="20"/>
-        <Button Content="ソート, 変換" HorizontalAlignment="Left" Margin="90,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1" Height="20"/>
-        <Controls:PieceGenerator x:Name="PieceG" Margin="10,35,216,10"/>
+        <Button Content="ランダム生成" HorizontalAlignment="Left" Margin="672,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click" Height="20"/>
+        <Button Content="ソート, 変換" HorizontalAlignment="Left" Margin="752,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1" Height="20"/>
+        <Controls:PieceGenerator x:Name="PieceG" Margin="10,114,216,10"/>
         <Controls:PieceViewer x:Name="PieceList" HorizontalAlignment="Right" Width="211" Background="#FFF7F7F7" SelectedPieceChanged="PieceList_SelectedPieceChanged" Margin="0,0,0,44"/>
-        <Button x:Name="AddB" Content="リストへ追加" Margin="170,10,0,0" VerticalAlignment="Top" Click="AddB_Click" HorizontalAlignment="Left" Width="75"/>
+        <Button x:Name="AddB" Content="リストへ追加" Margin="832,10,0,0" VerticalAlignment="Top" Click="AddB_Click" HorizontalAlignment="Left" Width="75"/>
         <Button x:Name="TransportB" Content="転送" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="201" Height="29" Click="TransportB_Click"/>
+        <TextBox x:Name="LoadT" HorizontalAlignment="Left" Height="20" Margin="10,10,0,0" TextWrapping="Wrap" Text="result.txt" VerticalAlignment="Top" Width="251"/>
+        <Button x:Name="LoadB" Content="読み込み" HorizontalAlignment="Left" Margin="266,10,0,0" VerticalAlignment="Top" Width="75" Click="LoadB_Click"/>
+        <Slider x:Name="ThresholdS" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="331" Maximum="314" Minimum="1"/>
 
     </Grid>
 </Window>

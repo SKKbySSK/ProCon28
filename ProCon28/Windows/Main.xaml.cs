@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ProCon28.Linker.Extensions;
+using System.IO;
 
 namespace ProCon28.Windows
 {
@@ -86,6 +87,53 @@ namespace ProCon28.Windows
 
             MarshalDialog dialog = new MarshalDialog(ps);
             dialog.ShowDialog();
+        }
+
+        private void LoadB_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                List<Linker.DoublePoint> points = new List<Linker.DoublePoint>();
+                using (StreamReader sr = new StreamReader(LoadT.Text))
+                {
+                    string line = null;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        string[] pair = line.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        double x = double.Parse(pair[0]);
+                        double y = double.Parse(pair[1]);
+                        points.Add(new Linker.DoublePoint(x / 100, y / 100));
+                    }
+                }
+
+                Linker.Piece piece = new Linker.Piece();
+                foreach (Linker.DoublePoint dp in points)
+                {
+                    Linker.Point p = new Linker.Point(dp);
+                    if (!piece.Vertexes.Contains(p))
+                        piece.Vertexes.Add(p);
+                }
+                piece = piece.Convert();
+                piece.SortVertexes(Linker.PointSortation.Clockwise);
+
+                double thre = Math.PI / 2;
+                List<Linker.Point> sRem = new List<Linker.Point>();
+                for (int i = 0;piece.Vertexes.Count > i; i++)
+                {
+                    double angle = piece.GetAngle(i);
+                    double dangle = Math.PI - angle;
+                    if (dangle > thre || Math.Abs(angle - Math.PI) <= 0.01)
+                    {
+                        sRem.Add(piece.Vertexes[i]);
+                    }
+                }
+
+                foreach (Linker.Point p in sRem)
+                    piece.Vertexes.Remove(p);
+
+                PieceG.Piece = piece;
+            }
+            catch (Exception) { }
         }
     }
 }

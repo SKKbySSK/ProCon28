@@ -30,8 +30,11 @@ namespace ProCon28.Linker.Extensions
                 p2 = Piece.Vertexes[Vertex + 1];
             }
 
-            double len1 = p1.GetLength(angle), len2 = p2.GetLength(angle);
-            return Math.Acos(((p1.X * p2.X + p1.Y * p2.Y)) / (len1 * len2));
+            p1 -= angle;
+            p2 -= angle;
+            double len1 = p1.GetLength(), len2 = p2.GetLength();
+            double calc = ((p1.X * p2.X) + (p1.Y * p2.Y)) / (len1 * len2);
+            return Math.Acos(calc);
         }
 
         /// <summary>

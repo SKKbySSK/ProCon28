@@ -18,25 +18,25 @@ namespace ProCon28.Algo.Line
             this.End = End;
             this.Length = Length;
             this.PieceNumber = PieceNumber;
-            this.PointNumber = PointNumber;
+            this.LineNumber = PointNumber;
         }
 
-        public LineData(IList<(Point, Point, double)> Lines, int PointNumber, int PieceNumber)
+        public LineData(IList<(Point, Point, double)> Lines, int LineNumber, int PieceNumber)
         {
-            var Line = Lines[PointNumber];
+            var Line = Lines[LineNumber];
 
             Start = Line.Item1;
             End = Line.Item2;
             Length = Line.Item3;
             this.PieceNumber = PieceNumber;
-            this.PointNumber = PointNumber;
+            this.LineNumber = LineNumber;
         }
         
         public Point Start { get; set; }
         public Point End { get; set; }
         public double Length { get; set; }
         public int PieceNumber { get; set; }
-        public int PointNumber { get; set; }
+        public int LineNumber { get; set; }
     }
 
     public class SortedLineDataCollection : IList<LineData>

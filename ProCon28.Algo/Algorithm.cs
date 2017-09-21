@@ -13,7 +13,7 @@ namespace ProCon28.Algo
 
         public ProCon28.Linker.Piece PieceBond(Piece Source1, int n1, Piece Source2, int n2)
         {
-            ProCon28.Linker.Piece p;
+            ProCon28.Linker.Piece p = null;
 
 
 

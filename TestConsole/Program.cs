@@ -14,6 +14,7 @@ namespace TestConsole
         {
             commands.Add(new TcpClient());
             commands.Add(new PyTest());
+            commands.Add(new SortedLineData());
 
             while (true)
             {

@@ -70,6 +70,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PyTest.cs" />
+    <Compile Include="SortedLineData.cs" />
     <Compile Include="TcpClient.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -77,6 +78,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ProCon28.Algo\ProCon28.Algo.csproj">
+      <Project>{683d796b-f0fe-4fe9-99b2-4ce23f3dcfd1}</Project>
+      <Name>ProCon28.Algo</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ProCon28.Linker\ProCon28.Linker.csproj">
       <Project>{5536d5ea-de7d-4568-b616-69d43ed49167}</Project>
       <Name>ProCon28.Linker</Name>

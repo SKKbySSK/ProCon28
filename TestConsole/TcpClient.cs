@@ -17,33 +17,41 @@ namespace TestConsole
             Console.WriteLine("IPアドレス");
             string ip = Console.ReadLine().Replace("\n", "").Replace("\r", "");
             Console.WriteLine("ポート番号(デフォルト:50000)");
-            int port = int.Parse(Console.ReadLine());
-
-            Console.WriteLine("接続アドレスの指定方法\n[0] 手動, [1] リモートピース");
-
-            if(int.TryParse(Console.ReadLine(), out int res))
+            if(int.TryParse(Console.ReadLine(), out int port))
             {
-                switch (res)
-                {
-                    case 0:
-                        Console.WriteLine("URI");
-                        string uri = Console.ReadLine();
-                        Console.WriteLine(GetObject(ip, port, uri));
-                        break;
-                    case 1:
-                        RemotePieces rp = (RemotePieces)GetObject(ip, port, Constants.RemotePiecesUri);
+                Console.WriteLine("接続アドレスの指定方法\n[0] 手動, [1] リモートピース");
 
-                        Console.WriteLine("Date : " + rp.Created);
-                        PieceCollection col = new PieceCollection(rp.BytePieces);
-                        foreach (Piece p in col)
+                if (int.TryParse(Console.ReadLine(), out int res))
+                {
+                    try
+                    {
+                        switch (res)
                         {
-                            Console.WriteLine("Piece - Vertex:{0}, Rotation:{1}", p.Vertexes.Count, p.Rotation);
-                            foreach(Point point in p.Vertexes)
-                            {
-                                Console.WriteLine("[{0}]", point);
-                            }
+                            case 0:
+                                Console.WriteLine("URI");
+                                string uri = Console.ReadLine();
+                                Console.WriteLine(GetObject(ip, port, uri));
+                                break;
+                            case 1:
+                                RemotePieces rp = (RemotePieces)GetObject(ip, port, Constants.RemotePiecesUri);
+
+                                Console.WriteLine("Date : " + rp.Created);
+                                PieceCollection col = new PieceCollection(rp.BytePieces);
+                                foreach (Piece p in col)
+                                {
+                                    Console.WriteLine("Piece - Vertex:{0}, Rotation:{1}", p.Vertexes.Count, p.Rotation);
+                                    foreach (Point point in p.Vertexes)
+                                    {
+                                        Console.WriteLine("[{0}]", point);
+                                    }
+                                }
+                                break;
                         }
-                        break;
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
                 }
             }
         }

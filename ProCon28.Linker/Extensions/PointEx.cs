@@ -50,5 +50,29 @@ namespace ProCon28.Linker.Extensions
             }
             return ls;
         }
+
+        public static Piece PrimaryConversion(this Piece Piece, double m11, double m12, double m21, double m22)
+        {
+            Piece p = (Piece)Piece.Clone();
+            Piece a = p;
+            PointCollection c = p.Vertexes;
+            bool change = false;
+            for (int i = 0; i < c.Count; i++)
+            {
+                double UpdateX = m11 * c[i].X + m12 * c[i].Y;
+                double UpdateY = m21 * c[i].X + m22 * c[i].Y;
+                Point UpdatePoint = new Point((int)UpdateX, (int)UpdateY);
+                c[i] = UpdatePoint;
+                if (Math.Abs(UpdateX - Math.Truncate(UpdateX)) > 0.0001 || Math.Abs(UpdateY - Math.Truncate(UpdateY)) > 0.0001)
+                {
+                    change = true;
+                }
+            }
+            if (change) { p = a; }
+
+            return p;
+        }
     }
+
 }
+

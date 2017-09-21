@@ -11,9 +11,9 @@ namespace ProCon28.Algo
     {
         public Algorithm() { }
 
-        public ProCon28.Linker.Piece PieceBond(Piece Source1, int n1, Piece Source2, int n2)
+        public Piece PieceBond(Piece Source1, int n1, Piece Source2, int n2)
         {
-            ProCon28.Linker.Piece p = null;
+            Piece p = null;
 
 
 

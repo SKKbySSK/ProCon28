@@ -28,6 +28,11 @@ namespace ProCon28.Algo
             InitializeComponent();
         }
 
+        public void UpdataPieceCollectionScreen()
+        {
+
+        }
+
         private void import_Click(object sender, RoutedEventArgs e)
         {
             //これ使ってね

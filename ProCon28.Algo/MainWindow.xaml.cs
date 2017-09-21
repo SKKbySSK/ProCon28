@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ProCon28.Linker.Extensions;
 using System.Collections.ObjectModel;
+using ProCon28.Linker;
 
 namespace ProCon28.Algo
 {
@@ -29,7 +30,8 @@ namespace ProCon28.Algo
 
         private void import_Click(object sender, RoutedEventArgs e)
         {
-
+            //これ使ってね
+            PieceCollection pcol = new PieceCollection();
         }
     }
 }

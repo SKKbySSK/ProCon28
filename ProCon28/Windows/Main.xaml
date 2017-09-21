@@ -13,7 +13,7 @@
         <Controls:PieceGenerator x:Name="PieceG" Margin="10,35,216,10"/>
         <Controls:PieceViewer x:Name="PieceList" HorizontalAlignment="Right" Width="211" Background="#FFF7F7F7" SelectedPieceChanged="PieceList_SelectedPieceChanged" Margin="0,0,0,44"/>
         <Button x:Name="AddB" Content="リストへ追加" Margin="170,10,0,0" VerticalAlignment="Top" Click="AddB_Click" HorizontalAlignment="Left" Width="75"/>
-        <Button x:Name="TransportB" Content="転送" HorizontalAlignment="Left" Margin="912,569,0,0" VerticalAlignment="Top" Width="201" Height="29" Click="TransportB_Click"/>
+        <Button x:Name="TransportB" Content="転送" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="201" Height="29" Click="TransportB_Click"/>
 
     </Grid>
 </Window>

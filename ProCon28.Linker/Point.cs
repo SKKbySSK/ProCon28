@@ -87,6 +87,11 @@ namespace ProCon28.Linker
         }
     }
 
+    public class SortedPointCollection : IList<Point>
+    {
+
+    }
+
     public enum PointSortation
     {
         /// <summary>

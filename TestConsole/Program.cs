@@ -13,13 +13,14 @@ namespace TestConsole
         static void Main(string[] args)
         {
             commands.Add(new TcpClient());
+            commands.Add(new PyTest());
 
             while (true)
             {
                 int i = 0;
                 foreach (IConsole c in commands)
                 {
-                    Console.Write("[{0}] {1}", i, c.Title);
+                    Console.Write("[{0}] {1}, ", i, c.Title);
                     i++;
                 }
                 Console.Write("\n");

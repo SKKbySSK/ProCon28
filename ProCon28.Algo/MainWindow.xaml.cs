@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using ProCon28.Linker.Extensions;
 using System.Collections.ObjectModel;
 using ProCon28.Linker;
+using ProCon28.Algo.Line;
 
 namespace ProCon28.Algo
 {
@@ -28,15 +29,12 @@ namespace ProCon28.Algo
             InitializeComponent();
         }
 
-        public void UpdataPieceCollectionScreen()
-        {
-
-        }
-
         private void import_Click(object sender, RoutedEventArgs e)
         {
             //これ使ってね
             PieceCollection pcol = new PieceCollection();
+
+            Algorithm AlgoLithm = new Algorithm(pcol);
         }
     }
 }

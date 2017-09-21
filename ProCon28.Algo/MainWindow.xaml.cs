@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ProCon28.Linker.Extensions;
+using System.Collections.ObjectModel;
 
 namespace ProCon28.Algo
 {
@@ -23,6 +25,11 @@ namespace ProCon28.Algo
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void import_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

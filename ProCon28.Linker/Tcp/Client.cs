@@ -9,7 +9,7 @@ using System.Runtime.Remoting.Channels.Tcp;
 
 namespace ProCon28.Linker.Tcp
 {
-    public class Client
+    public class Client : IDisposable
     {
         string channel;
         int port;
@@ -24,11 +24,21 @@ namespace ProCon28.Linker.Tcp
             client = new TcpClientChannel();
         }
 
+        public void Dispose()
+        {
+            if (client != null)
+            {
+                ChannelServices.UnregisterChannel(client);
+                client = null;
+            }
+            GC.SuppressFinalize(this);
+        }
+
         public MarshalByRefObject GetObject(Type RemoteObject)
         {
             try
             {
-                ChannelServices.RegisterChannel(client, true);
+                ChannelServices.RegisterChannel(client, false);
                 MarshalByRefObject obj = Activator.GetObject(RemoteObject, "tcp://" + channel + ":" + port + "/" + uri) as MarshalByRefObject;
                 return obj;
             }

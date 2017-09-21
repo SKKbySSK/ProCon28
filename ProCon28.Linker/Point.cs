@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ProCon28.Linker.Extensions;
+using System.Runtime.Serialization;
+using System.IO;
 
 namespace ProCon28.Linker
 {
@@ -18,10 +20,29 @@ namespace ProCon28.Linker
 
         public int X { get; set; }
         public int Y { get; set; }
-    }
 
+        public override string ToString()
+        {
+            return X + "," + Y;
+        }
+    }
+    
     public class PointCollection : ObservableCollection<Point>
     {
+        public PointCollection() { }
+        public PointCollection(byte[] Bytes)
+        {
+            using(MemoryStream ms = new MemoryStream(Bytes))
+            using(BinaryReader br = new BinaryReader(ms))
+            {
+                int count = br.ReadInt32();
+                for(int i = 0;count > i; i++)
+                {
+                    Add(new Point(br.ReadInt32(), br.ReadInt32()));
+                }
+            }
+        }
+
         public PointCollection Sort(PointSortation Sortation)
         {
             Point min = this[0];
@@ -47,6 +68,22 @@ namespace ProCon28.Linker
             }
 
             return col;
+        }
+
+        public byte[] AsBytes()
+        {
+            using(MemoryStream ms = new MemoryStream())
+            using(BinaryWriter bw = new BinaryWriter(ms))
+            {
+                bw.Write(Count);
+                foreach(Point p in this)
+                {
+                    bw.Write(p.X);
+                    bw.Write(p.Y);
+                }
+
+                return ms.ToArray();
+            }
         }
     }
 

@@ -11,20 +11,20 @@ namespace ProCon28.Linker.Extensions
         /// <summary>
         /// 0位置を基準とした点との距離を計算します
         /// </summary>
-        public static float GetLength(this Point Point)
+        public static double GetLength(this Point Point)
         {
-            return (Point.X * Point.X) + (Point.Y * Point.Y);
+            return Math.Sqrt((Point.X * Point.X) + (Point.Y * Point.Y));
         }
 
         /// <summary>
         /// 2点間の距離を計算します
         /// </summary>
-        public static float GetLength(this Point From, Point To)
+        public static double GetLength(this Point From, Point To)
         {
             return GetLength(new Point(From.X - To.X, From.Y - To.Y));
         }
 
-        public static IEnumerable<(Point, Point)> AsLines(this PointCollection Points)
+        public static ICollection<(Point, Point)> AsLines(this PointCollection Points)
         {
             List<(Point, Point)> ls = new List<(Point, Point)>();
 
@@ -37,6 +37,17 @@ namespace ProCon28.Linker.Extensions
                     ls.Add((Points[i - 1], Points[i]));
             }
 
+            return ls;
+        }
+
+        public static ICollection<(Point, Point, double)> AsLinesWithLength(this PointCollection Points)
+        {
+            var lines = AsLines(Points);
+            List<(Point, Point, double)> ls = new List<(Point, Point, double)>();
+            foreach(var l in lines)
+            {
+                ls.Add((l.Item1, l.Item2, GetLength(l.Item1, l.Item2)));
+            }
             return ls;
         }
     }

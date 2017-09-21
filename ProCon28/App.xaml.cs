@@ -13,5 +13,14 @@ namespace ProCon28
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            Current.Exit += Current_Exit;
+        }
+
+        private void Current_Exit(object sender, ExitEventArgs e)
+        {
+            Config.Save();
+        }
     }
 }

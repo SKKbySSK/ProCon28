@@ -8,7 +8,7 @@ namespace ProCon28.Linker.Extensions
 {
     public static class PieceEx
     {
-        public static float GetAngle(this Piece Piece, int Vertex)
+        public static double GetAngle(this Piece Piece, int Vertex)
         {
             Point p1, p2;
             Point angle = Piece.Vertexes[Vertex];
@@ -30,8 +30,8 @@ namespace ProCon28.Linker.Extensions
                 p2 = Piece.Vertexes[Vertex + 1];
             }
 
-            float len1 = p1.GetLength(angle), len2 = p2.GetLength(angle);
-            return (float)Math.Acos(((p1.X * p2.X + p1.Y * p2.Y)) / (len1 * len2));
+            double len1 = p1.GetLength(angle), len2 = p2.GetLength(angle);
+            return Math.Acos(((p1.X * p2.X + p1.Y * p2.Y)) / (len1 * len2));
         }
 
         /// <summary>

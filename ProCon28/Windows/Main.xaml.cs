@@ -78,5 +78,14 @@ namespace ProCon28.Windows
                 PieceG.Piece = PieceList.SelectedPiece;
             }
         }
+
+        private void TransportB_Click(object sender, RoutedEventArgs e)
+        {
+            Linker.Tcp.RemotePieces ps = new Linker.Tcp.RemotePieces();
+            ps.BytePieces = PieceList.Pieces.AsBytes();
+
+            MarshalDialog dialog = new MarshalDialog(ps);
+            dialog.ShowDialog();
+        }
     }
 }

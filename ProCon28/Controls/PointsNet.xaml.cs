@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Reactive.Bindings;
 using ProCon28.Linker;
+using System.Collections.ObjectModel;
 
 namespace ProCon28.Controls
 {
@@ -36,8 +37,9 @@ namespace ProCon28.Controls
         public event EventHandler VertexAdded;
         public event EventHandler VertexRemoved;
         public event EventHandler VertexMoved;
+        public event EventHandler PieceChanged;
 
-       double Vspace = 0, Hspace = 0;
+        double Vspace = 0, Hspace = 0;
 
         List<PointRectangle> rect = new List<PointRectangle>();
 
@@ -49,7 +51,14 @@ namespace ProCon28.Controls
             {
                 _piece = value;
                 UpdateLines();
+                PieceChanged?.Invoke(this, new EventArgs());
             }
+        }
+
+        ObservableCollection<(Linker.Point, Linker.Point)> lines = new ObservableCollection<(Linker.Point, Linker.Point)>();
+        public IList<(Linker.Point, Linker.Point)> DrawLines
+        {
+            get { return lines; }
         }
 
         public void RedrawPiece()
@@ -83,6 +92,12 @@ namespace ProCon28.Controls
         {
             InitializeComponent();
             UpdatePoints();
+            lines.CollectionChanged += Lines_CollectionChanged;
+        }
+
+        private void Lines_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            UpdateLines();
         }
 
         private static void Points_PropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
@@ -105,9 +120,36 @@ namespace ProCon28.Controls
             foreach (PointRectangle pr in rect)
                 pr.Reactangle.Fill = Brushes.Black;
 
+            int count = DrawLines.Count;
+            for (int i = 0; count > i; i++)
+            {
+                (Linker.Point, Linker.Point) ps = DrawLines[i];
+                Linker.Point p1 = ps.Item1;
+                Linker.Point p2 = ps.Item2;
+
+                PointRectangle pr1 = FindPoint(p1);
+                PointRectangle pr2 = FindPoint(p2);
+                if (pr1 != null && pr2 != null)
+                {
+                    pr1.Reactangle.Fill = Brushes.Orange;
+                    pr2.Reactangle.Fill = Brushes.Orange;
+
+                    Line line = new Line();
+                    line.Stroke = Brushes.Blue;
+                    line.StrokeThickness = 10;
+                    line.HorizontalAlignment = HorizontalAlignment.Left;
+                    line.VerticalAlignment = VerticalAlignment.Top;
+                    line.X1 = pr1.Left + 5;
+                    line.Y1 = pr1.Top + 5;
+                    line.X2 = pr2.Left + 5;
+                    line.Y2 = pr2.Top + 5;
+                    ParentG.Children.Insert(0, line);
+                }
+            }
+
             if (Piece == null) return;
 
-            int count = MaximumVertexCount > -1 ? Math.Min(Piece.Vertexes.Count, MaximumVertexCount) : Piece.Vertexes.Count;
+            count = MaximumVertexCount > -1 ? Math.Min(Piece.Vertexes.Count, MaximumVertexCount) : Piece.Vertexes.Count;
             for (int i = 0; count > i; i++)
             {
                 Linker.Point p1;
@@ -216,8 +258,10 @@ namespace ProCon28.Controls
             UpdatePoints();
         }
 
-        bool drag = false;
+        bool ldrag = false;
+        bool rdrag = false;
         int vertex = -1;
+        System.Windows.Point lastpos;
 
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -227,7 +271,7 @@ namespace ProCon28.Controls
 
             if(e.LeftButton == MouseButtonState.Pressed)
             {
-                drag = true;
+                ldrag = true;
                 vertex = -1;
                 MouseCanvas.CaptureMouse();
                 for(int i = 0;Piece.Vertexes.Count > i; i++)
@@ -240,14 +284,16 @@ namespace ProCon28.Controls
                     }
                 }
             }
-            else if(e.MiddleButton == MouseButtonState.Pressed)
+            if(e.MiddleButton == MouseButtonState.Pressed)
             {
                 Piece.Vertexes.Add(new Linker.Point(pr.X, pr.Y));
                 VertexAdded?.Invoke(this, new EventArgs());
                 UpdateLines();
             }
-            else if(e.RightButton == MouseButtonState.Pressed)
+            if(e.RightButton == MouseButtonState.Pressed)
             {
+                rdrag = true;
+                MouseCanvas.CaptureMouse();
                 for (int i = 0; Piece.Vertexes.Count > i; i++)
                 {
                     Linker.Point point = Piece.Vertexes[i];
@@ -258,26 +304,98 @@ namespace ProCon28.Controls
                     }
                 }
                 UpdateLines();
+
+                RemoverR.Margin = new Thickness(mouse.X, mouse.Y, 0, 0);
+                RemoverR.Width = 0;
+                RemoverR.Height = 0;
+                RemoverR.Visibility = Visibility.Visible;
+                lastpos = mouse;
             }
         }
 
         private void MouseCanvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            drag = false;
+            if(e.LeftButton == MouseButtonState.Released)
+            {
+                ldrag = false;
+            }
+            if(e.RightButton == MouseButtonState.Released && rdrag)
+            {
+                rdrag = false;
+                RemoverR.Visibility = Visibility.Hidden;
+
+                List<Linker.Point> removed = new List<Linker.Point>();
+                Rect r = new Rect(RemoverR.Margin.Left, RemoverR.Margin.Top, RemoverR.Width, RemoverR.Height);
+                foreach(Linker.Point p in Piece.Vertexes)
+                {
+                    PointRectangle pr = FindPoint(p);
+                    if(pr != null)
+                    {
+                        if((pr.Left >= r.X && r.X + r.Width >= pr.Left) && (pr.Top >= r.Y && r.Y + r.Height >= pr.Top))
+                        {
+                            removed.Add(p);
+                        }
+                    }
+                }
+                foreach (Linker.Point p in removed)
+                    Piece.Vertexes.Remove(p);
+                if(removed.Count > 0)
+                    VertexRemoved?.Invoke(this, new EventArgs());
+
+                UpdateLines();
+            }
             MouseCanvas.ReleaseMouseCapture();
         }
 
         private void MouseCanvas_MouseMove(object sender, MouseEventArgs e)
         {
-            if (drag)
+            System.Windows.Point mouse = e.GetPosition(MouseCanvas);
+            if (ldrag)
             {
-                System.Windows.Point mouse = e.GetPosition(MouseCanvas);
                 PointRectangle pr = FindNearbyPoint(mouse.X, mouse.Y, Hspace / 2, Vspace / 2);
                 if (pr == null || Piece == null || vertex < 0) return;
 
                 Piece.Vertexes[vertex] = new Linker.Point(pr.X, pr.Y);
                 VertexMoved?.Invoke(this, new EventArgs());
                 UpdateLines();
+            }
+            if (rdrag)
+            {
+                System.Windows.Point diff = new System.Windows.Point(mouse.X - lastpos.X, mouse.Y - lastpos.Y);
+                double l = 0, t = 0, w = 0, h = 0;
+                
+                if(diff.X >= 0 && diff.Y >= 0)
+                {
+                    l = lastpos.X;
+                    t = lastpos.Y;
+                    w = diff.X;
+                    h = diff.Y;
+                }
+                else if(diff.X >= 0 && diff.Y <= 0)
+                {
+                    l = lastpos.X;
+                    t = mouse.Y;
+                    w = diff.X;
+                    h = -diff.Y;
+                }
+                else if(diff.X <= 0 && diff.Y >= 0)
+                {
+                    l = mouse.X;
+                    t = lastpos.Y;
+                    w = -diff.X;
+                    h = diff.Y;
+                }
+                else
+                {
+                    l = mouse.X;
+                    t = mouse.Y;
+                    w = -diff.X;
+                    h = -diff.Y;
+                }
+
+                RemoverR.Margin = new Thickness(l, t, 0, 0);
+                RemoverR.Width = w;
+                RemoverR.Height = h;
             }
         }
 

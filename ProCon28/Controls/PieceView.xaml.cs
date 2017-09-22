@@ -55,6 +55,7 @@ namespace ProCon28.Controls
                     mh = p.Y < mh || mh == -1 ? p.Y : mh;
                 }
 
+                PLabel.Foreground = Piece.Vertexes.Count > Constants.MaximumVertex ? Brushes.Red : Brushes.Black;
                 PLabel.Content = string.Format("頂点:{0}, 横幅:{1}, 縦幅:{2}", Piece.Vertexes.Count, w - mw, h - mh);
             }
         }

@@ -85,12 +85,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Batch\ViewModel.cs" />
     <Compile Include="Controls\PieceView.xaml.cs">
       <DependentUpon>PieceView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\PieceViewer.xaml.cs">
       <DependentUpon>PieceViewer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PieceEdit\Blur.cs" />
+    <Compile Include="PieceEdit\ExtractContours.cs" />
+    <Compile Include="PieceEdit\RatioConvert.cs" />
+    <Compile Include="PieceEdit\Straight.cs" />
     <Compile Include="Windows\MarshalDialog.xaml.cs">
       <DependentUpon>MarshalDialog.xaml</DependentUpon>
     </Compile>

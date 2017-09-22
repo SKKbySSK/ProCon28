@@ -6,10 +6,11 @@
              xmlns:local="clr-namespace:ProCon28.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
+    <Grid ClipToBounds="True">
         <Grid x:Name="ParentG" SizeChanged="ParentG_SizeChanged">
 
         </Grid>
         <Canvas x:Name="MouseCanvas" Background="#02FFFFFF" MouseDown="Canvas_MouseDown" MouseUp="MouseCanvas_MouseUp" MouseMove="MouseCanvas_MouseMove"/>
+        <Rectangle Visibility="Hidden" x:Name="RemoverR" Fill="#4CB80F26" Stroke="#99000000" Margin="0" StrokeThickness="3" VerticalAlignment="Top" HorizontalAlignment="Left"/>
     </Grid>
 </UserControl>

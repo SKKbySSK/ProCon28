@@ -47,6 +47,36 @@ namespace ProCon28.Linker
             return new Point(p1.X / p2.X, p1.Y / p2.Y);
         }
 
+        public static Point operator *(Point p1, int x)
+        {
+            return new Point(p1.X * x, p1.Y * x);
+        }
+
+        public static Point operator /(Point p1, int x)
+        {
+            return new Point(p1.X / x, p1.Y / x);
+        }
+
+        public static bool operator ==(Point p1, Point p2)
+        {
+            return p1.X == p2.X && p1.Y == p2.Y;
+        }
+
+        public static bool operator !=(Point p1, Point p2)
+        {
+            return p1.X != p2.X || p1.Y != p2.Y;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Point p)
+            {
+                return p == this;
+            }
+            else
+                return false;
+        }
+
         public override string ToString()
         {
             return X + "," + Y;

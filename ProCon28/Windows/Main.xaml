@@ -8,15 +8,32 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="638.719" Width="1131.19">
     <Grid>
-        <Button Content="ランダム生成" HorizontalAlignment="Left" Margin="672,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click" Height="20"/>
-        <Button Content="ソート, 変換" HorizontalAlignment="Left" Margin="752,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1" Height="20"/>
-        <Controls:PieceGenerator x:Name="PieceG" Margin="10,114,216,10"/>
+        <Controls:PieceGenerator x:Name="PieceG" Margin="208,58,216,10"/>
         <Controls:PieceViewer x:Name="PieceList" HorizontalAlignment="Right" Width="211" Background="#FFF7F7F7" SelectedPieceChanged="PieceList_SelectedPieceChanged" Margin="0,0,0,44"/>
-        <Button x:Name="AddB" Content="リストへ追加" Margin="832,10,0,0" VerticalAlignment="Top" Click="AddB_Click" HorizontalAlignment="Left" Width="75"/>
+        <Button x:Name="AddB" Content="リストへ追加" Margin="288,10,0,0" VerticalAlignment="Top" Click="AddB_Click" HorizontalAlignment="Left" Width="75"/>
         <Button x:Name="TransportB" Content="転送" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="201" Height="29" Click="TransportB_Click"/>
-        <TextBox x:Name="LoadT" HorizontalAlignment="Left" Height="20" Margin="10,10,0,0" TextWrapping="Wrap" Text="result.txt" VerticalAlignment="Top" Width="251"/>
-        <Button x:Name="LoadB" Content="読み込み" HorizontalAlignment="Left" Margin="266,10,0,0" VerticalAlignment="Top" Width="75" Click="LoadB_Click"/>
-        <Slider x:Name="ThresholdS" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="331" Maximum="314" Minimum="1"/>
+        <TextBox x:Name="LoadT" HorizontalAlignment="Left" Height="20" Margin="10,10,0,0" TextWrapping="Wrap" Text="result.txt" VerticalAlignment="Top" Width="198"/>
+        <Button x:Name="LoadB" Content="読み込み" HorizontalAlignment="Left" Margin="208,10,0,0" VerticalAlignment="Top" Width="75" Click="LoadB_Click"/>
+        <ScrollViewer HorizontalAlignment="Left" Margin="0,58,0,183" Width="208">
+            <StackPanel>
+                <ComboBox x:Name="BatchC" ItemsSource="{Binding Path=BatchFiles}"/>
+                <Button x:Name="BatchB" Content="バッチ処理" Click="BatchB_Click"/>
+                <Button x:Name="UndoB" Content="戻す" Click="UndoB_Click" Margin="0,20,0,0"/>
+                <Button x:Name="DuplicateB" Content="重複点除去" Margin="0,20,0,0" Click="DuplicateB_Click"/>
+                <Button x:Name="SortB" Content="ソート" Click="SortB_Click" Margin="0,20,0,0"/>
+                <CheckBox x:Name="SortC" Content="時計回り" IsChecked="True"/>
+                <Button x:Name="BlurB" Click="BlurB_Click" Content="ブラー" Margin="0,20,0,0"/>
+                <Slider x:Name="BlurS" Maximum="30" Minimum="1" Value="15"/>
+                <Button x:Name="StraightB" Content="直線処理" Margin="0,20,0,0" Click="StraightB_Click"/>
+                <Slider x:Name="StraightS" Maximum="1" Minimum="0" Value="0"/>
+                <Button x:Name="RatioB" Content="比率調整" Margin="0,20,0,0" Click="RatioB_Click"/>
+                <Slider x:Name="RatioS" Maximum="1" Minimum="0" Value="0" ValueChanged="RatioS_ValueChanged" IsSnapToTickEnabled="True"/>
+                <TextBox x:Name="RatioT" Text="1"/>
+                <Button x:Name="ContoursB" Content="輪郭抽出" Margin="0,20,0,0" Click="ContoursB_Click"/>
+            </StackPanel>
+        </ScrollViewer>
+        <Controls:PieceView x:Name="PieceP" HorizontalAlignment="Left" Width="208" Height="183" VerticalAlignment="Bottom"/>
+        <Slider x:Name="ThresholdS" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="353" Maximum="100" Minimum="1"/>
 
     </Grid>
 </Window>

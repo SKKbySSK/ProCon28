@@ -29,12 +29,14 @@ namespace ProCon28.Controls
             Net.VertexAdded += (sender, e) => VertexAdded?.Invoke(this, e);
             Net.VertexRemoved += (sender, e) => VertexRemoved?.Invoke(this, e);
             Net.VertexMoved += (sender, e) => VertexMoved?.Invoke(this, e);
+            Net.PieceChanged += (sender, e) => PieceChanged?.Invoke(this, e);
             Initializing = false;
         }
 
         public event EventHandler VertexAdded;
         public event EventHandler VertexRemoved;
         public event EventHandler VertexMoved;
+        public event EventHandler PieceChanged;
 
         public Linker.Piece Piece
         {
@@ -42,17 +44,14 @@ namespace ProCon28.Controls
             set { Net.Piece = value; }
         }
 
+        public IList<(Linker.Point, Linker.Point)> DrawLines
+        {
+            get { return Net.DrawLines; }
+        }
+
         public void RedrawPiece()
         {
             Net.RedrawPiece();
-        }
-
-        public void Fit()
-        {
-            if(Piece != null)
-            {
-
-            }
         }
 
         private void KeepRatioC_Checked(object sender, RoutedEventArgs e)

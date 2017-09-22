@@ -10,6 +10,9 @@ namespace ProCon28.Linker.Extensions
     {
         public static double GetAngle(this Piece Piece, int Vertex)
         {
+            if (Piece.Vertexes.Count < 3)
+                return double.NaN;
+
             Point p1, p2;
             Point angle = Piece.Vertexes[Vertex];
 

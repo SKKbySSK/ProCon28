@@ -16,6 +16,7 @@ namespace ProCon28
         public App()
         {
             Current.Exit += Current_Exit;
+            System.IO.Directory.CreateDirectory("Batch");
         }
 
         private void Current_Exit(object sender, ExitEventArgs e)

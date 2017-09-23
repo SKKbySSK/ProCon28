@@ -38,6 +38,12 @@ namespace ProCon28.Windows
             BatchC.DataContext = Batch.ViewModel.Current;
             if (Batch.ViewModel.Current.BatchFiles.Count > 0)
                 BatchC.SelectedIndex = 0;
+
+            SortC.IsChecked = Config.Current.ClockwiseSort;
+            BlurS.Value = Config.Current.BlurThreshold;
+            StraightS.Value = Config.Current.StraightThreshold;
+            ThresholdS.Value = Config.Current.ImportThreshold;
+            LoadT.Text = Config.Current.LastFileName;
         }
 
         private void PieceG_VertexAdded(object sender, EventArgs e)
@@ -122,6 +128,8 @@ namespace ProCon28.Windows
 
                 Logs.Clear();
                 AppendLog();
+                Config.Current.LastFileName = LoadT.Text;
+                Config.Save();
             }
             catch (Exception) { }
         }
@@ -244,16 +252,21 @@ namespace ProCon28.Windows
                 foreach (string shape in ShapeQRWindow.Result)
                 {
                     if (ShapeQRManager.AddShape(shape))
-                    {
-                        PieceList.Pieces.AddRange(ShapeQRManager.GeneratePieces(shape, out Linker.Frame Frame));
-                        if (Frame != null) PieceList.Pieces.Add(Frame);
-                    }
+                        PieceList.Pieces.AddRange(ShapeQRManager.GeneratePieces(shape));
                 }
             });
 
             ShapeQRWindow.ResultChanged += ev;
             ShapeQRWindow.ShowDialog();
             ShapeQRWindow.ResultChanged -= ev;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Config.Current.ClockwiseSort = SortC.IsChecked ?? false;
+            Config.Current.BlurThreshold = BlurS.Value;
+            Config.Current.StraightThreshold = StraightS.Value;
+            Config.Current.ImportThreshold = ThresholdS.Value;
         }
     }
 }

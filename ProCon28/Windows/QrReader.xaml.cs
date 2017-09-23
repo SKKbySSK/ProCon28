@@ -44,6 +44,9 @@ namespace ProCon28.Windows
 
         private void BeginB_Click(object sender, RoutedEventArgs e)
         {
+            if (int.TryParse(DeviceNumT.Text, out int dev))
+                Config.Current.Camera = dev;
+
             if (cc != null) return;
 
             MultipleC.IsEnabled = false;
@@ -54,7 +57,7 @@ namespace ProCon28.Windows
             Decoder.Reader.TryInverted = InvertC.IsChecked ?? false;
             Decoder.Reader.AutoRotate = RotateC.IsChecked ?? false;
 
-            cc = new CameraCapture(0, "QR");
+            cc = new CameraCapture(Config.Current.Camera, "QR");
             cc.Interruptions.Add(GetResults);
             cc.Begin();
         }
@@ -136,6 +139,16 @@ namespace ProCon28.Windows
         private void ConfirmB_Click(object sender, RoutedEventArgs e)
         {
             Result = ResultT.Text.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (cc != null)
+            {
+                cc.Stop();
+                cc.Dispose();
+                cc = null;
+            }
         }
     }
 }

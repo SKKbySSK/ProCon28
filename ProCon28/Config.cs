@@ -11,6 +11,12 @@ namespace ProCon28
     public class Config
     {
         public int TCP_Port { get; set; } = 50000;
+        public int Camera { get; set; } = 0;
+        public double ImportThreshold { get; set; } = 30;
+        public double BlurThreshold { get; set; } = 10;
+        public double StraightThreshold { get; set; } = 0.1;
+        public bool ClockwiseSort { get; set; } = true;
+        public string LastFileName { get; set; } = "result.txt";
 
         static Lazy<Config> config = new Lazy<Config>(() =>
         {

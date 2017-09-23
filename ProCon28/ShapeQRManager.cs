@@ -21,10 +21,14 @@ namespace ProCon28
             {
                 try
                 {
-                    GeneratePieces(QRShape, out _);
-                    shapes.Add(QRShape);
-                    Console.WriteLine(QRShape);
-                    return true;
+                    if (GeneratePieces(QRShape).Length > 0)
+                    {
+                        shapes.Add(QRShape);
+                        Console.WriteLine(QRShape);
+                        return true;
+                    }
+                    else
+                        return false;
                 }
                 catch (Exception) { return false; }
             }
@@ -32,34 +36,27 @@ namespace ProCon28
                 return false;
         }
 
-        public static Linker.Piece[] GeneratePieces(string QRShape, out Linker.Frame Frame)
+        public static Linker.Piece[] GeneratePieces(string QRShape)
         {
-            Frame = null;
-            Linker.Piece[] pieces = new Linker.Piece[((int)char.GetNumericValue(QRShape[0]))];
+            int pcount = (int)char.GetNumericValue(QRShape[0]);
 
             string[] rawps = QRShape.Remove(0,2).Split(':');
 
-            int pind = 0;
-            foreach(string rpiece in rawps)
+            bool HasFrame = pcount + 1 == rawps.Length;
+
+            Linker.Piece[] pieces = new Linker.Piece[HasFrame ? pcount + 1 : pcount];
+            
+            for(int i = 0;rawps.Length > i; i++)
             {
-                string[] vs = rpiece.Split(' ');
+                string[] vs = rawps[i].Split(' ');
                 int count = int.Parse(vs[0]) * 2;
-                Linker.Piece p = new Linker.Piece();
-                for (int i = 1; count > i; i += 2)
+                Linker.Piece p = (i == rawps.Length - 1 && HasFrame) ? new Linker.Frame() : new Linker.Piece();
+                for (int j = 1; count > j; j += 2)
                 {
-                    Linker.Point point = new Linker.Point(int.Parse(vs[i]), int.Parse(vs[i + 1]));
+                    Linker.Point point = new Linker.Point(int.Parse(vs[j]) * 4, int.Parse(vs[j + 1]) * 4);
                     p.Vertexes.Add(point);
                 }
-                if (pind == pieces.Length)
-                {
-                    Frame = new Linker.Frame(p);
-                    pind++;
-                }
-                else
-                {
-                    pieces[pind] = p;
-                    pind++;
-                }
+                pieces[i] = p;
             }
 
             return pieces.ToArray();

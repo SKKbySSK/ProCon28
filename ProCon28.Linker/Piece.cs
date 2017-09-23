@@ -35,7 +35,7 @@ namespace ProCon28.Linker
         /// ピースのクローンを作成します
         /// </summary>
         /// <returns>クローンされた新しいインスタンスのピース</returns>
-        public object Clone()
+        public virtual object Clone()
         {
             Piece p = new Piece();
             p.Vertexes.AddRange(Vertexes);

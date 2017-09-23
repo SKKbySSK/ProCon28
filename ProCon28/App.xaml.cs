@@ -16,7 +16,25 @@ namespace ProCon28
         public App()
         {
             Current.Exit += Current_Exit;
+            //Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
             System.IO.Directory.CreateDirectory("Batch");
+        }
+
+        private void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            switch (e.Exception)
+            {
+                case IndexOutOfRangeException ex:
+                    e.Handled = true;
+                    break;
+                case ArgumentOutOfRangeException ex:
+                    e.Handled = true;
+                    break;
+                case Exception ex:
+                    if (MessageBox.Show("未知のエラーが発生しました\n\n" + ex.Message + "\n\n続行しますか？", "エラー", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                        e.Handled = true;
+                    break;
+            }
         }
 
         private void Current_Exit(object sender, ExitEventArgs e)

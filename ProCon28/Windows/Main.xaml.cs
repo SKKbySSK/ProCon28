@@ -22,6 +22,7 @@ namespace ProCon28.Windows
     /// </summary>
     public partial class Main : Window
     {
+
         IList<(Linker.Point, Linker.Point)> Lines;
         List<Linker.Piece> Logs = new List<Linker.Piece>();
 
@@ -35,6 +36,8 @@ namespace ProCon28.Windows
 
             PieceG.VertexAdded += PieceG_VertexAdded;
             BatchC.DataContext = Batch.ViewModel.Current;
+            if (Batch.ViewModel.Current.BatchFiles.Count > 0)
+                BatchC.SelectedIndex = 0;
         }
 
         private void PieceG_VertexAdded(object sender, EventArgs e)
@@ -87,7 +90,7 @@ namespace ProCon28.Windows
             ps.BytePieces = PieceList.Pieces.AsBytes();
 
             MarshalDialog dialog = new MarshalDialog(ps);
-            dialog.ShowDialog();
+            dialog.Show();
         }
 
         private void LoadB_Click(object sender, RoutedEventArgs e)
@@ -125,12 +128,14 @@ namespace ProCon28.Windows
 
         private void BlurB_Click(object sender, RoutedEventArgs e)
         {
+            if (PieceG.Piece == null) return;
             PieceG.Piece = PieceEdit.Blur.Run(PieceG.Piece, (int)BlurS.Value);
             AppendLog();
         }
 
         private void StraightB_Click(object sender, RoutedEventArgs e)
         {
+            if (PieceG.Piece == null) return;
             PieceG.Piece = PieceEdit.Straight.Run(PieceG.Piece, StraightS.Value);
             AppendLog();
         }
@@ -142,6 +147,7 @@ namespace ProCon28.Windows
 
         private void SortB_Click(object sender, RoutedEventArgs e)
         {
+            if (PieceG.Piece == null) return;
             if (SortC.IsChecked ?? false)
                 PieceG.Piece.SortVertexes(Linker.PointSortation.Clockwise);
             else
@@ -153,6 +159,7 @@ namespace ProCon28.Windows
         private void RatioS_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             PieceG.DrawLines.Clear();
+            if (PieceG.Piece == null) return;
             if (RatioS.Value > 0)
             {
                 PieceG.DrawLines.Add(Lines[(int)RatioS.Value - 1]);
@@ -161,6 +168,7 @@ namespace ProCon28.Windows
 
         private void RatioB_Click(object sender, RoutedEventArgs e)
         {
+            if (PieceG.Piece == null) return;
             if (RatioS.Value < 1)
                 return;
             if(double.TryParse(RatioT.Text, out double len))
@@ -185,12 +193,14 @@ namespace ProCon28.Windows
 
         private void ContoursB_Click(object sender, RoutedEventArgs e)
         {
+            if (PieceG.Piece == null) return;
             PieceG.Piece = PieceEdit.ExtractContours.Run(PieceG.Piece);
             AppendLog();
         }
 
         private void DuplicateB_Click(object sender, RoutedEventArgs e)
         {
+            if (PieceG.Piece == null) return;
             Linker.Piece piece = new Linker.Piece();
             for(int i = 0;PieceG.Piece.Vertexes.Count > i; i++)
             {
@@ -204,11 +214,46 @@ namespace ProCon28.Windows
 
         private void BatchB_Click(object sender, RoutedEventArgs e)
         {
-            if(BatchC.SelectedItem != null)
+            if (PieceG.Piece == null) return;
+            if (BatchC.SelectedItem != null)
             {
                 PieceG.Piece = Batch.ViewModel.Current.Batch(PieceG.Piece, BatchC.SelectedItem.ToString());
                 AppendLog();
             }
+        }
+
+        private void BatchReloadB_Click(object sender, RoutedEventArgs e)
+        {
+            Batch.ViewModel.Current.UpdateFiles();
+            if (Batch.ViewModel.Current.BatchFiles.Count > 0)
+                BatchC.SelectedIndex = 0;
+        }
+
+        private void GcdB_Click(object sender, RoutedEventArgs e)
+        {
+            PieceG.Piece = PieceEdit.GcdConvert.Run(PieceG.Piece);
+            AppendLog();
+        }
+
+        private void ShapeQrB_Click(object sender, RoutedEventArgs e)
+        {
+            QrReader ShapeQRWindow = new QrReader();
+
+            EventHandler ev = new EventHandler((_1, _2) =>
+            {
+                foreach (string shape in ShapeQRWindow.Result)
+                {
+                    if (ShapeQRManager.AddShape(shape))
+                    {
+                        PieceList.Pieces.AddRange(ShapeQRManager.GeneratePieces(shape, out Linker.Frame Frame));
+                        if (Frame != null) PieceList.Pieces.Add(Frame);
+                    }
+                }
+            });
+
+            ShapeQRWindow.ResultChanged += ev;
+            ShapeQRWindow.ShowDialog();
+            ShapeQRWindow.ResultChanged -= ev;
         }
     }
 }

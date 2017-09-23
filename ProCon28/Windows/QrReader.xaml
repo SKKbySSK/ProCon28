@@ -1,0 +1,25 @@
+﻿<Window x:Class="ProCon28.Windows.QrReader"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ProCon28.Windows"
+        mc:Ignorable="d"
+        Title="QrReader" Height="262.811" Width="369.422">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <CheckBox x:Name="RotateC" Content="自動回転" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="80" Checked="RotateC_Checked" Unchecked="RotateC_Unchecked"/>
+        <CheckBox x:Name="InvertC" Content="自動反転（速度低下の可能性あり）" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top" Width="215" Checked="InvertC_Checked" Unchecked="InvertC_Unchecked"/>
+        <CheckBox x:Name="MultipleC" Content="複数同時認識" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Width="215" IsChecked="True"/>
+        <Button x:Name="BeginB" Content="開始" HorizontalAlignment="Right" Margin="0,10,10,10" Width="110" Click="BeginB_Click"/>
+        <TextBox x:Name="ResultT" Margin="10,70,125,3.066" Grid.RowSpan="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+        <Button x:Name="StopB" Content="停止" HorizontalAlignment="Right" Margin="0,10,10,3.066" Width="110" Grid.Row="1" Click="StopB_Click"/>
+        <Button x:Name="ConfirmB" Content="確定" HorizontalAlignment="Left" Margin="117,10,0,0" Grid.Row="2" VerticalAlignment="Top" Width="234" Height="26" Click="ConfirmB_Click"/>
+        <CheckBox x:Name="AutoCloseC" Content="自動認識" HorizontalAlignment="Left" Margin="10,16,0,0" Grid.Row="2" VerticalAlignment="Top" Width="102" IsChecked="True"/>
+
+    </Grid>
+</Window>

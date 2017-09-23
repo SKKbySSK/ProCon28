@@ -26,24 +26,28 @@ namespace ProCon28.PieceEdit
             for(int i = 0;mx >= i; i++)
             {
                 List<Point> vp = GetVerticalStraight(p, i);
-
-                if(vp.Count > 2)
+                int c = vp.Count;
+                if (c > 2)
                 {
                     vp.RemoveRange(1, vp.Count - 2);
                     ret.Vertexes.AddRange(vp);
                 }
+                else if (c == 2)
+                    ret.Vertexes.AddRange(vp);
             }
 
             //横方向            
             for (int i = 0;my >= i; i++)
             {
                 List<Point> hp = GetHorizontalStraight(p, i);
-
-                if (hp.Count > 2)
+                int c = hp.Count;
+                if (c > 2)
                 {
                     hp.RemoveRange(1, hp.Count - 2);
                     ret.Vertexes.AddRange(hp);
                 }
+                else if (c == 2)
+                    ret.Vertexes.AddRange(hp);
             }
 
             return ret;

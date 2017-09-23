@@ -52,6 +52,8 @@ namespace ProCon28.Windows
         private void RetryB_Click(object sender, RoutedEventArgs e)
         {
             DescL.Content = "再試行中";
+            server?.Dispose();
+            server = null;
             Marshal();
         }
 

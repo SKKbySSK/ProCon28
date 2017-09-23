@@ -48,8 +48,10 @@
     <Compile Include="Constants.cs" />
     <Compile Include="DoublePoint.cs" />
     <Compile Include="Extensions\CollectionEx.cs" />
+    <Compile Include="Extensions\MathEx.cs" />
     <Compile Include="Extensions\PieceEx.cs" />
     <Compile Include="Extensions\PointEx.cs" />
+    <Compile Include="Frame.cs" />
     <Compile Include="Piece.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

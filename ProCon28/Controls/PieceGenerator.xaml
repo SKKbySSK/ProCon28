@@ -19,9 +19,9 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal">
             <CheckBox x:Name="KeepRatioC" Content="縦横比を保持" IsChecked="True" VerticalContentAlignment="Center" Checked="KeepRatioC_Checked"/>
             <Label Content="横"/>
-            <Slider x:Name="SliderH" Width="150" Value="10" Maximum="100" SmallChange="1" Minimum="1" IsSnapToTickEnabled="True" ValueChanged="SliderH_ValueChanged"/>
+            <Slider x:Name="SliderH" Width="150" Value="50" Maximum="100" SmallChange="1" Minimum="1" IsSnapToTickEnabled="True" ValueChanged="SliderH_ValueChanged"/>
             <Label Content="縦"/>
-            <Slider x:Name="SliderV" Width="150" Value="10" Maximum="100" SmallChange="1" Minimum="1" IsSnapToTickEnabled="True" ValueChanged="SliderV_ValueChanged"/>
+            <Slider x:Name="SliderV" Width="150" Value="50" Maximum="100" SmallChange="1" Minimum="1" IsSnapToTickEnabled="True" ValueChanged="SliderV_ValueChanged"/>
             <Label Content="描画頂点数"/>
             <Slider x:Name="VertexS" Width="150" Value="-1" Maximum="100" SmallChange="1" Minimum="-1" IsSnapToTickEnabled="True"/>
         </StackPanel>

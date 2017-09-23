@@ -62,6 +62,10 @@ namespace ProCon28.Batch
                                 threshold = double.Parse(args[1]);
                             piece = PieceEdit.Straight.Run(piece, threshold);
                             break;
+                        case "convert":
+                        case "cv":
+                            piece = piece.Convert();
+                            break;
                     }
                 }
             }

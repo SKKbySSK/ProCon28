@@ -61,6 +61,7 @@ namespace ProCon28.Linker.Extensions
 
         public static Piece Convert(this Piece Piece)
         {
+            if (Piece.Vertexes.Count == 0) return Piece;
             Point bp = Piece.Vertexes[0];
             foreach(Point p in Piece.Vertexes)
             {

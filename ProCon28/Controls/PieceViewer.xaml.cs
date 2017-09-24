@@ -35,6 +35,7 @@ namespace ProCon28.Controls
             {
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
                     p = (Linker.Piece)e.NewItems[0];
+                    if (p == null) return;
                     PieceView view = new PieceView() { Piece = p, Margin = new Thickness(20) };
                     view.MouseLeftButtonDown += View_MouseLeftButtonDown;
                     view.MouseRightButtonDown += View_MouseRightButtonDown;

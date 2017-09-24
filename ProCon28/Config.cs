@@ -11,6 +11,9 @@ namespace ProCon28
     public class Config
     {
         public int TCP_Port { get; set; } = 50000;
+        public string TCP_Server_IP { get; set; } = "";
+        public int TCP_Server_Port { get; set; } = 50001;
+
         public int Camera { get; set; } = 0;
         public double ImportThreshold { get; set; } = 30;
         public double BlurThreshold { get; set; } = 10;

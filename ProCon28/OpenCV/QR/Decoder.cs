@@ -15,6 +15,7 @@ namespace ProCon28.OpenCV.QR
         {
             Reader.AutoRotate = true;
             Reader.TryInverted = false;
+            Reader.Options.PossibleFormats = new List<BarcodeFormat>(new BarcodeFormat[] { BarcodeFormat.QR_CODE });
         }
 
         public static BarcodeReader Reader { get; } = new BarcodeReader();
@@ -22,7 +23,6 @@ namespace ProCon28.OpenCV.QR
         public static string Decode(System.Drawing.Bitmap Image)
         {
             Result res = Reader.Decode(Image);
-
             return res == null ? "" : (res.Text == null ? "" : res.Text);
         }
 
@@ -42,7 +42,9 @@ namespace ProCon28.OpenCV.QR
             {
                 string[] ret = new string[results.Length];
                 for (int i = 0; results.Length > i; i++)
+                {
                     ret[i] = results[i].Text;
+                }
 
                 return ret;
             }

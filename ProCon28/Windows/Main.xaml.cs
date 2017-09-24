@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using ProCon28.Linker.Extensions;
 using System.IO;
 
@@ -29,6 +30,9 @@ namespace ProCon28.Windows
         public Main()
         {
             InitializeComponent();
+
+            Log.MainWindow = this;
+
             PieceG.VertexAdded += PieceG_Vertex;
             PieceG.VertexMoved += PieceG_Vertex;
             PieceG.VertexRemoved += PieceG_Vertex;
@@ -44,6 +48,7 @@ namespace ProCon28.Windows
             StraightS.Value = Config.Current.StraightThreshold;
             ThresholdS.Value = Config.Current.ImportThreshold;
             LoadT.Text = Config.Current.LastFileName;
+            ServerT.Text = Config.Current.TCP_Server_IP;
         }
 
         private void PieceG_VertexAdded(object sender, EventArgs e)
@@ -130,8 +135,13 @@ namespace ProCon28.Windows
                 AppendLog();
                 Config.Current.LastFileName = LoadT.Text;
                 Config.Save();
+                Log.WriteLine("Succesfully load file : " + LoadT.Text);
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+                Log.WriteLine("Failed to load file : " + LoadT.Text);
+                Log.WriteLine(ex.Message);
+            }
         }
 
         private void BlurB_Click(object sender, RoutedEventArgs e)
@@ -247,13 +257,29 @@ namespace ProCon28.Windows
         {
             QrReader ShapeQRWindow = new QrReader();
 
-            EventHandler ev = new EventHandler((_1, _2) =>
+            EventHandler ev = null;
+            ev = new EventHandler((_1, _2) =>
             {
-                foreach (string shape in ShapeQRWindow.Result)
+                ShapeQRWindow.ResultChanged -= ev;
+
+                string[] copied = new string[ShapeQRWindow.Result.Length];
+                for(int i = 0;ShapeQRWindow.Result.Length > i; i++)
                 {
-                    if (ShapeQRManager.AddShape(shape))
-                        PieceList.Pieces.AddRange(ShapeQRManager.GeneratePieces(shape));
+                    copied[i] = ShapeQRWindow.Result[i];
                 }
+
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    foreach (string shape in copied)
+                    {
+                        if (ShapeQRManager.AddShape(shape))
+                        {
+                            PieceList.Pieces.AddRange(ShapeQRManager.GeneratePieces(shape));
+                            System.Threading.Thread.Sleep(200);
+                        }
+                    }
+                    ShapeQRWindow.ResultChanged += ev;
+                }));
             });
 
             ShapeQRWindow.ResultChanged += ev;
@@ -268,5 +294,81 @@ namespace ProCon28.Windows
             Config.Current.StraightThreshold = StraightS.Value;
             Config.Current.ImportThreshold = ThresholdS.Value;
         }
+
+        public void Append(object Format, params object[] Args)
+        {
+            Dispatcher.BeginInvoke(new Action(() => ConsoleT.AppendText(string.Format(Format.ToString(), Args))));
+        }
+
+        public void Append(object Text)
+        {
+            Dispatcher.BeginInvoke(new Action(() => ConsoleT.AppendText(Text.ToString())));
+        }
+
+        private void EmptyB_Click(object sender, RoutedEventArgs e)
+        {
+            PieceG.Piece = new Linker.Piece();
+        }
+
+        #region CommunicateWithServer
+        Linker.Tcp.Client client;
+        DispatcherTimer ctimer;
+        private void ConnectB_Click(object sender, RoutedEventArgs e)
+        {
+            if (ctimer == null)
+            {
+                ctimer = new DispatcherTimer(DispatcherPriority.Normal, Dispatcher);
+                ctimer.Interval = TimeSpan.FromMilliseconds(500);
+                ctimer.Tick += Ctimer_Tick;
+            }
+
+            if (client == null)
+            {
+                Config.Current.TCP_Server_IP = ServerT.Text;
+                client = new Linker.Tcp.Client(ServerT.Text, Config.Current.TCP_Server_Port, Linker.Constants.RemoteRecognizerUri);
+                ConnectB.Content = "停止";
+                ctimer.Start();
+            }
+            else
+            {
+                StateL.Content = "停止";
+                client.Dispose();
+                client = null;
+                ctimer.Stop();
+                ConnectB.Content = "接続";
+            }
+        }
+
+        private void Ctimer_Tick(object sender, EventArgs e)
+        {
+            if(client != null)
+            {
+                StateL.Content = "取得中";
+
+                try
+                {
+                    var piece = (Linker.Tcp.RemotePiece)client.GetObject(typeof(Linker.Tcp.RemotePiece));
+                    PieceList.Pieces.Add(new Linker.Piece(piece.RawPiece));
+
+                    client.Dispose();
+                    client = new Linker.Tcp.Client(Config.Current.TCP_Server_IP, Config.Current.TCP_Server_Port, Linker.Constants.RemoteRecognizerUri);
+
+                    StateL.Content = "取得完了";
+                }
+                catch (Exception ex)
+                {
+                    client.Dispose();
+                    client = null;
+                    ctimer.Stop();
+                    Log.WriteLine(ex.Message);
+                    StateL.Content = "エラー";
+                    ConnectB.Content = "接続";
+                }
+            }
+        }
+
+
+
+        #endregion
     }
 }

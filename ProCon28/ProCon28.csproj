@@ -111,6 +111,7 @@
     <Compile Include="Controls\PieceViewer.xaml.cs">
       <DependentUpon>PieceViewer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Log.cs" />
     <Compile Include="OpenCV\CameraCapture.cs" />
     <Compile Include="OpenCV\QR\Decoder.cs" />
     <Compile Include="PieceEdit\Blur.cs" />

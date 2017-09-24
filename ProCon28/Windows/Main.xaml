@@ -6,15 +6,23 @@
         xmlns:local="clr-namespace:ProCon28"
         xmlns:Controls="clr-namespace:ProCon28.Controls" x:Class="ProCon28.Windows.Main"
         mc:Ignorable="d"
-        Title="MainWindow" Height="638.719" Width="1131.19" Closing="Window_Closing">
+        Title="MainWindow" Height="716.719" Width="1131.19" Closing="Window_Closing">
     <Grid>
-        <Controls:PieceGenerator x:Name="PieceG" Margin="208,58,216,10"/>
-        <Controls:PieceViewer x:Name="PieceList" HorizontalAlignment="Right" Width="216" Background="#FFF7F7F7" SelectedPieceChanged="PieceList_SelectedPieceChanged" Margin="0,0,0,44"/>
-        <Button x:Name="AddB" Content="リストへ追加" Margin="288,10,0,0" VerticalAlignment="Top" Click="AddB_Click" HorizontalAlignment="Left" Width="75"/>
-        <Button x:Name="TransportB" Content="転送" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="201" Height="29" Click="TransportB_Click"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="187"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="105"/>
+        </Grid.RowDefinitions>
+        <Controls:PieceGenerator x:Name="PieceG" Margin="208,58,0,0"/>
+        <Controls:PieceViewer x:Name="PieceList" Background="#FFF7F7F7" SelectedPieceChanged="PieceList_SelectedPieceChanged" Margin="0,0,0,44" Grid.Column="1" Grid.RowSpan="2"/>
+        <Button x:Name="AddB" Content="リストへ追加" Margin="288,10,0,0" VerticalAlignment="Top" Click="AddB_Click" HorizontalAlignment="Left" Width="75" Height="20"/>
+        <Button x:Name="TransportB" Content="転送" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="167" Height="29" Click="TransportB_Click" Grid.Column="1" Grid.Row="1"/>
         <TextBox x:Name="LoadT" HorizontalAlignment="Left" Height="20" Margin="10,10,0,0" TextWrapping="Wrap" Text="result.txt" VerticalAlignment="Top" Width="198"/>
-        <Button x:Name="LoadB" Content="読み込み" HorizontalAlignment="Left" Margin="208,10,0,0" VerticalAlignment="Top" Width="75" Click="LoadB_Click"/>
-        <ScrollViewer HorizontalAlignment="Left" Margin="0,58,0,183" Width="208">
+        <Button x:Name="LoadB" Content="読み込み" HorizontalAlignment="Left" Margin="208,10,0,0" VerticalAlignment="Top" Width="75" Click="LoadB_Click" Height="20"/>
+        <ScrollViewer HorizontalAlignment="Left" Margin="0,58,0,173" Width="208">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <ComboBox x:Name="BatchC" ItemsSource="{Binding Path=BatchFiles}" Width="150"/>
@@ -36,10 +44,15 @@
                 <Button x:Name="ContoursB" Content="輪郭抽出" Margin="0,20,0,0" Click="ContoursB_Click"/>
             </StackPanel>
         </ScrollViewer>
-        <Controls:PieceView x:Name="PieceP" HorizontalAlignment="Left" Width="208" Height="183" VerticalAlignment="Bottom"/>
-        <Slider x:Name="ThresholdS" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="353" Maximum="100" Minimum="1"/>
-        <Button x:Name="ShapeQrB" Content="形状情報" HorizontalAlignment="Right" Margin="0,10,221,0" VerticalAlignment="Top" Width="75" Click="ShapeQrB_Click"/>
-        <Button x:Name="PlaceQrB" Content="配置情報" HorizontalAlignment="Right" Margin="0,10,301,0" VerticalAlignment="Top" Width="75"/>
+        <Controls:PieceView x:Name="PieceP" HorizontalAlignment="Left" Width="208" Height="147" VerticalAlignment="Bottom"/>
+        <Slider x:Name="ThresholdS" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="353" Maximum="100" Minimum="1" Height="18"/>
+        <Button x:Name="ShapeQrB" Content="形状情報" HorizontalAlignment="Right" Margin="0,10,2,0" VerticalAlignment="Top" Width="75" Click="ShapeQrB_Click" Height="20"/>
+        <Button x:Name="PlaceQrB" Content="配置情報" HorizontalAlignment="Right" Margin="0,10,82,0" VerticalAlignment="Top" Width="75" Height="20"/>
+        <TextBox x:Name="ConsoleT" Grid.Row="1" TextWrapping="Wrap" Background="Black" Foreground="White" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="213,0,0,0"/>
+        <Button x:Name="EmptyB" Content="空ピース" HorizontalAlignment="Left" Margin="368,10,0,0" VerticalAlignment="Top" Width="75" Click="EmptyB_Click"/>
+        <TextBox x:Name="ServerT" HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Width="198"/>
+        <Button x:Name="ConnectB" Content="接続" HorizontalAlignment="Left" Margin="10,0,0,10" Grid.Row="1" VerticalAlignment="Bottom" Width="198" Click="ConnectB_Click"/>
+        <Label x:Name="StateL" Content="停止" HorizontalAlignment="Left" Margin="10,38,0,0" Grid.Row="1" VerticalAlignment="Top" Height="32" Width="198"/>
 
     </Grid>
 </Window>

@@ -15,6 +15,7 @@ namespace ProCon28.Linker.Tcp
         int port;
         string uri;
         TcpClientChannel client;
+        bool reg = false;
 
         public Client(string Channel, int Port, string Uri)
         {
@@ -26,9 +27,13 @@ namespace ProCon28.Linker.Tcp
 
         public void Dispose()
         {
-            if (client != null)
+            if (client != null && reg)
             {
-                ChannelServices.UnregisterChannel(client);
+                try
+                {
+                    ChannelServices.UnregisterChannel(client);
+                }
+                catch (Exception) { }
                 client = null;
             }
             GC.SuppressFinalize(this);
@@ -39,6 +44,7 @@ namespace ProCon28.Linker.Tcp
             try
             {
                 ChannelServices.RegisterChannel(client, false);
+                reg = true;
                 MarshalByRefObject obj = Activator.GetObject(RemoteObject, "tcp://" + channel + ":" + port + "/" + uri) as MarshalByRefObject;
                 return obj;
             }

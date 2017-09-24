@@ -72,6 +72,7 @@
     <Compile Include="PyTest.cs" />
     <Compile Include="SortedLineData.cs" />
     <Compile Include="TcpClient.cs" />
+    <Compile Include="TcpServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

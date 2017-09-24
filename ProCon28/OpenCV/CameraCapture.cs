@@ -21,6 +21,7 @@ namespace ProCon28.OpenCV
             window = new Window(Window);
 
             captureTask = Task.Run(action: Capture);
+            Log.WriteLine("OpenCV Initialized [Camera : {0}, Window : {1}]", Device, Window);
         }
 
         public void Begin()
@@ -77,6 +78,7 @@ namespace ProCon28.OpenCV
                 }
             }
 
+            Log.WriteLine("Disposing the device...");
             Window.DestroyAllWindows();
             if (window != null)
             {
@@ -84,6 +86,7 @@ namespace ProCon28.OpenCV
                 window.Dispose();
                 window = null;
             }
+            Log.WriteLine("Device was disposed");
         }
 
         public IList<Action<Mat>> Interruptions { get; } = new List<Action<Mat>>();

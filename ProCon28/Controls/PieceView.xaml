@@ -11,7 +11,7 @@
             <RowDefinition/>
             <RowDefinition Height="36"/>
         </Grid.RowDefinitions>
-        <Label x:Name="PLabel" Grid.Row="1" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Label x:Name="PLabel" Grid.Row="1" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="9"/>
         <Image x:Name="PImage"/>
 
     </Grid>

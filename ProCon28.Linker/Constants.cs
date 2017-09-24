@@ -10,6 +10,7 @@ namespace ProCon28.Linker
     {
         public const string ConfigFileName = "ProConfig.xml";
         public const string RemotePiecesUri = "Pieces";
+        public const string RemoteRecognizerUri = "Recognized";
 
         /// <summary>
         /// 最大のピース数

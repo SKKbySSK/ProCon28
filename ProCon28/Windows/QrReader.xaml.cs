@@ -83,17 +83,16 @@ namespace ProCon28.Windows
 
                 if(res.Length > 0)
                 {
+                    if (Auto)
+                    {
+                        Result = res;
+                    }
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         ResultT.Text = "";
                         foreach (string r in res)
                         {
                             ResultT.Text += r + "\r\n";
-                        }
-
-                        if (Auto)
-                        {
-                            Result = res;
                         }
                     }));
                 }
@@ -104,13 +103,13 @@ namespace ProCon28.Windows
 
                 if (res != "")
                 {
+                    if (Auto)
+                    {
+                        Result = new string[] { res };
+                    }
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         ResultT.Text = res;
-                        if (Auto)
-                        {
-                            Result = new string[] { res };
-                        }
                     }));
                 }
             }

@@ -13,12 +13,12 @@ namespace ProCon28
         public static void WriteLine(object Format, params object[] Args)
         {
             string line = string.Format(Format.ToString(), Args) + "\r\n";
-            MainWindow.Append(line);
+            MainWindow?.Append(line);
         }
 
         public static void Write(object Format, params object[] Args)
         {
-            MainWindow.Append(Format.ToString(), Args);
+            MainWindow?.Append(Format.ToString(), Args);
         }
     }
 }

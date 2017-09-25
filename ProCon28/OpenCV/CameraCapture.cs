@@ -7,7 +7,7 @@ using OpenCvSharp;
 
 namespace ProCon28.OpenCV
 {
-    class CameraCapture : IDisposable
+    public class CameraCapture : IDisposable
     {
         bool disposing = false;
         bool retrieve = false;
@@ -15,13 +15,26 @@ namespace ProCon28.OpenCV
         Window window;
         VideoCapture capture;
 
+        public event EventHandler MouseClicked;
+
         public CameraCapture(int Device, string Window)
         {
             capture = new VideoCapture(Device);
             window = new Window(Window);
+            window.OnMouseCallback += Window_OnMouseCallback;
 
             captureTask = Task.Run(action: Capture);
             Log.WriteLine("OpenCV Initialized [Camera : {0}, Window : {1}]", Device, Window);
+        }
+
+        private void Window_OnMouseCallback(MouseEvent @event, int x, int y, MouseEvent flags)
+        {
+            switch (@event)
+            {
+                case MouseEvent.LButtonDown:
+                    MouseClicked?.Invoke(this, new EventArgs());
+                    break;
+            }
         }
 
         public void Begin()

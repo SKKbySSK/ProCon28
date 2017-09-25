@@ -12,6 +12,7 @@ namespace TestConsole
 
         static void Main(string[] args)
         {
+            commands.Add(new CameraCalibration());
             commands.Add(new TcpClient());
             commands.Add(new TcpServer());
             commands.Add(new PyTest());

@@ -48,6 +48,8 @@ namespace ProCon28.Windows
             InitializeComponent();
             DataContext = this;
             UpdateCalibrations();
+
+            ScaleS.Value = Config.Current.CameraScale;
         }
 
         void UpdateCalibrations()
@@ -157,8 +159,27 @@ namespace ProCon28.Windows
             }
         }
 
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Config.Current.CameraScale = ScaleS.Value;
+
+            if(camera != null)
+            {
+                camera.Stop();
+                camera.Dispose();
+                camera = null;
+            }
+
+            Intrinsic?.Dispose();
+            Intrinsic = null;
+
+            Distortion?.Dispose();
+            Distortion = null;
+        }
+
         Mat Calibrate(Mat Image)
         {
+            if (Intrinsic == null || Distortion == null) return null;
             using (Image)
             {
                 Mat ret = new Mat();

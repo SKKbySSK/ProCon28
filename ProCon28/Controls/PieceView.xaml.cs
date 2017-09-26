@@ -41,7 +41,10 @@ namespace ProCon28.Controls
         public void RedrawPiece()
         {
             if (Piece == null)
+            {
                 PImage.Source = null;
+                PLabel.Content = null;
+            }
             else
             {
                 PImage.Source = CreateImage(Piece);

@@ -19,7 +19,7 @@ namespace ProCon28.PieceEdit
             for(int i = 0;p.Vertexes.Count > i; i++)
             {
                 double angle = p.GetAngle(i);
-                if (((2 * Math.PI) - angle <= Threshold * 2) || (Math.PI - angle <= Threshold))
+                if (Math.PI - angle <= Threshold)
                     rem.Add(p.Vertexes[i]);
             }
 

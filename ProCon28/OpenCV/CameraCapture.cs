@@ -53,6 +53,9 @@ namespace ProCon28.OpenCV
         /// <returns></returns>
         public Mat RetrieveMat(bool UseFilters)
         {
+            if (disposing)
+                return null;
+
             Mat mat = capture.RetrieveMat();
 
             if (UseFilters)
@@ -95,9 +98,9 @@ namespace ProCon28.OpenCV
 
                         foreach (var filter in Filters)
                             img = filter(img);
-
                         foreach (Action<Mat> interrupt in Interruptions)
                             interrupt(img);
+
                         window.Image = img;
                     }
                 }
@@ -122,6 +125,10 @@ namespace ProCon28.OpenCV
             disposing = true;
             captureTask.Wait();
             captureTask = null;
+
+            Interruptions.Clear();
+            Filters.Clear();
+
             capture?.Dispose();
             capture = null;
         }

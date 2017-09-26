@@ -77,10 +77,7 @@ namespace ProCon28.Controls
             foreach (PieceView pv in PiecesStack.Children)
                 pv.Background = null;
 
-            if (SelectedPieceView != view)
-                SelectedPiece = view.Piece;
-            else
-                SelectedPiece = null;
+            SelectedPiece = view.Piece;
         }
 
         PieceView _sel = null;
@@ -89,9 +86,6 @@ namespace ProCon28.Controls
             get { return _sel; }
             set
             {
-                if (_sel != null)
-                    _sel.Background = null;
-
                 _sel = value;
 
                 if (_sel != null)
@@ -104,20 +98,29 @@ namespace ProCon28.Controls
             get { return SelectedPieceView == null ? null : SelectedPieceView.Piece; }
             set
             {
+                bool changed = false;
                 if (value == null)
+                {
+                    if(SelectedPieceView != null)
+                        changed = true;
                     SelectedPieceView = null;
+                }
                 else
                 {
                     foreach (PieceView pv in PiecesStack.Children)
                     {
                         if (pv.Piece == value)
                         {
+                            if(SelectedPieceView != pv)
+                                changed = true;
                             SelectedPieceView = pv;
                             break;
                         }
                     }
                 }
-                SelectedPieceChanged?.Invoke(this, new EventArgs());
+
+                if(changed)
+                    SelectedPieceChanged?.Invoke(this, new EventArgs());
             }
         }
 

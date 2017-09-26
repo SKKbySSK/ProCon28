@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Reactive.Bindings;
 using ProCon28.Linker;
+using ProCon28.Linker.Extensions;
 using System.Collections.ObjectModel;
 
 namespace ProCon28.Controls
@@ -286,7 +287,21 @@ namespace ProCon28.Controls
             }
             if(e.MiddleButton == MouseButtonState.Pressed)
             {
-                Piece.Vertexes.Add(new Linker.Point(pr.X, pr.Y));
+                Linker.Point p1 = new Linker.Point(pr.X, pr.Y);
+
+                Linker.Point near = new Linker.Point();
+                double min = -1;
+                foreach(var p2 in Piece.Vertexes)
+                {
+                    double len = p1.GetLength(p2);
+                    if (min == -1 || len < min)
+                    {
+                        min = len;
+                        near = p2;
+                    }
+                }
+
+                Piece.Vertexes.Insert(Piece.Vertexes.IndexOf(near) + 1, p1);
                 VertexAdded?.Invoke(this, new EventArgs());
                 UpdateLines();
             }

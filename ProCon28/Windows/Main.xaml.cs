@@ -36,9 +36,8 @@ namespace ProCon28.Windows
             PieceG.VertexAdded += PieceG_Vertex;
             PieceG.VertexMoved += PieceG_Vertex;
             PieceG.VertexRemoved += PieceG_Vertex;
-            PieceG.PieceChanged += PieceG_Vertex;
+            PieceG.PieceChanged += PieceG_PieceChanged;
 
-            PieceG.VertexAdded += PieceG_VertexAdded;
             BatchC.DataContext = Batch.ViewModel.Current;
             if (Batch.ViewModel.Current.BatchFiles.Count > 0)
                 BatchC.SelectedIndex = 0;
@@ -50,23 +49,36 @@ namespace ProCon28.Windows
             LoadT.Text = Config.Current.LastFileName;
         }
 
-        private void PieceG_VertexAdded(object sender, EventArgs e)
+        private void PieceG_PieceChanged(object sender, EventArgs e)
         {
-            PieceG.Piece.SortVertexes(Linker.PointSortation.Clockwise);
-            PieceG.RedrawPiece();
+            if (PieceG.Piece != null)
+            {
+                RatioS.Maximum = PieceG.Piece.Vertexes.Count;
+                RatioS.Value = 0;
+                Lines = PieceG.Piece?.Vertexes.AsLines();
+                PieceP.Piece = PieceG.Piece;
+            }
         }
 
         private void PieceG_Vertex(object sender, EventArgs e)
         {
-            RatioS.Maximum = PieceG.Piece.Vertexes.Count;
-            RatioS.Value = 0;
-            Lines = PieceG.Piece?.Vertexes.AsLines();
-            PieceP.Piece = PieceG.Piece;
+            if(PieceG.Piece != null)
+            {
+                RatioS.Maximum = PieceG.Piece.Vertexes.Count;
+                RatioS.Value = 0;
+                Lines = PieceG.Piece?.Vertexes.AsLines();
+                PieceP.RedrawPiece();
+            }
         }
 
         void AppendLog()
         {
             Logs.Add((Linker.Piece)PieceG.Piece.Clone());
+        }
+
+        void ClearLog()
+        {
+            Logs.Clear();
         }
 
         void Undo()
@@ -80,18 +92,10 @@ namespace ProCon28.Windows
 
         private void AddB_Click(object sender, RoutedEventArgs e)
         {
-            if (PieceList.Pieces.Contains(PieceG.Piece))
-                PieceList.Pieces.Remove(PieceG.Piece);
-
             PieceList.Pieces.Add(PieceG.Piece);
-        }
-
-        private void PieceList_SelectedPieceChanged(object sender, EventArgs e)
-        {
-            if (PieceList.SelectedPiece != null)
-            {
-                PieceG.Piece = PieceList.SelectedPiece;
-            }
+            PieceG.Piece = null;
+            PieceP.Piece = null;
+            ClearLog();
         }
 
         private void TransportB_Click(object sender, RoutedEventArgs e)
@@ -130,7 +134,7 @@ namespace ProCon28.Windows
 
                 PieceG.Piece = piece;
 
-                Logs.Clear();
+                ClearLog();
                 AppendLog();
                 Config.Current.LastFileName = LoadT.Text;
                 Config.Save();
@@ -330,6 +334,19 @@ namespace ProCon28.Windows
             
 
             PieceG.Piece = p;
+        }
+
+        private void PieceList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if(e.LeftButton == MouseButtonState.Pressed && PieceList.SelectedPiece != null)
+            {
+                Linker.Piece piece = PieceList.SelectedPiece;
+                PieceList.Pieces.Remove(piece);
+
+                PieceG.Piece = piece;
+                ClearLog();
+                AppendLog();
+            }
         }
     }
 }

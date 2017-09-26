@@ -19,7 +19,7 @@ namespace ProCon28.Algo.Line
             this.Length = Length;
             this.PieceNumber = PieceNumber;
             this.LineNumber = LineNumber;
-            slope = Math.Tan( (End.Y - Start.Y) / (double)(End.X - Start.X));
+            Slope = Math.Tan( (End.Y - Start.Y) / (double)(End.X - Start.X));
         }
 
         public LineData(IList<(Point, Point, double)> Lines, int LineNumber, int PieceNumber)
@@ -31,7 +31,7 @@ namespace ProCon28.Algo.Line
             Length = Line.Item3;
             this.PieceNumber = PieceNumber;
             this.LineNumber = LineNumber;
-            slope = Math.Tan((End.Y - Start.Y) / (double)(End.X - Start.X));
+            Slope = Math.Tan((End.Y - Start.Y) / (double)(End.X - Start.X));
         }
         
         public Point Start { get; set; }
@@ -39,8 +39,7 @@ namespace ProCon28.Algo.Line
         public double Length { get; set; }
         public int PieceNumber { get; set; }
         public int LineNumber { get; set; }
-        public double slope { get; set; }
-        public bool Direction { get; set; }
+        public double Slope { get; set; }
     }
 
     public class SortedLineDataCollection : IList<LineData>

@@ -114,7 +114,7 @@ namespace ProCon28.Algo
 
         public Piece PieceBond(Piece Source1, int n1, Piece Source2, int n2)
         {
-            Piece p = null;
+            Piece p;
 
 
 

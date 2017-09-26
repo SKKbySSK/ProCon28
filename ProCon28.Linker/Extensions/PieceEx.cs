@@ -208,8 +208,9 @@ namespace ProCon28.Linker.Extensions
             return p;
         }
 
-        public static bool IsDirectionJudge(this Piece Piece, int index)
+        public static bool IsDirectionJudge(this Piece Piece, int index) //辺に対して、trueなら角度的に考えて正の方向に,falseなら負の方向にピースがある
         {
+            bool r;
             IList<(Point, Point, double)> LL = Piece.Vertexes.AsLinesWithLength();
             Point Start = LL[index].Item1;
             Point End = LL[index].Item2;
@@ -221,7 +222,15 @@ namespace ProCon28.Linker.Extensions
             {
                 DistSum += a * p.X + b * p.Y + c;
             }
-            return false;
+            if(DistSum > 0)
+            {
+                r = true;
+            }
+            else
+            {
+                r = false;
+            }
+            return r;
         }
 
 

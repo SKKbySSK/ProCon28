@@ -39,6 +39,40 @@ namespace ProCon28.Linker.Extensions
             double len1 = p1.GetLength(), len2 = p2.GetLength();
             double calc = ((p1.X * p2.X) + (p1.Y * p2.Y)) / (len1 * len2);
             rad = Math.Acos(calc);
+            return rad;
+        }
+
+        public static double GetAngle2PI(this Piece Piece, int Vertex)
+        {
+            if (Piece.Vertexes.Count < 3)
+                return double.NaN;
+
+            Point p1, p2;
+            Point angle = Piece.Vertexes[Vertex];
+            double rad;
+
+            int vcount = Piece.Vertexes.Count;
+            if (Vertex == 0)
+            {
+                p1 = Piece.Vertexes[vcount - 1];
+                p2 = Piece.Vertexes[1];
+            }
+            else if (Vertex + 1 == vcount)
+            {
+                p1 = Piece.Vertexes[Vertex - 1];
+                p2 = Piece.Vertexes[0];
+            }
+            else
+            {
+                p1 = Piece.Vertexes[Vertex - 1];
+                p2 = Piece.Vertexes[Vertex + 1];
+            }
+
+            p1 -= angle;
+            p2 -= angle;
+            double len1 = p1.GetLength(), len2 = p2.GetLength();
+            double calc = ((p1.X * p2.X) + (p1.Y * p2.Y)) / (len1 * len2);
+            rad = Math.Acos(calc);
             //角度が180以上かどうかの判定
             //ここからかなり不安な処理を行う、消す場合は次のコメントアウトまで
             double p1angle, p2angle, changing;
@@ -55,21 +89,7 @@ namespace ProCon28.Linker.Extensions
             }
             else { p2angle = Math.Atan2(p2.Y, p2.X); }
             if (Math.Abs(p2angle - p1angle) > Math.PI) { changing = p1angle; p1angle = p2angle; p2angle = changing; }
-            bool iscalc = true;
-            double rand = 0.5;
-            double crad = 0;
-            while (iscalc)
-            {
-                iscalc = false;
-                rand += 0.001;
-                crad = p1angle + rand * (p2angle - p1angle);
-                for (int i = 0; i < vcount; i++)
-                {
-                    if (Vertex == i) { continue; }
-                    if (Math.Atan2(Piece.Vertexes[i].Y - Piece.Vertexes[Vertex].Y, Piece.Vertexes[i].X - Piece.Vertexes[Vertex].X) == crad) { iscalc = true; }
-                }
-            }
-
+            double crad = p1angle + Math.PI / 10 * (p2angle - p1angle);
             double cp1x = angle.X + Math.Cos(crad), cp1y = angle.Y + Math.Sin(crad);
             double cp3x = angle.X, cp3y = angle.Y;
             Point cp2, cp4;
@@ -196,7 +216,16 @@ namespace ProCon28.Linker.Extensions
         public static bool IsDirectionJudge(this Piece Piece, int index)
         {
             IList<(Point, Point, double)> LL = Piece.Vertexes.AsLinesWithLength();
-
+            Point Start = LL[index].Item1;
+            Point End = LL[index].Item2;
+            int a = End.X - Start.X;
+            int b = - End.Y + Start.Y;
+            int c = - Start.X * a - Start.Y * b;
+            double DistSum = 0;
+            foreach (Point p in Piece.Vertexes)
+            {
+                DistSum += a * 
+            }
             return false;
         }
 

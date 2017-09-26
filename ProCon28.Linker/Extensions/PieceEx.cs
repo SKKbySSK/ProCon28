@@ -158,5 +158,39 @@ namespace ProCon28.Linker.Extensions
             }
             return Convert(Piece, bp);
         }
+
+        public static Piece RotatePiece(this Piece Piece,double rad)
+        {
+            Piece p = (Piece)Piece.Clone();
+            PointCollection pcol = p.Vertexes;
+            bool change = false;
+            int MinX = 0, MinY = 0;
+            for (int i = 0; i < pcol.Count; i++)
+            {
+                double retX, retY;
+                retX = pcol[i].X * Math.Cos(rad) - pcol[i].Y * Math.Sin(rad);
+                retY = pcol[i].X * Math.Sin(rad) + pcol[i].Y * Math.Cos(rad);
+                if(Math.Abs(retX - pcol[i].X) > 0.001 || Math.Abs(retY - pcol[i].Y ) > 0.001)
+                {
+                    change = true;
+                }
+            }
+            p.Convert();
+            if (change) { p = Piece; }
+            return p;
+        }
+        public static Piece FlipPiece(this Piece Piece)
+        {
+            Piece p = (Piece)Piece.Clone();
+            for (int i = 0; i < p.Vertexes.Count; i++)
+            {
+                Point clone = p.Vertexes[i];
+                clone.X *= -1;
+                clone.Y *= -1;
+                p.Vertexes[i] = clone;
+            }
+            p.Convert();
+            return p;
+        }
     }
 }

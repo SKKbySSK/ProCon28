@@ -10,8 +10,10 @@ namespace TestConsole
     {
         static List<IConsole> commands = new List<IConsole>();
 
+        [STAThread]
         static void Main(string[] args)
         {
+            commands.Add(new ReadCalibration());
             commands.Add(new CameraCalibration());
             commands.Add(new TcpClient());
             commands.Add(new TcpServer());

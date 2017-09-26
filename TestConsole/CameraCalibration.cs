@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using OpenCvSharp;
 
 namespace TestConsole
 {
     class CameraCalibration : IConsole
     {
-        public string Title { get; } = "カメラキャリブレーション";
+        public string Title { get; } = "キャリブレーション生成";
 
         const int PAT_ROW = 9;
         const int PAT_COL = 18;
@@ -52,39 +53,40 @@ namespace TestConsole
             }
 
             int ALL_POINTS = times * PAT_SIZE;
-            Point2f[][] corners = new Point2f[times][];
 
-            List<Mat> objPoints = new List<Mat>();
-
-            Window window = new Window("Preview");
+            List<MatOfPoint3f> objPoints = new List<MatOfPoint3f>();
+            List<MatOfPoint2f> imgs = new List<MatOfPoint2f>();
+            Point3f[] objs = new Point3f[PAT_SIZE];
+            for (int j = 0; j < PAT_ROW; j++)
+            {
+                for (int k = 0; k < PAT_COL; k++)
+                {
+                    objs[j * PAT_COL + k] = new Point3f(j * CHESS_SIZE, k * CHESS_SIZE, 0);
+                }
+            }
 
             Size imgSize = new Size();
             for (int i = 0;times > i; i++)
             {
-                Point3f[] objs = new Point3f[PAT_SIZE];
-                for (int j = 0; j < PAT_ROW; j++)
-                {
-                    for (int k = 0; k < PAT_COL; k++)
-                    {
-                        objs[j * PAT_COL + k] = new Point3f(j * CHESS_SIZE, k * CHESS_SIZE, 0);
-                    }
-                }
-
                 string fname = string.Format("{0:0000}.jpg", i);
                 using (Mat load = Cv2.ImRead(fname))
                 using (Mat gray = new Mat())
                 {
                     imgSize = load.Size();
-                    if (Cv2.FindChessboardCorners(load, patternSize, out corners[i]))
+
+                    MatOfPoint2f corners = new MatOfPoint2f();
+                    if (Cv2.FindChessboardCorners(load, patternSize, corners))
                     {
                         Console.WriteLine("Chessboard Corners found in {0}", fname);
 
                         Cv2.CvtColor(load, gray, ColorConversionCodes.BGR2GRAY);
-                        corners[i] = Cv2.CornerSubPix(gray, corners[i], new Size(3, 3), new Size(-1, -1), new TermCriteria(CriteriaType.Eps, 20, 0.03));
-                        objPoints.Add(new Mat(PAT_SIZE, 3, MatType.CV_32SC1, objs));
-                        Cv2.DrawChessboardCorners(load, patternSize, corners[i], true);
-                        window.ShowImage(load);
-                        //Cv2.WaitKey(500);
+                        if(Cv2.Find4QuadCornerSubpix(gray, corners, new Size(3, 3)))
+                        {
+                            imgs.Add(corners);
+                            objPoints.Add(new MatOfPoint3f(PAT_SIZE, 1, objs));
+
+                            Cv2.DrawChessboardCorners(load, patternSize, (InputArray)corners, true);
+                        }
                     }
                     else
                         Console.WriteLine("Failed to find corners in {0}", fname);
@@ -94,17 +96,32 @@ namespace TestConsole
             Window.DestroyAllWindows();
 
             Mat intrinsic = new Mat(3, 3, MatType.CV_32SC1);
-            Mat rotation = new Mat(1, 3, MatType.CV_32SC1);
-            Mat translation = new Mat(1, 3, MatType.CV_32SC1);
             Mat distortion = new Mat(1, 4, MatType.CV_32SC1);
 
-            List<Mat> imgs = new List<Mat>();
-            foreach(Point2f[] ps in corners)
+            Cv2.CalibrateCamera(objPoints, imgs, imgSize, intrinsic, distortion, out Mat[] rvecs, out Mat[] tvecs);
+
+            OpenFileDialog ofd = new OpenFileDialog() { FileName = "" };
+            if(ofd.ShowDialog() == DialogResult.OK)
             {
-                imgs.Add(new Mat(PAT_SIZE, 1, MatType.CV_32SC2, ps));
+                using (Mat load = Cv2.ImRead(ofd.FileName))
+                using (Mat undis = new Mat())
+                {
+                    Cv2.Undistort(load, undis, intrinsic, distortion);
+                    Window raw = new Window("Raw");
+                    raw.ShowImage(load);
+
+                    Window undisort = new Window("Undisort");
+                    undisort.ShowImage(undis);
+
+                    Cv2.WaitKey(0);
+                    Window.DestroyAllWindows();
+                }
             }
 
-            double val = Cv2.CalibrateCamera(objPoints, imgs, imgSize, intrinsic, distortion, out Mat[] rvecs, out Mat[] tvecs);
+            FileStorage fs = new FileStorage("Calibration.xml", FileStorage.Mode.FormatXml | FileStorage.Mode.Write);
+            fs.Write("Intrinsic", intrinsic);
+            fs.Write("Distortion", distortion);
+            fs.Dispose();
         }
     }
 }

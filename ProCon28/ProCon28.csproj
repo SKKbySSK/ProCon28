@@ -120,6 +120,9 @@
     <Compile Include="PieceEdit\RatioConvert.cs" />
     <Compile Include="PieceEdit\Straight.cs" />
     <Compile Include="ShapeQRManager.cs" />
+    <Compile Include="Windows\CameraDialog.xaml.cs">
+      <DependentUpon>CameraDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\MarshalDialog.xaml.cs">
       <DependentUpon>MarshalDialog.xaml</DependentUpon>
     </Compile>
@@ -139,6 +142,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\PointsNet.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\CameraDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

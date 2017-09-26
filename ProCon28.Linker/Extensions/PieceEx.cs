@@ -44,12 +44,8 @@ namespace ProCon28.Linker.Extensions
 
         public static double GetAngle2PI(this Piece Piece, int Vertex)
         {
-            if (Piece.Vertexes.Count < 3)
-                return double.NaN;
-
             Point p1, p2;
             Point angle = Piece.Vertexes[Vertex];
-            double rad;
 
             int vcount = Piece.Vertexes.Count;
             if (Vertex == 0)
@@ -70,9 +66,8 @@ namespace ProCon28.Linker.Extensions
 
             p1 -= angle;
             p2 -= angle;
-            double len1 = p1.GetLength(), len2 = p2.GetLength();
-            double calc = ((p1.X * p2.X) + (p1.Y * p2.Y)) / (len1 * len2);
-            rad = Math.Acos(calc);
+
+            double rad = Math.Acos(GetAngle(Piece, Vertex));
             //角度が180以上かどうかの判定
             //ここからかなり不安な処理を行う、消す場合は次のコメントアウトまで
             double p1angle, p2angle, changing;
@@ -224,7 +219,7 @@ namespace ProCon28.Linker.Extensions
             double DistSum = 0;
             foreach (Point p in Piece.Vertexes)
             {
-                DistSum += a * 
+                DistSum += a * p.X + b * p.Y + c;
             }
             return false;
         }

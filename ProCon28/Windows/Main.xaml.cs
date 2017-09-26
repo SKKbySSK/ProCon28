@@ -48,7 +48,6 @@ namespace ProCon28.Windows
             StraightS.Value = Config.Current.StraightThreshold;
             ThresholdS.Value = Config.Current.ImportThreshold;
             LoadT.Text = Config.Current.LastFileName;
-            ServerT.Text = Config.Current.TCP_Server_IP;
         }
 
         private void PieceG_VertexAdded(object sender, EventArgs e)
@@ -309,66 +308,28 @@ namespace ProCon28.Windows
         {
             PieceG.Piece = new Linker.Piece();
         }
-
-        #region CommunicateWithServer
-        Linker.Tcp.Client client;
-        DispatcherTimer ctimer;
-        private void ConnectB_Click(object sender, RoutedEventArgs e)
+        
+        private void CameraB_Click(object sender, RoutedEventArgs e)
         {
-            if (ctimer == null)
-            {
-                ctimer = new DispatcherTimer(DispatcherPriority.Normal, Dispatcher);
-                ctimer.Interval = TimeSpan.FromMilliseconds(500);
-                ctimer.Tick += Ctimer_Tick;
-            }
-
-            if (client == null)
-            {
-                Config.Current.TCP_Server_IP = ServerT.Text;
-                client = new Linker.Tcp.Client(ServerT.Text, Config.Current.TCP_Server_Port, Linker.Constants.RemoteRecognizerUri);
-                ConnectB.Content = "停止";
-                ctimer.Start();
-            }
-            else
-            {
-                StateL.Content = "停止";
-                client.Dispose();
-                client = null;
-                ctimer.Stop();
-                ConnectB.Content = "接続";
-            }
+            CameraDialog cam = new CameraDialog();
+            cam.Recognized += Cam_Recognized;
+            cam.Show();
         }
 
-        private void Ctimer_Tick(object sender, EventArgs e)
+        private void Cam_Recognized(object sender, ContoursEventArgs e)
         {
-            if(client != null)
+            Linker.Piece p = new Linker.Piece();
+            foreach(var point in e.Contours)
             {
-                StateL.Content = "取得中";
-
-                try
-                {
-                    var piece = (Linker.Tcp.RemotePiece)client.GetObject(typeof(Linker.Tcp.RemotePiece));
-                    PieceList.Pieces.Add(new Linker.Piece(piece.RawPiece));
-
-                    client.Dispose();
-                    client = new Linker.Tcp.Client(Config.Current.TCP_Server_IP, Config.Current.TCP_Server_Port, Linker.Constants.RemoteRecognizerUri);
-
-                    StateL.Content = "取得完了";
-                }
-                catch (Exception ex)
-                {
-                    client.Dispose();
-                    client = null;
-                    ctimer.Stop();
-                    Log.WriteLine(ex.Message);
-                    StateL.Content = "エラー";
-                    ConnectB.Content = "接続";
-                }
+                Linker.Point lp = 
+                    new Linker.Point((int)(Math.Round(point.X * e.Scale)), (int)(Math.Round(point.Y * e.Scale)));
+                if (!p.Vertexes.Contains(lp))
+                    p.Vertexes.Add(lp);
             }
+            p = PieceEdit.Straight.Run(p.Convert(), 0);
+            
+
+            PieceG.Piece = p;
         }
-
-
-
-        #endregion
     }
 }

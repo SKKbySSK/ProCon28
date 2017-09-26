@@ -51,9 +51,17 @@ namespace ProCon28.OpenCV
         /// カメラから新しく画像を取得します
         /// </summary>
         /// <returns></returns>
-        public Mat RetrieveMat()
+        public Mat RetrieveMat(bool UseFilters)
         {
-            return capture.RetrieveMat();
+            Mat mat = capture.RetrieveMat();
+
+            if (UseFilters)
+            {
+                foreach (var filter in Filters)
+                    mat = filter(mat);
+            }
+
+            return mat;
         }
 
         /// <summary>
@@ -84,6 +92,10 @@ namespace ProCon28.OpenCV
                         }
 
                         Mat img = capture.RetrieveMat();
+
+                        foreach (var filter in Filters)
+                            img = filter(img);
+
                         foreach (Action<Mat> interrupt in Interruptions)
                             interrupt(img);
                         window.Image = img;
@@ -103,6 +115,7 @@ namespace ProCon28.OpenCV
         }
 
         public IList<Action<Mat>> Interruptions { get; } = new List<Action<Mat>>();
+        public IList<Func<Mat, Mat>> Filters { get; } = new List<Func<Mat, Mat>>();
 
         public void Dispose()
         {

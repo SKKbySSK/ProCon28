@@ -62,7 +62,7 @@ namespace ProCon28
 
                 return pieces;
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 return new Linker.Piece[0];
             }

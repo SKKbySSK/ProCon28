@@ -18,12 +18,12 @@ namespace ProCon28.Linker.Extensions
             double rad;
 
             int vcount = Piece.Vertexes.Count;
-            if(Vertex == 0)
+            if (Vertex == 0)
             {
                 p1 = Piece.Vertexes[vcount - 1];
                 p2 = Piece.Vertexes[1];
             }
-            else if(Vertex + 1 == vcount)
+            else if (Vertex + 1 == vcount)
             {
                 p1 = Piece.Vertexes[Vertex - 1];
                 p2 = Piece.Vertexes[0];
@@ -56,17 +56,17 @@ namespace ProCon28.Linker.Extensions
             else { p2angle = Math.Atan2(p2.Y, p2.X); }
             if (Math.Abs(p2angle - p1angle) > Math.PI) { changing = p1angle; p1angle = p2angle; p2angle = changing; }
             bool iscalc = true;
+            double rand = 0.5;
             double crad = 0;
             while (iscalc)
             {
                 iscalc = false;
-                Random rand = new Random();
-                crad = rand.NextDouble();
-                crad = p1angle + crad * (p2angle - p1angle);
+                rand += 0.001;
+                crad = p1angle + rand * (p2angle - p1angle);
                 for (int i = 0; i < vcount; i++)
                 {
                     if (Vertex == i) { continue; }
-                    if (Math.Atan2(Piece.Vertexes[i].Y - Piece.Vertexes[Vertex].Y, Piece.Vertexes[i].X - Piece.Vertexes[Vertex].X)== crad) { iscalc = true; }
+                    if (Math.Atan2(Piece.Vertexes[i].Y - Piece.Vertexes[Vertex].Y, Piece.Vertexes[i].X - Piece.Vertexes[Vertex].X) == crad) { iscalc = true; }
                 }
             }
 
@@ -75,13 +75,13 @@ namespace ProCon28.Linker.Extensions
             Point cp2, cp4;
             double cp2x, cp2y, cp4x, cp4y;
             int count = 0;
-            for(int i = 0; i< vcount; i++)
+            for (int i = 0; i < vcount; i++)
             {
                 if (i == Vertex || i == Vertex + 1 || (Vertex == vcount - 1 && i == 0))
                 {
                     continue;
                 }
-                else if( i == 0)
+                else if (i == 0)
                 {
                     cp2 = Piece.Vertexes[vcount - 1];
                     cp4 = Piece.Vertexes[0];
@@ -99,27 +99,27 @@ namespace ProCon28.Linker.Extensions
                 double s2 = ((cp4x - cp2x) * (cp2y - cp3y) - (cp4y - cp2y) * (cp2x - cp3x)) / 2;
                 double crossx = cp1x + (cp3x - cp1x) * s1 / (s1 + s2);
                 double crossy = cp1y + (cp3y - cp1y) * s1 / (s1 + s2);
-                if(cp2x == cp4x)
+                if (cp2x == cp4x)
                 {
-                    if(cp2y < cp4y)
+                    if (cp2y < cp4y)
                     {
-                        if(cp2y < crossy && cp4y > crossy) { count++; }
+                        if (cp2y < crossy && cp4y > crossy) { count++; }
                     }
                     else
                     {
-                        if(cp4y < crossy && cp2y > crossy) { count++; }
+                        if (cp4y < crossy && cp2y > crossy) { count++; }
                     }
                 }
                 else if (cp2x < cp4x)
                 {
-                    if(cp2x < crossx && cp4x > crossx) { count++; }
+                    if (cp2x < crossx && cp4x > crossx) { count++; }
                 }
                 else
                 {
-                    if(cp4x < crossx && cp2x > crossx) { count++; }
+                    if (cp4x < crossx && cp2x > crossx) { count++; }
                 }
             }
-            if(count %2 == 0) { rad += Math.PI; }
+            if (count % 2 == 0) { rad += Math.PI; }
 
             //180度以上を判定する処理ここまで
 
@@ -135,7 +135,7 @@ namespace ProCon28.Linker.Extensions
         public static Piece Convert(this Piece Piece, Point BasePoint)
         {
             Piece clone = (Piece)Piece.Clone();
-            for(int i = 0;clone.Vertexes.Count > i; i++)
+            for (int i = 0; clone.Vertexes.Count > i; i++)
             {
                 Point p = clone.Vertexes[i];
                 p.X -= BasePoint.X;
@@ -149,7 +149,7 @@ namespace ProCon28.Linker.Extensions
         {
             if (Piece.Vertexes.Count == 0) return Piece;
             Point bp = Piece.Vertexes[0];
-            foreach(Point p in Piece.Vertexes)
+            foreach (Point p in Piece.Vertexes)
             {
                 if (bp.X > p.X)
                     bp.X = p.X;
@@ -159,18 +159,17 @@ namespace ProCon28.Linker.Extensions
             return Convert(Piece, bp);
         }
 
-        public static Piece RotatePiece(this Piece Piece,double rad)
+        public static Piece RotatePiece(this Piece Piece, double rad)
         {
             Piece p = (Piece)Piece.Clone();
             PointCollection pcol = p.Vertexes;
             bool change = false;
-            int MinX = 0, MinY = 0;
             for (int i = 0; i < pcol.Count; i++)
             {
                 double retX, retY;
                 retX = pcol[i].X * Math.Cos(rad) - pcol[i].Y * Math.Sin(rad);
                 retY = pcol[i].X * Math.Sin(rad) + pcol[i].Y * Math.Cos(rad);
-                if(Math.Abs(retX - pcol[i].X) > 0.001 || Math.Abs(retY - pcol[i].Y ) > 0.001)
+                if (Math.Abs(retX - pcol[i].X) > 0.001 || Math.Abs(retY - pcol[i].Y) > 0.001)
                 {
                     change = true;
                 }
@@ -179,6 +178,7 @@ namespace ProCon28.Linker.Extensions
             if (change) { p = Piece; }
             return p;
         }
+
         public static Piece FlipPiece(this Piece Piece)
         {
             Piece p = (Piece)Piece.Clone();
@@ -192,5 +192,14 @@ namespace ProCon28.Linker.Extensions
             p.Convert();
             return p;
         }
+
+        public static bool IsDirectionJudge(this Piece Piece, int index)
+        {
+            IList<(Point, Point, double)> LL = Piece.Vertexes.AsLinesWithLength();
+
+            return false;
+        }
+
+
     }
 }

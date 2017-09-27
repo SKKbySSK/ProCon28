@@ -68,21 +68,19 @@ namespace ProCon28.Algo
                 }
                 foreach(int i in Judge)
                 {
-                    (bool, bool) res;
-                    res = JudgePiecePair(Line1, LineList[i]);
-                    if (res.Item1) { Ans.Add(i); }
+                    
                 }
             }
         }
 
-        public (bool,bool) JudgePiecePair(LineData Line1, LineData Line2)
+        public (bool,bool) JudgePiecePair(Piece Piece1,int index1, Piece Piece2,int index2)
         {
             bool Judge = true;
-            bool Turn = false;
-            double Angle11 = PieceCollection[Line1.PieceNumber].GetAngle(Line1.LineNumber - 1) + PieceCollection[Line2.PieceNumber].GetAngle(Line2.LineNumber - 1);
-            double Angle12 = PieceCollection[Line1.PieceNumber].GetAngle(Line1.LineNumber) + PieceCollection[Line2.PieceNumber].GetAngle(Line2.LineNumber);
-            double Angle21 = PieceCollection[Line1.PieceNumber].GetAngle(Line1.LineNumber - 1) + PieceCollection[Line2.PieceNumber].GetAngle(Line2.LineNumber);
-            double Angle22 = PieceCollection[Line1.PieceNumber].GetAngle(Line1.LineNumber) + PieceCollection[Line2.PieceNumber].GetAngle(Line2.LineNumber - 1);
+            bool Flip = false;
+            double Angle11 = Piece1.GetAngle(index1 - 1) + Piece2.GetAngle(index2 - 1);
+            double Angle12 = Piece1.GetAngle(index1) + Piece2.GetAngle(index2);
+            double Angle21 = Piece1.GetAngle(index1 - 1) + Piece2.GetAngle(index2);
+            double Angle22 = Piece1.GetAngle(index1) + Piece2.GetAngle(index2 - 1);
             if (Math.Abs(Angle11 - Math.PI) < 0.0001 || Math.Abs(Angle11 - Math.PI * 2) < 0.0001)
             {
                 if (Math.Abs(Angle12 - Math.PI) < 0.0001 || Math.Abs(Angle12 - Math.PI * 2) < 0.0001)
@@ -97,7 +95,7 @@ namespace ProCon28.Algo
             {
                 if (Math.Abs(Angle22 - Math.PI) < 0.0001 || Math.Abs(Angle22 - Math.PI * 2) < 0.0001)
                 {
-                    Turn = true;
+                    Flip = true;
                 }
                 else
                 {
@@ -109,12 +107,12 @@ namespace ProCon28.Algo
                 Judge = false;
             }
             
-            return (Judge,Turn);
+            return (Judge,Flip);
         }
 
         public Piece PieceBond(Piece Source1, int n1, Piece Source2, int n2)
         {
-            Piece p;
+            Piece p = null;
 
 
 

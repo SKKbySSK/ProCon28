@@ -233,7 +233,7 @@ namespace ProCon28.Linker.Extensions
             return r;
         }
 
-        public static IList<(double ,bool)> PieceSideData(this Piece Piece)
+        public static List<(double ,bool)> PieceSideData(this Piece Piece)
         {
             List<(double, bool)> r = new List<(double, bool)>();
             IList<(Point, Point)> Line = Piece.Vertexes.AsLines();

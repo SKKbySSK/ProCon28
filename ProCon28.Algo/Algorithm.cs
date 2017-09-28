@@ -42,7 +42,7 @@ namespace ProCon28.Algo
                 {
                     index2++;
                     if (index2 > LineList.Count) { UpDown = false; }
-                    if (Math.Abs(Line1.Length - LineList[index2].Length) < 0.0001)
+                    if (Rounding(Line1.Length, LineList[index2].Length))
                     {
                         Judge.Add(index2);
                     }
@@ -57,7 +57,7 @@ namespace ProCon28.Algo
                 {
                     index2--;
                     if (index2 < 0) { UpDown = false; }
-                    if (Math.Abs(Line1.Length - LineList[index2].Length) < 0.0001)
+                    if (Rounding(Line1.Length , LineList[index2].Length))
                     {
                         Judge.Add(index2);
                     }
@@ -77,7 +77,12 @@ namespace ProCon28.Algo
         {
             List<(int, int)> r = new List<(int, int)>();
             r.Add((-1, -1));
+            LineJudge First = JudgeLine(Piece1, index1, Piece2, index2);
+            if (First.IsJudge)
+            {
 
+                r.RemoveAt(0);
+            }
 
             return r;
         }
@@ -90,41 +95,43 @@ namespace ProCon28.Algo
             bool p2 = false;
             List<(double, bool)> sdl1 = Piece1.PieceSideData();
             List<(double, bool)> sdl2 = Piece2.PieceSideData();
-            double Angle11 = Piece1.GetAngle(index1 - 1) + Piece2.GetAngle(index2 - 1);
-            double Angle12 = Piece1.GetAngle(index1) + Piece2.GetAngle(index2);
-            double Angle21 = Piece1.GetAngle(index1 - 1) + Piece2.GetAngle(index2);
-            double Angle22 = Piece1.GetAngle(index1) + Piece2.GetAngle(index2 - 1);
-            if ( Math.Abs(Angle11 - Math.PI) < 0.001 || Math.Abs(Angle12 - Math.PI) < 0.001)
+            double Angle11 = Piece1.GetAngle2PI(index1 - 1) + Piece2.GetAngle2PI(index2 - 1);
+            double Angle12 = Piece1.GetAngle2PI(index1) + Piece2.GetAngle2PI(index2);
+            double Angle21 = Piece1.GetAngle2PI(index1 - 1) + Piece2.GetAngle2PI(index2);
+            double Angle22 = Piece1.GetAngle2PI(index1) + Piece2.GetAngle2PI(index2 - 1);
+
+            if ( Rounding(Angle11 , Math.PI) || Rounding(Angle12 , Math.PI))
             {
                 j = true;
             }
             else 
             {
-                if (Math.Abs(Angle11 - Math.PI * 2) < 0.001)
+                if (Rounding(Angle11 , Math.PI * 2))
                 {
                     j = true;
                     p1 = true;
                 }
-                if (Math.Abs(Angle12 - Math.PI * 2) < 0.001)
+                if (Rounding(Angle12 , Math.PI * 2))
                 {
                     j = true;
                     p2 = true;
                 }
             }
-            if (Math.Abs(Angle21 - Math.PI) < 0.001 || Math.Abs(Angle22 - Math.PI) < 0.001)
+
+            if (Rounding(Angle21 , Math.PI)|| Rounding(Angle22 , Math.PI))
             {
                 j = true;
                 t = false;
             }
             else
             {
-                if (Math.Abs(Angle21 - Math.PI * 2) < 0.001)
+                if (Rounding(Angle21 , Math.PI * 2))
                 {
                     j = true;
                     p1 = true;
                     t = false;
                 }
-                if (Math.Abs(Angle22 - Math.PI * 2) < 0.001)
+                if (Rounding(Angle22 , Math.PI * 2))
                 {
                     j = true;
                     p2 = true;
@@ -132,7 +139,7 @@ namespace ProCon28.Algo
                 }
             }
             double difSlope = Math.Abs(sdl1[index1].Item1 - sdl2[index1].Item1);
-            if (!(difSlope < 0.001 || Math.Abs(difSlope - Math.PI / 2 ) < 0.001 || Math.Abs(difSlope - Math.PI) < 0.001 || Math.Abs(difSlope - Math.PI * 3 / 2) < 0.001))
+            if (!(Rounding(difSlope,0) || Rounding(difSlope , Math.PI / 2 ) || Rounding(difSlope , Math.PI) || Rounding(difSlope , Math.PI * 3 / 2) || Rounding(difSlope,Math.PI * 2)))
             {
                 j = false;
             }
@@ -164,6 +171,20 @@ namespace ProCon28.Algo
             public bool IsTurn  { get; }
             public bool IsPIPI1 { get; }
             public bool IsPIPI2 { get; }
+        }
+
+        public bool Rounding(double Value1, double Value2)
+        {
+            bool r;
+            if (Math.Abs(Value1 - Value2) < 0.001)
+            {
+                r = true;
+            }
+            else
+            {
+                r = false;
+            }
+            return r;
         }
     }
 }

@@ -233,6 +233,17 @@ namespace ProCon28.Linker.Extensions
             return r;
         }
 
-
+        public static List<(double ,bool)> PieceSideData(this Piece Piece)
+        {
+            List<(double, bool)> r = new List<(double, bool)>();
+            IList<(Point, Point)> Line = Piece.Vertexes.AsLines();
+            for(int i = 0;i < Piece.Vertexes.Count; i++)
+            {
+                double Slope = Math.Tan( (Line[i].Item2.Y - Line[i].Item1.Y) / (double)(Line[i].Item2.X - Line[i].Item1.X));
+                bool IsDirect = Piece.IsDirectionJudge(i);
+                r.Add((Slope, IsDirect));
+            }
+            return r;
+        }
     }
 }

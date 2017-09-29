@@ -41,8 +41,8 @@ namespace ProCon28.Algo
                 while (UpDown)
                 {
                     index2++;
-                    if(index2 > LineList.Count) { UpDown = false; }
-                    if(Math.Abs(Line1.Length - LineList[index2].Length) < 0.0001)
+                    if (index2 > LineList.Count) { UpDown = false; }
+                    if (Rounding(Line1.Length, LineList[index2].Length))
                     {
                         Judge.Add(index2);
                     }
@@ -57,7 +57,7 @@ namespace ProCon28.Algo
                 {
                     index2--;
                     if (index2 < 0) { UpDown = false; }
-                    if (Math.Abs(Line1.Length - LineList[index2].Length) < 0.0001)
+                    if (Rounding(Line1.Length , LineList[index2].Length))
                     {
                         Judge.Add(index2);
                     }
@@ -66,59 +66,125 @@ namespace ProCon28.Algo
                         UpDown = false;
                     }
                 }
-                foreach(int i in Judge)
+                foreach (int i in Judge)
                 {
-                    (bool, bool) res;
-                    res = JudgePiecePair(Line1, LineList[i]);
-                    if (res.Item1) { Ans.Add(i); }
+
                 }
             }
         }
 
-        public (bool,bool) JudgePiecePair(LineData Line1, LineData Line2)
+        public IList<(int, int)> JudgePiecePair(Piece Piece1, int index1, Piece Piece2, int index2)
         {
-            bool Judge = true;
-            bool Turn = false;
-            double Angle11 = PieceCollection[Line1.PieceNumber].GetAngle(Line1.LineNumber - 1) + PieceCollection[Line2.PieceNumber].GetAngle(Line2.LineNumber - 1);
-            double Angle12 = PieceCollection[Line1.PieceNumber].GetAngle(Line1.LineNumber) + PieceCollection[Line2.PieceNumber].GetAngle(Line2.LineNumber);
-            double Angle21 = PieceCollection[Line1.PieceNumber].GetAngle(Line1.LineNumber - 1) + PieceCollection[Line2.PieceNumber].GetAngle(Line2.LineNumber);
-            double Angle22 = PieceCollection[Line1.PieceNumber].GetAngle(Line1.LineNumber) + PieceCollection[Line2.PieceNumber].GetAngle(Line2.LineNumber - 1);
-            if (Math.Abs(Angle11 - Math.PI) < 0.0001 || Math.Abs(Angle11 - Math.PI * 2) < 0.0001)
+            List<(int, int)> r = new List<(int, int)>();
+            r.Add((-1, -1));
+            LineJudge First = JudgeLine(Piece1, index1, Piece2, index2);
+            if (First.IsJudge)
             {
-                if (Math.Abs(Angle12 - Math.PI) < 0.0001 || Math.Abs(Angle12 - Math.PI * 2) < 0.0001)
+
+                r.RemoveAt(0);
+            }
+
+            return r;
+        }
+
+        internal LineJudge JudgeLine(Piece Piece1, int index1, Piece Piece2, int index2)
+        {
+            bool j = false;
+            bool t = true;
+            bool p1 = false;
+            bool p2 = false;
+            List<(double, bool)> sdl1 = Piece1.PieceSideData();
+            List<(double, bool)> sdl2 = Piece2.PieceSideData();
+            double Angle11 = Piece1.GetAngle2PI(index1 - 1) + Piece2.GetAngle2PI(index2 - 1);
+            double Angle12 = Piece1.GetAngle2PI(index1) + Piece2.GetAngle2PI(index2);
+            double Angle21 = Piece1.GetAngle2PI(index1 - 1) + Piece2.GetAngle2PI(index2);
+            double Angle22 = Piece1.GetAngle2PI(index1) + Piece2.GetAngle2PI(index2 - 1);
+
+            if ( Rounding(Angle11 , Math.PI) || Rounding(Angle12 , Math.PI))
+            {
+                j = true;
+            }
+            else 
+            {
+                if (Rounding(Angle11 , Math.PI * 2))
                 {
+                    j = true;
+                    p1 = true;
                 }
-                else
+                if (Rounding(Angle12 , Math.PI * 2))
                 {
-                    Judge = false;
+                    j = true;
+                    p2 = true;
                 }
             }
-            else if (Math.Abs(Angle21 - Math.PI) < 0.0001 || Math.Abs(Angle21 - Math.PI * 2) < 0.0001)
+
+            if (Rounding(Angle21 , Math.PI)|| Rounding(Angle22 , Math.PI))
             {
-                if (Math.Abs(Angle22 - Math.PI) < 0.0001 || Math.Abs(Angle22 - Math.PI * 2) < 0.0001)
-                {
-                    Turn = true;
-                }
-                else
-                {
-                    Judge = false;
-                }
+                j = true;
+                t = false;
             }
             else
             {
-                Judge = false;
+                if (Rounding(Angle21 , Math.PI * 2))
+                {
+                    j = true;
+                    p1 = true;
+                    t = false;
+                }
+                if (Rounding(Angle22 , Math.PI * 2))
+                {
+                    j = true;
+                    p2 = true;
+                    t = false;
+                }
             }
-            
-            return (Judge,Turn);
+            double difSlope = Math.Abs(sdl1[index1].Item1 - sdl2[index1].Item1);
+            if (!(Rounding(difSlope,0) || Rounding(difSlope , Math.PI / 2 ) || Rounding(difSlope , Math.PI) || Rounding(difSlope , Math.PI * 3 / 2) || Rounding(difSlope,Math.PI * 2)))
+            {
+                j = false;
+            }
+            LineJudge r = new LineJudge(j,t,p1,p2);
+            return r;
         }
 
-        public Piece PieceBond(Piece Source1, int n1, Piece Source2, int n2)
+        public Piece PieceBond(Piece Source1, Piece Source2, List<(int, int)> FitIndex)
         {
-            Piece p;
+            Piece p = null;
 
 
 
             return p;
+        }
+
+
+        internal class LineJudge {
+
+            public LineJudge(bool j,bool t, bool p1,bool p2)
+            {
+                IsJudge = j;
+                IsTurn = t;
+                IsPIPI1 = p1;
+                IsPIPI2 = p2;
+            }
+
+            public bool IsJudge { get; }
+            public bool IsTurn  { get; }
+            public bool IsPIPI1 { get; }
+            public bool IsPIPI2 { get; }
+        }
+
+        public bool Rounding(double Value1, double Value2)
+        {
+            bool r;
+            if (Math.Abs(Value1 - Value2) < 0.001)
+            {
+                r = true;
+            }
+            else
+            {
+                r = false;
+            }
+            return r;
         }
     }
 }

@@ -35,7 +35,7 @@ namespace TestConsole
 
         private void button1_Click(object sender, EventArgs e)
         {
-            using(Mat mat = Camera.RetrieveMat())
+            using(Mat mat = Camera.RetrieveMat(true))
             {
                 mat.SaveImage(string.Format("{0:0000}.jpg", i));
             }

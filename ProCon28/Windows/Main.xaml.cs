@@ -312,29 +312,6 @@ namespace ProCon28.Windows
         {
             PieceG.Piece = new Linker.Piece();
         }
-        
-        private void CameraB_Click(object sender, RoutedEventArgs e)
-        {
-            CameraDialog cam = new CameraDialog();
-            cam.Recognized += Cam_Recognized;
-            cam.Show();
-        }
-
-        private void Cam_Recognized(object sender, ContoursEventArgs e)
-        {
-            Linker.Piece p = new Linker.Piece();
-            foreach(var point in e.Contours)
-            {
-                Linker.Point lp = 
-                    new Linker.Point((int)(Math.Round(point.X * e.Scale)), (int)(Math.Round(point.Y * e.Scale)));
-                if (!p.Vertexes.Contains(lp))
-                    p.Vertexes.Add(lp);
-            }
-            p = PieceEdit.Straight.Run(p.Convert(), 0);
-            
-
-            PieceG.Piece = p;
-        }
 
         private void PieceList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
@@ -347,6 +324,22 @@ namespace ProCon28.Windows
                 ClearLog();
                 AppendLog();
             }
+        }
+
+        private void Camera_Recognized(object sender, Controls.ContoursEventArgs e)
+        {
+            Linker.Piece p = new Linker.Piece();
+            foreach (var point in e.Contours)
+            {
+                Linker.Point lp =
+                    new Linker.Point((int)(Math.Round(point.X * e.Scale)), (int)(Math.Round(point.Y * e.Scale)));
+                if (!p.Vertexes.Contains(lp))
+                    p.Vertexes.Add(lp);
+            }
+            p = PieceEdit.Straight.Run(p.Convert(), 0);
+
+
+            PieceG.Piece = p;
         }
     }
 }

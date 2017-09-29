@@ -114,14 +114,15 @@
     <Compile Include="Log.cs" />
     <Compile Include="OpenCV\CameraCapture.cs" />
     <Compile Include="OpenCV\QR\Decoder.cs" />
+    <Compile Include="OpenCV\QR\Piece.cs" />
     <Compile Include="PieceEdit\Blur.cs" />
     <Compile Include="PieceEdit\ExtractContours.cs" />
     <Compile Include="PieceEdit\GcdConvert.cs" />
     <Compile Include="PieceEdit\RatioConvert.cs" />
     <Compile Include="PieceEdit\Straight.cs" />
     <Compile Include="ShapeQRManager.cs" />
-    <Compile Include="Windows\CameraDialog.xaml.cs">
-      <DependentUpon>CameraDialog.xaml</DependentUpon>
+    <Compile Include="Controls\CameraDialog.xaml.cs">
+      <DependentUpon>Camera.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\MarshalDialog.xaml.cs">
       <DependentUpon>MarshalDialog.xaml</DependentUpon>
@@ -145,7 +146,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\CameraDialog.xaml">
+    <Page Include="Controls\Camera.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -99,7 +99,7 @@ namespace ProCon28.Linker
             }
         }
 
-        public PointCollection Sort(PointSortation Sortation)
+        public virtual PointCollection Sort(PointSortation Sortation)
         {
             if (Count == 0) return new PointCollection();
             Point min = this[0];

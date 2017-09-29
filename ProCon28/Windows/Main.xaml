@@ -14,12 +14,12 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition Height="105"/>
+            <RowDefinition Height="145.143"/>
         </Grid.RowDefinitions>
-        <Controls:PieceGenerator x:Name="PieceG" Margin="208,58,0,0"/>
-        <Controls:PieceViewer x:Name="PieceList" Background="#FFF7F7F7" Margin="0,0,0,44" Grid.Column="1" Grid.RowSpan="2" MouseDoubleClick="PieceList_MouseDoubleClick"/>
+        <Controls:PieceGenerator x:Name="PieceG" Margin="208,58,186.714,0.857" Grid.ColumnSpan="2"/>
+        <Controls:PieceViewer x:Name="PieceList" Background="#FFF7F7F7" Margin="0.143,0,-0.286,44" Grid.Column="1" Grid.RowSpan="2" MouseDoubleClick="PieceList_MouseDoubleClick"/>
         <Button x:Name="AddB" Content="リストへ追加" Margin="367,10,0,0" VerticalAlignment="Top" Click="AddB_Click" HorizontalAlignment="Left" Width="75" Height="20"/>
-        <Button x:Name="TransportB" Content="転送" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="167" Height="29" Click="TransportB_Click" Grid.Column="1" Grid.Row="1"/>
+        <Button x:Name="TransportB" Content="転送" HorizontalAlignment="Right" Margin="0,0,9.714,10" VerticalAlignment="Bottom" Width="167" Height="29" Click="TransportB_Click" Grid.Column="1" Grid.Row="1"/>
         <TextBox x:Name="LoadT" HorizontalAlignment="Left" Height="20" Margin="90,10,0,0" TextWrapping="Wrap" Text="result.txt" VerticalAlignment="Top" Width="198"/>
         <Button x:Name="LoadB" Content="読み込み" HorizontalAlignment="Left" Margin="287,10,0,0" VerticalAlignment="Top" Width="75" Click="LoadB_Click" Height="20"/>
         <ScrollViewer HorizontalAlignment="Left" Margin="0,58,0,146.857" Width="208">
@@ -44,13 +44,13 @@
                 <Button x:Name="ContoursB" Content="輪郭抽出" Margin="0,20,0,0" Click="ContoursB_Click"/>
             </StackPanel>
         </ScrollViewer>
-        <Controls:PieceView x:Name="PieceP" HorizontalAlignment="Left" Width="208" Height="147" VerticalAlignment="Bottom"/>
+        <Controls:PieceView x:Name="PieceP" HorizontalAlignment="Left" Width="193" Height="147" VerticalAlignment="Bottom" Margin="10,0,0,0.857"/>
         <Slider x:Name="ThresholdS" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="353" Maximum="1" Minimum="0" Height="18"/>
-        <Button x:Name="ShapeQrB" Content="形状情報" HorizontalAlignment="Right" Margin="0,10,2,0" VerticalAlignment="Top" Width="75" Click="ShapeQrB_Click" Height="20"/>
-        <Button x:Name="PlaceQrB" Content="配置情報" HorizontalAlignment="Right" Margin="0,10,82,0" VerticalAlignment="Top" Width="75" Height="20"/>
-        <TextBox x:Name="ConsoleT" Grid.Row="1" TextWrapping="Wrap" Background="Black" Foreground="White" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,0.143,186.714,0" Grid.ColumnSpan="2"/>
-        <Button x:Name="EmptyB" Content="空ピース" HorizontalAlignment="Left" Margin="447,10,0,0" VerticalAlignment="Top" Width="75" Click="EmptyB_Click"/>
-        <Button x:Name="CameraB" Content="カメラ" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Height="20" Click="CameraB_Click"/>
+        <Button x:Name="ShapeQrB" Content="形状情報" HorizontalAlignment="Right" Margin="0,10,1.857,0" VerticalAlignment="Top" Width="75" Click="ShapeQrB_Click" Height="20"/>
+        <Button x:Name="PlaceQrB" Content="配置情報" HorizontalAlignment="Right" Margin="0,10,81.857,0" VerticalAlignment="Top" Width="75" Height="20"/>
+        <TextBox x:Name="ConsoleT" Grid.Row="1" TextWrapping="Wrap" Background="Black" Foreground="White" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="408,2.143,186.714,0" Grid.ColumnSpan="2"/>
+        <Button x:Name="EmptyB" Content="空ピース" HorizontalAlignment="Left" Margin="447,10,0,0" VerticalAlignment="Top" Width="75" Click="EmptyB_Click" Height="21"/>
+        <Controls:Camera Margin="0,2.143,0,0" Grid.Row="1" Recognized="Camera_Recognized" HorizontalAlignment="Left" Width="408"/>
 
     </Grid>
 </Window>

@@ -17,6 +17,11 @@ namespace ProCon28.Linker
             Vertexes = new PointCollection();
         }
 
+        public Piece(PointCollection Vertexes)
+        {
+            this.Vertexes = Vertexes;
+        }
+
         public Piece(byte[] Bytes)
         {
             using (MemoryStream ms = new MemoryStream(Bytes))
@@ -28,6 +33,7 @@ namespace ProCon28.Linker
             }
         }
 
+        public bool Fixed { get; protected set; }
         public PointCollection Vertexes { get; private set; }
         public double Rotation { get; set; }
 

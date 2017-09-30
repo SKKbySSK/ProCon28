@@ -13,8 +13,6 @@ namespace ProCon28
         public int TCP_Port { get; set; } = 50000;
 
         public int Camera { get; set; } = 2;
-        public double ImportThreshold { get; set; } = 0.1;
-        public double CameraScale { get; set; } = 0.13;
         public double PieceApprox { get; set; } = 0.01;
         public double SquareApprox { get; set; } = 0.02;
         public double BlurThreshold { get; set; } = 10;

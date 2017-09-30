@@ -45,8 +45,6 @@ namespace ProCon28.Windows
             SortC.IsChecked = Config.Current.ClockwiseSort;
             BlurS.Value = Config.Current.BlurThreshold;
             StraightS.Value = Config.Current.StraightThreshold;
-            ThresholdS.Value = Config.Current.ImportThreshold;
-            LoadT.Text = Config.Current.LastFileName;
         }
 
         private void PieceG_PieceChanged(object sender, EventArgs e)
@@ -105,46 +103,6 @@ namespace ProCon28.Windows
 
             MarshalDialog dialog = new MarshalDialog(ps);
             dialog.Show();
-        }
-
-        private void LoadB_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                List<Linker.DoublePoint> points = new List<Linker.DoublePoint>();
-                using (StreamReader sr = new StreamReader(LoadT.Text))
-                {
-                    string line = null;
-                    while ((line = sr.ReadLine()) != null)
-                    {
-                        string[] pair = line.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        double x = double.Parse(pair[0]);
-                        double y = double.Parse(pair[1]);
-                        points.Add(new Linker.DoublePoint(x / ThresholdS.Value, y / ThresholdS.Value));
-                    }
-                }
-
-                Linker.Piece piece = new Linker.Piece();
-                foreach (Linker.DoublePoint dp in points)
-                {
-                    Linker.Point p = new Linker.Point(dp);
-                    if (!piece.Vertexes.Contains(p))
-                        piece.Vertexes.Add(p);
-                }
-
-                PieceG.Piece = piece;
-
-                ClearLog();
-                AppendLog();
-                Config.Current.LastFileName = LoadT.Text;
-                Config.Save();
-                Log.WriteLine("Succesfully load file : " + LoadT.Text);
-            }
-            catch (Exception ex)
-            {
-                Log.WriteLine("Failed to load file : " + LoadT.Text);
-                Log.WriteLine(ex.Message);
-            }
         }
 
         private void BlurB_Click(object sender, RoutedEventArgs e)
@@ -295,7 +253,6 @@ namespace ProCon28.Windows
             Config.Current.ClockwiseSort = SortC.IsChecked ?? false;
             Config.Current.BlurThreshold = BlurS.Value;
             Config.Current.StraightThreshold = StraightS.Value;
-            Config.Current.ImportThreshold = ThresholdS.Value;
         }
 
         public void Append(object Format, params object[] Args)
@@ -328,18 +285,52 @@ namespace ProCon28.Windows
 
         private void Camera_Recognized(object sender, Controls.ContoursEventArgs e)
         {
-            Linker.Piece p = new Linker.Piece();
-            foreach (var point in e.Contours)
+            List<Linker.Piece> Pieces = new List<Linker.Piece>();
+            foreach (var shape in e.Contours)
             {
-                Linker.Point lp =
-                    new Linker.Point((int)(Math.Round(point.X * e.Scale)), (int)(Math.Round(point.Y * e.Scale)));
-                if (!p.Vertexes.Contains(lp))
-                    p.Vertexes.Add(lp);
+                Linker.Piece p = new Linker.Piece();
+
+                foreach(var point in shape)
+                {
+                    Linker.Point lp =
+                        new Linker.Point((int)(Math.Round(point.X * e.Scale)), (int)(Math.Round(point.Y * e.Scale)));
+                    if (!p.Vertexes.Contains(lp))
+                        p.Vertexes.Add(lp);
+                }
+
+                p = p.Convert().UnsafeRotate(e.Rotation);
+                PieceList.Pieces.Add(p);
+                Pieces.Add(p);
             }
-            p = PieceEdit.Straight.Run(p.Convert(), 0);
+
+            if(Pieces.Count > 2)
+            {
+                ComparePieces(Pieces[0], Pieces[1]);
+            }
+        }
+
+        void ComparePieces(Linker.Piece Piece1, Linker.Piece Piece2)
+        {
+            var lines1 = Piece1.Vertexes.AsLinesWithLength();
+            var lines2 = Piece2.Vertexes.AsLinesWithLength();
 
 
-            PieceG.Piece = p;
+            (Linker.Point, Linker.Point, double)? p1 = null, p2 = null;
+            foreach (var line1 in lines1)
+            {
+                foreach(var line2 in lines2)
+                {
+                    if(Math.Abs(line1.Item3 - line2.Item3) <= 0.500)
+                    {
+                        p1 = line1;
+                        p2 = line2;
+                        break;
+                    }
+                }
+            }
+
+            if (p1.HasValue && p2.HasValue)
+                Log.WriteLine("{0} - {1}", p1.Value.Item3, p2.Value.Item3);
         }
     }
 }

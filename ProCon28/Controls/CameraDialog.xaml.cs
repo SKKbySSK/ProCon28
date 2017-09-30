@@ -19,14 +19,16 @@ namespace ProCon28.Controls
 {
     public class ContoursEventArgs : EventArgs
     {
-        public ContoursEventArgs(OpenCvSharp.Point[] Contours, double Scale)
+        public ContoursEventArgs(OpenCvSharp.Point[][] Contours, double Scale, double Rotation)
         {
             this.Contours = Contours;
             this.Scale = Scale;
+            this.Rotation = Rotation;
         }
 
-        public OpenCvSharp.Point[] Contours { get; }
+        public OpenCvSharp.Point[][] Contours { get; }
         public double Scale { get; }
+        public double Rotation { get; }
     }
 
     /// <summary>
@@ -34,7 +36,7 @@ namespace ProCon28.Controls
     /// </summary>
     public partial class Camera : UserControl
     {
-        const int ContourLimit = 2;
+        const int ContourLimit = 5;
 
         public event EventHandler<ContoursEventArgs> Recognized;
 
@@ -51,8 +53,9 @@ namespace ProCon28.Controls
             Grid.DataContext = this;
             UpdateCalibrations();
 
-            ScaleS.Value = Config.Current.CameraScale;
             CamT.Text = Config.Current.Camera.ToString();
+            ThreshS.Value = Config.Current.PieceApprox;
+            SqThreshS.Value = Config.Current.SquareApprox;
         }
 
         void UpdateCalibrations()
@@ -129,68 +132,35 @@ namespace ProCon28.Controls
             using(Mat capture = camera.RetrieveMat(true))
             {
                 OpenCvSharp.Size size = capture.Size();
-                Mat gray = new Mat();
-                Cv2.CvtColor(capture, gray, ColorConversionCodes.BGR2GRAY);
-                Cv2.GaussianBlur(gray, gray, new OpenCvSharp.Size(5, 5), 0);
-                Cv2.Threshold(gray, gray, 0, 255, ThresholdTypes.Binary | ThresholdTypes.Otsu);
-                Cv2.AdaptiveThreshold(gray, gray, 255, AdaptiveThresholdTypes.GaussianC, ThresholdTypes.Binary, 11, 2);
+                var contours = FindContours(capture);
 
-                Cv2.FindContours(gray, out OpenCvSharp.Point[][] contours, out _, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
-
-                gray.Dispose();
-                gray = null;
-
-                List<OpenCvSharp.Point[]> changed = new List<OpenCvSharp.Point[]>();
-                foreach(var points in contours)
+                var sqpoints = SquareApprox(size, contours);
+                if (sqpoints != null)
                 {
-                    bool f = false;
-                    foreach(var p in points)
+                    var changed = PieceApprox(size, contours);
+
+                    Linker.Piece Square = new Linker.Piece();
+                    foreach (var ps in sqpoints)
                     {
-                        if (p.X == 0 || p.Y == 0 || p.X == size.Width || p.Y == size.Height)
-                        {
-                            f = true;
-                            break;
-                        }
+                        Square.Vertexes.Add(new Linker.Point(ps.X, ps.Y));
                     }
-                    if (!f)
-                    {
-                        double len = Cv2.ArcLength(points, true);
-                        changed.Add(Cv2.ApproxPolyDP(points, ThreshS.Value * len, true));
-                    }
-                }
 
-                changed = changed.OrderByDescending((ps => Cv2.ArcLength(ps, true))).ToList();
+                    double av = 0;
+                    var lines = Square.Vertexes.AsLinesWithLength();
+                    foreach (var line in lines)
+                        av += line.Item3;
+                    av /= lines.Count;
 
-                Linker.Piece Square = new Linker.Piece();
+                    double ratio = 6 / av;
 
-                const double thresh = 0.3;
+                    var bpoint = lines[0];
+                    double cos = Math.Abs(bpoint.Item1.X - bpoint.Item2.X) / bpoint.Item3;
+                    double rad = Math.Acos(cos);
 
-                foreach(OpenCvSharp.Point[] contour in changed)
-                {
-                    if(contour.Length == 4)
-                    {
-                        double l1, l2, l3, l4;
-                        l1 = GetLength(contour[0], contour[1]);
-                        l2 = GetLength(contour[1], contour[2]);
-                        l3 = GetLength(contour[2], contour[3]);
-                        l4 = GetLength(contour[3], contour[0]);
+                    Log.WriteLine("Square's Average Line Length : {0}", av);
 
-                        if(InRatio(l1, l2, 1, thresh) && InRatio(l2, l3, 1, thresh) &&
-                            InRatio(l3, l4, 1, thresh) && InRatio(l4, l1, 1, thresh))
-                        {
-                            foreach(OpenCvSharp.Point p in contour)
-                            {
-                                Square.Vertexes.Add(new Linker.Point(p.X, p.Y));
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                int count = Math.Min(changed.Count, ContourLimit);
-                for (int i = 0; count > i; i++)
-                {
-                    Recognized?.Invoke(this, new ContoursEventArgs(changed[i], ScaleS.Value));
+                    int count = Math.Min(changed.Count, ContourLimit);
+                    Recognized?.Invoke(this, new ContoursEventArgs(changed.GetRange(0, count).ToArray(), ratio, rad));
                 }
             }
         }
@@ -222,11 +192,6 @@ namespace ProCon28.Controls
             }
         }
 
-        private void ScaleS_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            Config.Current.CameraScale = ScaleS.Value;
-        }
-
         private void ThreshS_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             Config.Current.PieceApprox = ThreshS.Value;
@@ -236,16 +201,7 @@ namespace ProCon28.Controls
         {
             if (Image == null) return null;
             OpenCvSharp.Size size = Image.Size();
-            Mat gray = new Mat();
-            Cv2.CvtColor(Image, gray, ColorConversionCodes.BGR2GRAY);
-            //Cv2.GaussianBlur(gray, gray, new OpenCvSharp.Size(5, 5), 0);
-            Cv2.Threshold(gray, gray, 0, 255, ThresholdTypes.Binary | ThresholdTypes.Otsu);
-            Cv2.AdaptiveThreshold(gray, gray, 255, AdaptiveThresholdTypes.GaussianC, ThresholdTypes.Binary, 11, 2);
-
-            Cv2.FindContours(gray, out OpenCvSharp.Point[][] contours, out _, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
-
-            gray.Dispose();
-            gray = null;
+            var contours = FindContours(Image);
 
             var Pieces = PieceApprox(size, contours);
 
@@ -255,20 +211,7 @@ namespace ProCon28.Controls
             var Square = SquareApprox(size, contours);
 
             if (Square != null)
-            {
-                Cv2.DrawContours(Image, new OpenCvSharp.Point[][] { Square }, -1, Scalar.Green, 3);
-
-                List<Point2f> dst = new List<Point2f>();
-
-                dst.Add(new Point2f(0, 0));
-                dst.Add(new Point2f(0, 6));
-                dst.Add(new Point2f(6, 6));
-                dst.Add(new Point2f(6, 0));
-                
-                Mat transform = 
-                    Cv2.GetPerspectiveTransform(ToFloatArray(Square), dst);
-                Cv2.WarpPerspective(Image, Image, transform, size);
-            }
+                Cv2.DrawContours(Image, new OpenCvSharp.Point[][] { Square }, -1, Scalar.LightBlue, 3);
 
             return Image;
         }
@@ -290,11 +233,27 @@ namespace ProCon28.Controls
                 if (!f)
                 {
                     double len = Cv2.ArcLength(points, true);
-                    changed.Add(Cv2.ApproxPolyDP(points, Config.Current.PieceApprox * len, true));
+                    var approx = Cv2.ApproxPolyDP(points, Config.Current.PieceApprox * len, true);
+                    changed.Add(approx);
                 }
             }
 
-            return changed.OrderByDescending((ps => Cv2.ArcLength(ps, true))).ToList();
+            return changed.Distinct(vcomparer).OrderByDescending((ps => Cv2.ArcLength(ps, true))).ToList();
+        }
+
+        VertexComparer vcomparer = new VertexComparer();
+
+        class VertexComparer : IEqualityComparer<OpenCvSharp.Point[]>
+        {
+            public bool Equals(OpenCvSharp.Point[] x, OpenCvSharp.Point[] y)
+            {
+                return x.Length == y.Length;
+            }
+
+            public int GetHashCode(OpenCvSharp.Point[] obj)
+            {
+                return obj.Length;
+            }
         }
 
         OpenCvSharp.Point[] SquareApprox(OpenCvSharp.Size Size, OpenCvSharp.Point[][] Contours, double Thresh = 0.3)
@@ -314,12 +273,11 @@ namespace ProCon28.Controls
                 if (!f)
                 {
                     double len = Cv2.ArcLength(points, true);
-
-
                     changed.Add(Cv2.ApproxPolyDP(points, Config.Current.SquareApprox * len, true));
                 }
             }
 
+            List<OpenCvSharp.Point[]> returns = new List<OpenCvSharp.Point[]>();
             foreach (OpenCvSharp.Point[] contour in changed)
             {
                 if (contour.Length == 4)
@@ -330,15 +288,34 @@ namespace ProCon28.Controls
                     l3 = GetLength(contour[2], contour[3]);
                     l4 = GetLength(contour[3], contour[0]);
 
-                    if (InRatio(l1, l2, 1, Thresh) && InRatio(l2, l3, 1, Thresh) &&
-                        InRatio(l3, l4, 1, Thresh) && InRatio(l4, l1, 1, Thresh))
+                    if (IsInRatio(1, Thresh, l1, l2, l3, l4))
                     {
-                        return contour;
+                        returns.Add(contour);
                     }
                 }
             }
-            
-            return null;
+
+            if (returns.Count > 0)
+                return returns.OrderByDescending((contour) => Cv2.ArcLength(contour, true)).First();
+            else
+                return null;
+        }
+
+        bool IsInRatio(double ExpectRatio, double Threshold, params double[] Args)
+        {
+            int len = Args.Length;
+
+            if (len < 2)
+                return false;
+
+            double a1 = Args[0];
+            for (int j = 1; len > j; j++)
+            {
+                if (!InRatio(a1, Args[j], ExpectRatio, Threshold))
+                    return false;
+            }
+
+            return true;
         }
 
         Point2f[] ToFloatArray(OpenCvSharp.Point[] Points)
@@ -347,6 +324,28 @@ namespace ProCon28.Controls
             for (int i = 0; Points.Length > i; i++)
                 ret[i] = Points[i];
             return ret;
+        }
+
+        private void SqThreshS_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Config.Current.SquareApprox = SqThreshS.Value;
+        }
+
+        OpenCvSharp.Point[][] FindContours(Mat Image)
+        {
+            Mat gray = new Mat();
+            Cv2.CvtColor(Image, gray, ColorConversionCodes.BGR2GRAY);
+            //Cv2.GaussianBlur(gray, gray, new OpenCvSharp.Size(5, 5), 0);
+            Cv2.Threshold(gray, gray, 0, 255, ThresholdTypes.Binary | ThresholdTypes.Otsu);
+            Cv2.AdaptiveThreshold(gray, gray, 255, AdaptiveThresholdTypes.MeanC, ThresholdTypes.Binary, 11, 2);
+
+            Cv2.FindContours(gray, out OpenCvSharp.Point[][] contours, out _,
+                RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+
+            gray.Dispose();
+            gray = null;
+
+            return contours;
         }
     }
 }

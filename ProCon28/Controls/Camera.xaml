@@ -13,12 +13,14 @@
         </Grid>
         <Button x:Name="BeginB" Content="開始" HorizontalAlignment="Left" Margin="10,42,0,0" VerticalAlignment="Top" Width="96" Height="26" Click="BeginB_Click"/>
         <Button x:Name="StopB" Content="停止" HorizontalAlignment="Left" Margin="10,73,0,0" VerticalAlignment="Top" Width="96" Height="26" IsEnabled="False" Click="StopB_Click"/>
-        <Slider x:Name="ScaleS" Margin="159,73,10.286,0" VerticalAlignment="Top" Height="21" Maximum="1" Minimum="0" LargeChange="0.1" SmallChange="0.05" Value="0.2" ValueChanged="ScaleS_ValueChanged"/>
-        <Label Content="{Binding ElementName=ScaleS, Path=Value}" HorizontalAlignment="Left" Margin="111,68,0,0" VerticalAlignment="Top" Width="43"/>
         <Label Content="カメラ" HorizontalAlignment="Left" Margin="111,42,0,0" VerticalAlignment="Top" Width="48"/>
         <TextBox x:Name="CamT" HorizontalAlignment="Left" Height="26" Margin="159,42,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="119" VerticalContentAlignment="Center"/>
-        <Slider x:Name="ThreshS" Margin="159,104,10,0" VerticalAlignment="Top" Height="21" Maximum="0.3" Minimum="0" LargeChange="0.01" SmallChange="0.005" Value="0.01" ValueChanged="ThreshS_ValueChanged"/>
+        <Slider x:Name="ThreshS" Margin="159,104,10,0" VerticalAlignment="Top" Height="21" Maximum="0.3" Minimum="0" LargeChange="0.003" SmallChange="0.001" Value="0.01" ValueChanged="ThreshS_ValueChanged"/>
         <Label Content="{Binding Value, ElementName=ThreshS}" HorizontalAlignment="Left" Margin="111,99,0,0" VerticalAlignment="Top" Width="43"/>
+        <Label Content="ピースしきい値" Margin="111,73,9,0" VerticalAlignment="Top"/>
+        <Slider x:Name="SqThreshS" Margin="159,156,10,0" VerticalAlignment="Top" Height="21" Maximum="0.3" Minimum="0" LargeChange="0.003" SmallChange="0.001" Value="0.02" ValueChanged="SqThreshS_ValueChanged"/>
+        <Label Content="{Binding Value, ElementName=SqThreshS}" HorizontalAlignment="Left" Margin="111,151,0,0" VerticalAlignment="Top" Width="43"/>
+        <Label Content="正方形しきい値" Margin="111,125,9,0" VerticalAlignment="Top"/>
 
     </Grid>
 </UserControl>

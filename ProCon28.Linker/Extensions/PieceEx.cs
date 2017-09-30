@@ -189,9 +189,26 @@ namespace ProCon28.Linker.Extensions
                     change = true;
                 }
             }
-            p.Convert();
+            p = p.Convert();
             if (change) { p = Piece; }
             return p;
+        }
+
+        public static Piece UnsafeRotate(this Piece Piece, double Radian)
+        {
+            Piece p = (Piece)Piece.Clone();
+
+            PointCollection pcol = new PointCollection();
+            foreach(var point in p.Vertexes)
+            {
+                double retX, retY;
+                retX = point.X * Math.Cos(Radian) - point.Y * Math.Sin(Radian);
+                retY = point.X * Math.Sin(Radian) + point.Y * Math.Cos(Radian);
+
+                pcol.Add(new Point((int)Math.Round(retX), (int)Math.Round(retY)));
+            }
+
+            return new Piece(pcol).Convert();
         }
 
         public static Piece FlipPiece(this Piece Piece)

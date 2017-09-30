@@ -82,6 +82,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Config.cs" />
+    <Compile Include="PiecePair.cs" />
     <Compile Include="Shared.cs" />
     <Compile Include="Views\PieceCollectionView.xaml.cs">
       <DependentUpon>PieceCollectionView.xaml</DependentUpon>

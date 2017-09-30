@@ -31,6 +31,7 @@ namespace ProCon28.Algo
             InitializeComponent();
 
             PieceView.Pieces = Shared.Pieces;
+            PiecesInfo.ItemsSource = Shared.Pieces;
             ItemHS.Value = Config.Current.ItemHeight;
             ItemWS.Value = Config.Current.ItemWidth;
 

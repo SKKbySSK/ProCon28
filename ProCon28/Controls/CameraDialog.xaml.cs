@@ -36,7 +36,7 @@ namespace ProCon28.Controls
     /// </summary>
     public partial class Camera : UserControl
     {
-        const int ContourLimit = 5;
+        const int ContourLimit = 2;
 
         public event EventHandler<ContoursEventArgs> Recognized;
 
@@ -165,12 +165,6 @@ namespace ProCon28.Controls
             }
         }
 
-        bool InRatio(double X, double Y, double ExpectRatio, double Threshold)
-        {
-            double ratio = Math.Abs(X / Y);
-            return Math.Abs(ExpectRatio - ratio) <= Threshold;
-        }
-
         double GetLength(OpenCvSharp.Point P1, OpenCvSharp.Point P2)
         {
             double x = P1.X - P2.Y;
@@ -200,6 +194,7 @@ namespace ProCon28.Controls
         Mat Contours(Mat Image)
         {
             if (Image == null) return null;
+
             OpenCvSharp.Size size = Image.Size();
             var contours = FindContours(Image);
 
@@ -238,25 +233,25 @@ namespace ProCon28.Controls
                 }
             }
 
-            return changed.Distinct(vcomparer).OrderByDescending((ps => Cv2.ArcLength(ps, true))).ToList();
+            return changed.OrderByDescending((ps => Cv2.ArcLength(ps, true))).ToList();
         }
 
-        VertexComparer vcomparer = new VertexComparer();
+        //VertexComparer vcomparer = new VertexComparer();
 
-        class VertexComparer : IEqualityComparer<OpenCvSharp.Point[]>
-        {
-            public bool Equals(OpenCvSharp.Point[] x, OpenCvSharp.Point[] y)
-            {
-                return x.Length == y.Length;
-            }
+        //class VertexComparer : IEqualityComparer<OpenCvSharp.Point[]>
+        //{
+        //    public bool Equals(OpenCvSharp.Point[] x, OpenCvSharp.Point[] y)
+        //    {
+        //        return x.Length == y.Length;
+        //    }
 
-            public int GetHashCode(OpenCvSharp.Point[] obj)
-            {
-                return obj.Length;
-            }
-        }
+        //    public int GetHashCode(OpenCvSharp.Point[] obj)
+        //    {
+        //        return obj.Length;
+        //    }
+        //}
 
-        OpenCvSharp.Point[] SquareApprox(OpenCvSharp.Size Size, OpenCvSharp.Point[][] Contours, double Thresh = 0.3)
+        OpenCvSharp.Point[] SquareApprox(OpenCvSharp.Size Size, OpenCvSharp.Point[][] Contours, double Thresh = 0.7)
         {
             List<OpenCvSharp.Point[]> changed = new List<OpenCvSharp.Point[]>();
             foreach (var points in Contours)
@@ -276,6 +271,8 @@ namespace ProCon28.Controls
                     changed.Add(Cv2.ApproxPolyDP(points, Config.Current.SquareApprox * len, true));
                 }
             }
+
+            changed = changed.OrderByDescending(ps => Cv2.ArcLength(ps, true)).ToList();
 
             List<OpenCvSharp.Point[]> returns = new List<OpenCvSharp.Point[]>();
             foreach (OpenCvSharp.Point[] contour in changed)
@@ -303,15 +300,20 @@ namespace ProCon28.Controls
 
         bool IsInRatio(double ExpectRatio, double Threshold, params double[] Args)
         {
-            int len = Args.Length;
+            List<double> diff = new List<double>();
 
-            if (len < 2)
-                return false;
-
-            double a1 = Args[0];
-            for (int j = 1; len > j; j++)
+            int count = Args.Length;
+            for(int i = 0;count > i; i++)
             {
-                if (!InRatio(a1, Args[j], ExpectRatio, Threshold))
+                if (i == count - 1)
+                    diff.Add(Math.Abs(ExpectRatio - (Args[0] / Args[count - 1])));
+                else
+                    diff.Add(Math.Abs(ExpectRatio - (Args[i] / Args[i + 1])));
+            }
+
+            foreach(double d in diff)
+            {
+                if (d > Threshold)
                     return false;
             }
 
@@ -337,7 +339,7 @@ namespace ProCon28.Controls
             Cv2.CvtColor(Image, gray, ColorConversionCodes.BGR2GRAY);
             //Cv2.GaussianBlur(gray, gray, new OpenCvSharp.Size(5, 5), 0);
             Cv2.Threshold(gray, gray, 0, 255, ThresholdTypes.Binary | ThresholdTypes.Otsu);
-            Cv2.AdaptiveThreshold(gray, gray, 255, AdaptiveThresholdTypes.MeanC, ThresholdTypes.Binary, 11, 2);
+            Cv2.AdaptiveThreshold(gray, gray, 255, AdaptiveThresholdTypes.GaussianC, ThresholdTypes.Binary, 11, 2);
 
             Cv2.FindContours(gray, out OpenCvSharp.Point[][] contours, out _,
                 RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);

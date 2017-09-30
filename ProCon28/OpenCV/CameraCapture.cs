@@ -120,17 +120,30 @@ namespace ProCon28.OpenCV
         public IList<Action<Mat>> Interruptions { get; } = new List<Action<Mat>>();
         public IList<Func<Mat, Mat>> Filters { get; } = new List<Func<Mat, Mat>>();
 
+        public void AddSlider(string Name, int Value, int Max, Action<int> ValueChanged)
+        {
+            window.CreateTrackbar(Name, Value, Max, new CvTrackbarCallback(ValueChanged));
+        }
+
         public void Dispose()
         {
-            disposing = true;
-            captureTask.Wait();
-            captureTask = null;
+            try
+            {
+                disposing = true;
 
-            Interruptions.Clear();
-            Filters.Clear();
+                captureTask.Wait();
+                captureTask = null;
 
-            capture?.Dispose();
-            capture = null;
+                Interruptions.Clear();
+                Filters.Clear();
+
+                capture?.Dispose();
+                capture = null;
+            }
+            catch (Exception ex)
+            {
+                Log.WriteLine(ex.Message);
+            }
         }
     }
 }

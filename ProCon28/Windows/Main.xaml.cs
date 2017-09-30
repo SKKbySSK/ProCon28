@@ -289,7 +289,7 @@ namespace ProCon28.Windows
                         p.Vertexes.Add(lp);
                 }
 
-                p = p.Convert().UnsafeRotate(e.Rotation);
+                p = p.Convert();//.UnsafeRotate(e.Rotation);
                 PieceList.Pieces.Add(p);
                 Pieces.Add(p);
             }
@@ -330,6 +330,11 @@ namespace ProCon28.Windows
             {
                 e.Pieces = PieceList.Pieces;
             }
+        }
+
+        private void ClearPB_Click(object sender, RoutedEventArgs e)
+        {
+            PieceList.Pieces.Clear();
         }
     }
 }

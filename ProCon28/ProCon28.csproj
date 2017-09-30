@@ -111,6 +111,9 @@
     <Compile Include="Controls\PieceViewer.xaml.cs">
       <DependentUpon>PieceViewer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\TransferPiecesView.xaml.cs">
+      <DependentUpon>TransferPiecesView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Log.cs" />
     <Compile Include="OpenCV\CameraCapture.cs" />
     <Compile Include="OpenCV\QR\Decoder.cs" />
@@ -147,6 +150,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\Camera.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\TransferPiecesView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -39,7 +39,11 @@ namespace ProCon28
 
         private void Current_Exit(object sender, ExitEventArgs e)
         {
-            Config.Save();
+            var result = Config.Save();
+            if (!result.Item1)
+            {
+                MessageBox.Show("設定の保存に失敗\n\n" + result.Item2.Message);
+            }
         }
     }
 }

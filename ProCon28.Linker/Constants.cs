@@ -9,6 +9,7 @@ namespace ProCon28.Linker
     public static class Constants
     {
         public const string ConfigFileName = "ProConfig.xml";
+        public const string AlgoConfigFileName = "AlgoProConfig.xml";
         public const string RemotePiecesUri = "Pieces";
         public const string RemoteRecognizerUri = "Recognized";
 

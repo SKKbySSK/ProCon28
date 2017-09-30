@@ -39,14 +39,14 @@ namespace ProCon28.Linker.Tcp
             GC.SuppressFinalize(this);
         }
 
-        public MarshalByRefObject GetObject(Type RemoteObject)
+        public T GetObject<T>() where T : MarshalByRefObject
         {
             try
             {
                 ChannelServices.RegisterChannel(client, false);
                 reg = true;
-                MarshalByRefObject obj = Activator.GetObject(RemoteObject, "tcp://" + channel + ":" + port + "/" + uri) as MarshalByRefObject;
-                return obj;
+                MarshalByRefObject obj = Activator.GetObject(typeof(T), "tcp://" + channel + ":" + port + "/" + uri) as MarshalByRefObject;
+                return (T)obj;
             }
             finally
             {

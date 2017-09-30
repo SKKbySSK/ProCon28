@@ -96,15 +96,6 @@ namespace ProCon28.Windows
             ClearLog();
         }
 
-        private void TransportB_Click(object sender, RoutedEventArgs e)
-        {
-            Linker.Tcp.RemotePieces ps = new Linker.Tcp.RemotePieces();
-            ps.BytePieces = PieceList.Pieces.AsBytes();
-
-            MarshalDialog dialog = new MarshalDialog(ps);
-            dialog.Show();
-        }
-
         private void BlurB_Click(object sender, RoutedEventArgs e)
         {
             if (PieceG.Piece == null) return;
@@ -331,6 +322,14 @@ namespace ProCon28.Windows
 
             if (p1.HasValue && p2.HasValue)
                 Log.WriteLine("{0} - {1}", p1.Value.Item3, p2.Value.Item3);
+        }
+
+        private void TransferPiecesView_RequestingPieces(object sender, Controls.RoutedPieceEventArgs e)
+        {
+            if(PieceList.Pieces.Count > 0)
+            {
+                e.Pieces = PieceList.Pieces;
+            }
         }
     }
 }

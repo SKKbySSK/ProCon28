@@ -40,7 +40,7 @@ namespace ProCon28.Windows
 
         void Marshal()
         {
-            server = new Server(Config.Current.TCP_Port, obj, Linker.Constants.RemotePiecesUri);
+            server = new Server(Config.Current.TCP_Port, obj, Linker.Constants.RemoteRecognizerUri);
             server.Marshal();
 
             string[] urls = server.GetUrls();

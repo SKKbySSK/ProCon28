@@ -13,5 +13,18 @@ namespace ProCon28.Algo
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            Exit += App_Exit;
+        }
+
+        private void App_Exit(object sender, ExitEventArgs e)
+        {
+            var result = Config.Save();
+            if (!result.Item1)
+            {
+                MessageBox.Show("設定の保存に失敗\n\n" + result.Item2.Message);
+            }
+        }
     }
 }

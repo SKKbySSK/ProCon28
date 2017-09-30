@@ -6,28 +6,23 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.IO;
 
-namespace ProCon28
+namespace ProCon28.Algo
 {
     public class Config
     {
+        public double ItemHeight { get; set; } = 150;
+        public double ItemWidth { get; set; } = 150;
+        public string TCP_IP { get; set; } = "";
         public int TCP_Port { get; set; } = 50000;
-
-        public int Camera { get; set; } = 2;
-        public double PieceApprox { get; set; } = 0.01;
-        public double SquareApprox { get; set; } = 0.02;
-        public double BlurThreshold { get; set; } = 10;
-        public double StraightThreshold { get; set; } = 0.1;
-        public bool ClockwiseSort { get; set; } = true;
-        public string LastFileName { get; set; } = "result.txt";
 
         static Lazy<Config> config = new Lazy<Config>(() =>
         {
-            if (File.Exists(Linker.Constants.ConfigFileName))
+            if (File.Exists(Linker.Constants.AlgoConfigFileName))
             {
                 try
                 {
                     XmlSerializer ser = new XmlSerializer(typeof(Config));
-                    using (StreamReader sr = new StreamReader(Linker.Constants.ConfigFileName))
+                    using (StreamReader sr = new StreamReader(Linker.Constants.AlgoConfigFileName))
                     {
                         return (Config)ser.Deserialize(sr);
                     }
@@ -46,14 +41,14 @@ namespace ProCon28
             try
             {
                 XmlSerializer ser = new XmlSerializer(typeof(Config));
-                using (StreamWriter sw = new StreamWriter(Linker.Constants.ConfigFileName))
+                using (StreamWriter sw = new StreamWriter(Linker.Constants.AlgoConfigFileName))
                 {
                     ser.Serialize(sw, Current);
                 }
 
                 return (true, null);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return (false, ex);
             }

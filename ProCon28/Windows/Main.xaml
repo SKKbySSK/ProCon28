@@ -17,9 +17,8 @@
             <RowDefinition Height="77.143"/>
         </Grid.RowDefinitions>
         <Controls:PieceGenerator x:Name="PieceG" Margin="288,0,186.714,0.857" Grid.ColumnSpan="2"/>
-        <Controls:PieceViewer x:Name="PieceList" Background="#FFF7F7F7" Margin="0.143,35,-0.286,44" Grid.Column="1" Grid.RowSpan="2" MouseDoubleClick="PieceList_MouseDoubleClick"/>
+        <Controls:PieceViewer x:Name="PieceList" Background="#FFF7F7F7" Margin="0,35,0,0" Grid.Column="1" MouseDoubleClick="PieceList_MouseDoubleClick" Grid.RowSpan="2"/>
         <Button x:Name="AddB" Content="リストへ追加" Margin="213,192,0,0" VerticalAlignment="Top" Click="AddB_Click" HorizontalAlignment="Left" Width="75" Height="20"/>
-        <Button x:Name="TransportB" Content="転送" HorizontalAlignment="Right" Margin="0,0,9.714,10" VerticalAlignment="Bottom" Width="167" Height="29" Click="TransportB_Click" Grid.Column="1" Grid.Row="1"/>
         <ScrollViewer HorizontalAlignment="Left" Margin="0,218,0,145.857" Width="288">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
@@ -44,9 +43,10 @@
         </ScrollViewer>
         <Controls:PieceView x:Name="PieceP" HorizontalAlignment="Left" Width="288" Height="144" VerticalAlignment="Bottom" Margin="0,0,0,1.857"/>
         <Button x:Name="ShapeQrB" Content="形状情報" Margin="10.143,10,9.714,0" VerticalAlignment="Top" Click="ShapeQrB_Click" Height="20" Grid.Column="1"/>
-        <TextBox x:Name="ConsoleT" Grid.Row="1" TextWrapping="Wrap" Background="Black" Foreground="White" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,3.143,186.714,0" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="ConsoleT" Grid.Row="1" TextWrapping="Wrap" Background="Black" Foreground="White" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,3,262,0"/>
         <Button x:Name="EmptyB" Content="空ピース" HorizontalAlignment="Left" Margin="0,192,0,0" VerticalAlignment="Top" Width="75" Click="EmptyB_Click" Height="21"/>
         <Controls:Camera Recognized="Camera_Recognized" HorizontalAlignment="Left" Width="288" Height="192" VerticalAlignment="Top"/>
+        <Controls:TransferPiecesView Height="77" VerticalAlignment="Top" Grid.Row="1" HorizontalAlignment="Right" Width="262" RequestingPieces="TransferPiecesView_RequestingPieces"/>
 
     </Grid>
 </Window>

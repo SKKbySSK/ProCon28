@@ -14,7 +14,6 @@ namespace ProCon28.Linker.Tcp
         int port;
         TcpServerChannel server;
         MarshalByRefObject obj;
-        ObjRef oref;
         string uri;
 
         public Server(int Port, MarshalByRefObject Object, string Uri)
@@ -34,21 +33,28 @@ namespace ProCon28.Linker.Tcp
             get { return server.GetChannelUri(); }
         }
 
+        public string ChannelIP
+        {
+            get
+            {
+                string uri = ChannelUri;
+                uri = uri.Replace("tcp://", "");
+                int index = uri.IndexOf(':');
+                return uri.Substring(0, index);
+            }
+        }
+
         public void Marshal()
         {
             server = new TcpServerChannel(port);
+            
             ChannelServices.RegisterChannel(server, false);
-            oref = RemotingServices.Marshal(obj, uri, obj.GetType());
+            RemotingServices.Marshal(obj, uri, obj.GetType());
         }
 
         public void Dispose()
         {
-            if(oref != null)
-            {
-                RemotingServices.Unmarshal(oref);
-                oref = null;
-            }
-
+            RemotingServices.Disconnect(obj);
             ChannelServices.UnregisterChannel(server);
             server = null;
             obj = null;

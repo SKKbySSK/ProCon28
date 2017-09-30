@@ -66,7 +66,7 @@ namespace ProCon28.Controls
                 else
                 {
                     PLabel.Foreground = Piece.Vertexes.Count > Constants.MaximumVertex ? Brushes.Red : Brushes.Black;
-                    PLabel.Content = string.Format("頂点:{0}, 横幅:{1}, 縦幅:{2}", Piece.Vertexes.Count, w - mw, h - mh);
+                    PLabel.Content = string.Format("V:{0}, W:{1}, H:{2}", Piece.Vertexes.Count, w - mw, h - mh);
                 }
             }
         }

@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="ProCon28.Controls.TransferPiecesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ProCon28.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Button x:Name="BeginB" Content="開始" HorizontalAlignment="Right" Margin="0,10,10,0" VerticalAlignment="Top" Width="85" Height="25" Click="BeginB_Click"/>
+        <Label x:Name="IpLabel" Content="IP" Margin="10,10,100,0" VerticalAlignment="Top" Height="25"/>
+        <Button x:Name="StopB" Content="停止" HorizontalAlignment="Right" Margin="0,40,10,0" VerticalAlignment="Top" Width="85" Height="25" Click="StopB_Click"/>
+        <Label x:Name="PortLabel" Content="50000" Margin="10,40,100,0" VerticalAlignment="Top" Height="25"/>
+
+    </Grid>
+</UserControl>

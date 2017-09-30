@@ -79,8 +79,30 @@ namespace ProCon28.Algo
             r.Add((-1, -1));
             LineJudge First = JudgeLine(Piece1, index1, Piece2, index2);
             if (First.IsJudge)
-            {
+            { 
+                int added1 = index1 - 1, added2 = index2 - 1;
+                if (added1 == -1) { added1 = Piece1.Vertexes.Count; }
+                if (added2 == -1) { added2 = Piece2.Vertexes.Count; }
 
+                if (First.IsTurn)
+                {
+                    r.Add((index1, index2));
+                    r.Add((added1, added2));
+
+                    if (First.IsPIPI1)
+                    {
+                        
+                    }
+                    if (First.IsPIPI2)
+                    {
+
+                    }
+                }
+                else
+                {
+                    r.Add((index1, added2));
+                    r.Add((added1, index2));
+                }
                 r.RemoveAt(0);
             }
 

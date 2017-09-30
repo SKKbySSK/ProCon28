@@ -66,6 +66,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="CompositePiece.cs" />
     <Compile Include="Draw\DrawPiece.cs" />
     <Compile Include="Line\LineData.cs" />
     <Compile Include="MainWindow.xaml.cs">

@@ -12,7 +12,7 @@ namespace ProCon28.Algo
     public class Algorithm
     {
         PieceCollection PieceCollection;
-        SortedLineDataCollection LineList;
+        SortedLineDataCollection LineList = new SortedLineDataCollection();
         public Algorithm(PieceCollection pcol)
         {
             PieceCollection = pcol;

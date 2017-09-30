@@ -59,7 +59,7 @@ namespace TestConsole
         MarshalByRefObject GetObject(string IP, int Port, string Uri)
         {
             Client client = new Client(IP, Port, Constants.RemotePiecesUri);
-            return client.GetObject(typeof(RemotePieces));
+            return client.GetObject<MarshalByRefObject>();
         }
     }
 }

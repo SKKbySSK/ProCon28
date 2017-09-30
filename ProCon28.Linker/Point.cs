@@ -77,6 +77,11 @@ namespace ProCon28.Linker
                 return false;
         }
 
+        public override int GetHashCode()
+        {
+            return int.Parse(X.ToString() + Y);
+        }
+
         public override string ToString()
         {
             return X + "," + Y;

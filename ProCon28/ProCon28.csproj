@@ -127,9 +127,6 @@
     <Compile Include="Controls\CameraDialog.xaml.cs">
       <DependentUpon>Camera.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\MarshalDialog.xaml.cs">
-      <DependentUpon>MarshalDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Windows\QrReader.xaml.cs">
       <DependentUpon>QrReader.xaml</DependentUpon>
     </Compile>
@@ -176,10 +173,6 @@
       <DependentUpon>Main.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Windows\MarshalDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Windows\QrReader.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

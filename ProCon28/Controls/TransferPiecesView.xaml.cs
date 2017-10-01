@@ -25,6 +25,8 @@ namespace ProCon28.Controls
 
         public event EventHandler<RoutedPieceEventArgs> RequestingPieces;
 
+        public bool IsTransferring { get; private set; }
+
         public TransferPiecesView()
         {
             InitializeComponent();
@@ -33,11 +35,51 @@ namespace ProCon28.Controls
             PortLabel.Content = "Null";
         }
 
+        public void TransferPieces(Linker.PieceCollection Pieces)
+        {
+            if(server != null)
+            {
+                server.Dispose();
+            }
+
+            if (Pieces != null)
+            {
+                server = new Server(Config.Current.TCP_Port,
+                    new RemotePieces { BytePieces = Pieces.AsBytes() },
+                    Linker.Constants.RemoteRecognizerUri);
+
+                server.Marshal();
+                IpLabel.Content = server.ChannelIP;
+                PortLabel.Content = Config.Current.TCP_Port;
+
+                Log.Write("Transferring Pieces [{0}]", server.ChannelUri);
+
+                BeginB.IsEnabled = false;
+                StopB.IsEnabled = true;
+                IsTransferring = true;
+            }
+        }
+
         private void BeginB_Click(object sender, RoutedEventArgs e)
         {
+            Begin();
+        }
+
+        private void StopB_Click(object sender, RoutedEventArgs e)
+        {
+            Stop();
+        }
+
+        public void Begin()
+        {
+            if (server != null)
+            {
+                server.Dispose();
+            }
+
             RoutedPieceEventArgs eventArgs = new RoutedPieceEventArgs();
             RequestingPieces?.Invoke(this, eventArgs);
-            if(eventArgs.Pieces != null)
+            if (eventArgs.Pieces != null)
             {
                 server = new Server(Config.Current.TCP_Port,
                     new RemotePieces { BytePieces = eventArgs.Pieces.AsBytes() },
@@ -51,10 +93,11 @@ namespace ProCon28.Controls
 
                 BeginB.IsEnabled = false;
                 StopB.IsEnabled = true;
+                IsTransferring = true;
             }
         }
 
-        private void StopB_Click(object sender, RoutedEventArgs e)
+        public void Stop()
         {
             server?.Dispose();
             server = null;
@@ -64,6 +107,7 @@ namespace ProCon28.Controls
 
             BeginB.IsEnabled = true;
             StopB.IsEnabled = false;
+            IsTransferring = false;
         }
     }
 

@@ -16,6 +16,52 @@ namespace ProCon28.Linker.Extensions
             return Math.Sqrt((Point.X * Point.X) + (Point.Y * Point.Y));
         }
 
+        public static double GetAngle(this Point Point)
+        {
+            return Math.Atan2(Point.Y, Point.X);
+        }
+
+        /// <summary>
+        /// ピースの座標を指定した基準点を元に変換します。
+        /// </summary>
+        /// <param name="Piece"></param>
+        /// <param name="BasePoint">基準となる点</param>
+        /// <returns></returns>
+        public static PointCollection Convert(this PointCollection Points, Point BasePoint)
+        {
+            PointCollection pcol = new PointCollection();
+            for (int i = 0; Points.Count > i; i++)
+            {
+                Point p = Points[i];
+                p.X -= BasePoint.X;
+                p.Y -= BasePoint.Y;
+                pcol.Add(p);
+            }
+            return pcol;
+        }
+
+        public static PointCollection Convert(this PointCollection Points)
+        {
+            if (Points.Count == 0) return Points;
+            Point bp = Points[0];
+            foreach (Point p in Points)
+            {
+                if (bp.X > p.X)
+                    bp.X = p.X;
+                if (bp.Y > p.Y)
+                    bp.Y = p.Y;
+            }
+            return Convert(Points, bp);
+        }
+
+        public static PointCollection Move(this PointCollection Points, Point Delta)
+        {
+            PointCollection col = new PointCollection();
+            foreach (var p in Points)
+                col.Add(p + Delta);
+            return col;
+        }
+
         /// <summary>
         /// 2点間の距離を計算します
         /// </summary>

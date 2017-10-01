@@ -27,6 +27,11 @@ namespace ProCon28.Linker
         public int X { get; set; }
         public int Y { get; set; }
 
+        public static Point Abs(Point Point)
+        {
+            return new Point(Math.Abs(Point.X), Math.Abs(Point.Y));
+        }
+
         public static Point operator+(Point p1, Point p2)
         {
             return new Point(p1.X + p2.X, p1.Y + p2.Y);

@@ -9,7 +9,7 @@ using ProCon28.Linker.Extensions;
 
 namespace ProCon28.Algo
 {
-    public class PiecePair
+    public class PiecePair : Piece
     {
         public PiecePair(Piece p1,int i1,Piece p2,int i2)
         {
@@ -124,13 +124,15 @@ namespace ProCon28.Algo
 
         internal class JudgeData
         {
-             public JudgeData(bool j, bool t, bool p1, bool p2)
+            public JudgeData(bool j, bool t, bool p1, bool p2)
             {
                 IsJudge = j;
                 IsTurn = t;
                 IsPIPI1 = p1;
                 IsPIPI1 = p2;
             }
+
+            public JudgeData() { }
 
             public bool IsJudge { get; }
             public bool IsTurn { get; }

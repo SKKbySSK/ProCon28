@@ -42,10 +42,10 @@ namespace ProCon28.Algo
 
         private void import_Click(object sender, RoutedEventArgs e)
         {
-            //これ使ってね
             PieceCollection pcol = new PieceCollection();
+            pcol.AddRange(Shared.Pieces);
 
-            Algorithm AlgoLithm = new Algorithm(pcol);
+            Algorithm Algorithm = new Algorithm(pcol);
         }
 
         private void ItemWS_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

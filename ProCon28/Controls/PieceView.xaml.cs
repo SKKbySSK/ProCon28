@@ -61,7 +61,7 @@ namespace ProCon28.Controls
                 if(Piece is Linker.Frame)
                 {
                     PLabel.Foreground = Brushes.Black;
-                    PLabel.Content = string.Format("フレーム 横幅:{0}, 縦幅:{1}", w - mw, h - mh);
+                    PLabel.Content = string.Format("フレーム W:{0}, H:{1}", w - mw, h - mh);
                 }
                 else
                 {

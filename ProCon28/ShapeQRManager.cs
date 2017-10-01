@@ -15,6 +15,11 @@ namespace ProCon28
             return shapes.ToArray();
         }
 
+        public static void Reset()
+        {
+            shapes.Clear();
+        }
+
         public static bool AddShape(string QRShape)
         {
             if (!shapes.Contains(QRShape))
@@ -24,7 +29,7 @@ namespace ProCon28
                     if (GeneratePieces(QRShape).Length > 0)
                     {
                         shapes.Add(QRShape);
-                        Log.WriteLine(QRShape);
+                        Log.Write("QR : " + QRShape);
                         return true;
                     }
                     else

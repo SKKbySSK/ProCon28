@@ -205,40 +205,6 @@ namespace ProCon28.Windows
             AppendLog();
         }
 
-        private void ShapeQrB_Click(object sender, RoutedEventArgs e)
-        {
-            QrReader ShapeQRWindow = new QrReader();
-
-            EventHandler ev = null;
-            ev = new EventHandler((_1, _2) =>
-            {
-                ShapeQRWindow.ResultChanged -= ev;
-
-                string[] copied = new string[ShapeQRWindow.Result.Length];
-                for(int i = 0;ShapeQRWindow.Result.Length > i; i++)
-                {
-                    copied[i] = ShapeQRWindow.Result[i];
-                }
-
-                Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    foreach (string shape in copied)
-                    {
-                        if (ShapeQRManager.AddShape(shape))
-                        {
-                            PieceList.Pieces.AddRange(ShapeQRManager.GeneratePieces(shape));
-                            System.Threading.Thread.Sleep(200);
-                        }
-                    }
-                    ShapeQRWindow.ResultChanged += ev;
-                }));
-            });
-
-            ShapeQRWindow.ResultChanged += ev;
-            ShapeQRWindow.ShowDialog();
-            ShapeQRWindow.ResultChanged -= ev;
-        }
-
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Config.Current.ClockwiseSort = SortC.IsChecked ?? false;
@@ -248,12 +214,18 @@ namespace ProCon28.Windows
 
         public void Append(object Format, params object[] Args)
         {
-            Dispatcher.BeginInvoke(new Action(() => ConsoleT.AppendText(string.Format(Format.ToString(), Args))));
+            Append(string.Format(Format.ToString(), Args));
         }
 
         public void Append(object Text)
         {
-            Dispatcher.BeginInvoke(new Action(() => ConsoleT.AppendText(Text.ToString())));
+            DateTime now = DateTime.Now;
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                string text = Text + " (" + now + ")";
+                ConsoleL.Items.Add(text);
+                ConsoleL.ScrollIntoView(text);
+            }));
         }
 
         private void EmptyB_Click(object sender, RoutedEventArgs e)
@@ -321,7 +293,7 @@ namespace ProCon28.Windows
             }
 
             if (p1.HasValue && p2.HasValue)
-                Log.WriteLine("{0} - {1}", p1.Value.Item3, p2.Value.Item3);
+                Log.Write("{0} - {1}", p1.Value.Item3, p2.Value.Item3);
         }
 
         private void TransferPiecesView_RequestingPieces(object sender, Controls.RoutedPieceEventArgs e)
@@ -335,6 +307,12 @@ namespace ProCon28.Windows
         private void ClearPB_Click(object sender, RoutedEventArgs e)
         {
             PieceList.Pieces.Clear();
+            ShapeQRManager.Reset();
+        }
+
+        private void QrReader_Recognized(object sender, Controls.QrReaderEventArgs e)
+        {
+            PieceList.Pieces.AddRange(ShapeQRManager.GeneratePieces(e.Result));
         }
     }
 }

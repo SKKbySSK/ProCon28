@@ -24,7 +24,7 @@ namespace ProCon28.OpenCV
             window.OnMouseCallback += Window_OnMouseCallback;
 
             captureTask = Task.Run(action: Capture);
-            Log.WriteLine("OpenCV Initialized [Camera : {0}, Window : {1}]", Device, Window);
+            Log.Write("OpenCV Initialized [Camera : {0}, Window : {1}]", Device, Window);
         }
 
         private void Window_OnMouseCallback(MouseEvent @event, int x, int y, MouseEvent flags)
@@ -106,15 +106,15 @@ namespace ProCon28.OpenCV
                 }
             }
 
-            Log.WriteLine("Disposing the device...");
-            Window.DestroyAllWindows();
+            Log.Write("Disposing the device...");
             if (window != null)
             {
                 window.Image?.Dispose();
+                window.Close();
                 window.Dispose();
                 window = null;
             }
-            Log.WriteLine("Device was disposed");
+            Log.Write("Device was disposed");
         }
 
         public IList<Action<Mat>> Interruptions { get; } = new List<Action<Mat>>();
@@ -142,7 +142,7 @@ namespace ProCon28.OpenCV
             }
             catch (Exception ex)
             {
-                Log.WriteLine(ex.Message);
+                Log.Write(ex.Message);
             }
         }
     }

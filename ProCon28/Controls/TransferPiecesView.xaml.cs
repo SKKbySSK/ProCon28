@@ -47,6 +47,8 @@ namespace ProCon28.Controls
                 IpLabel.Content = server.ChannelIP;
                 PortLabel.Content = Config.Current.TCP_Port;
 
+                Log.Write("Transferring Pieces [{0}]", server.ChannelUri);
+
                 BeginB.IsEnabled = false;
                 StopB.IsEnabled = true;
             }

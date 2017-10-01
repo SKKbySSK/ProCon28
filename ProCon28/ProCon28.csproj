@@ -80,6 +80,7 @@
       <HintPath>..\packages\System.ValueTuple.4.4.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -111,9 +112,13 @@
     <Compile Include="Controls\PieceViewer.xaml.cs">
       <DependentUpon>PieceViewer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\QrReader.xaml.cs">
+      <DependentUpon>QrReader.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TransferPiecesView.xaml.cs">
       <DependentUpon>TransferPiecesView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="KeyboardHook.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="OpenCV\CameraCapture.cs" />
     <Compile Include="OpenCV\QR\Decoder.cs" />
@@ -126,9 +131,6 @@
     <Compile Include="ShapeQRManager.cs" />
     <Compile Include="Controls\CameraDialog.xaml.cs">
       <DependentUpon>Camera.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\QrReader.xaml.cs">
-      <DependentUpon>QrReader.xaml</DependentUpon>
     </Compile>
     <Page Include="Controls\PieceGenerator.xaml">
       <SubType>Designer</SubType>
@@ -147,6 +149,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\Camera.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\QrReader.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -173,10 +179,6 @@
       <DependentUpon>Main.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Windows\QrReader.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

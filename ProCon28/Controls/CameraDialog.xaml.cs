@@ -40,6 +40,10 @@ namespace ProCon28.Controls
 
         public event EventHandler<ContoursEventArgs> Recognized;
 
+        public double PieceCoefficient { get; private set; } = 1.0;
+        public double PieceRotation { get; private set; } = 0;
+        int MinimumArcLength { get; set; } = 30;
+
         Mat Intrinsic, Distortion;
 
         public System.Collections.ObjectModel.ObservableCollection<string> CalibrationFiles { get; }
@@ -56,6 +60,26 @@ namespace ProCon28.Controls
             CamT.Text = Config.Current.Camera.ToString();
             ThreshS.Value = Config.Current.PieceApprox;
             SqThreshS.Value = Config.Current.SquareApprox;
+
+            KeyboardHook.HookEvent += OnKeyStateChanged;
+        }
+
+        void OnKeyStateChanged(ref KeyboardHook.StateKeyboard State)
+        {
+            if(State.Stroke == KeyboardHook.Stroke.KEY_UP)
+            {
+                if (State.Key == System.Windows.Forms.Keys.C)
+                {
+                    CaptureB_Click(null, null);
+                }
+                if (State.Key == System.Windows.Forms.Keys.F)
+                {
+                    using(Mat img = camera.RetrieveMat(true))
+                    {
+                        UpdateCoefficientAndRotation(img.Size(), FindContours(img));
+                    }
+                }
+            }
         }
 
         void UpdateCalibrations()
@@ -87,6 +111,7 @@ namespace ProCon28.Controls
                 Config.Current.Camera = dev;
 
             camera = new CameraCapture(Config.Current.Camera, "Recognizer");
+            camera.AddSlider("Arc Length", MinimumArcLength, 1000, val => MinimumArcLength = val);
 
             if (CalibC.SelectedIndex > 0)
             {
@@ -100,11 +125,13 @@ namespace ProCon28.Controls
             }
             camera.Filters.Add(Contours);
 
+            KeyboardHook.Start();
             camera.Begin();
         }
 
         private void StopB_Click(object sender, RoutedEventArgs e)
         {
+            KeyboardHook.Stop();
             Intrinsic?.Dispose();
             Intrinsic = null;
 
@@ -133,36 +160,38 @@ namespace ProCon28.Controls
             {
                 OpenCvSharp.Size size = capture.Size();
                 var contours = FindContours(capture);
+                var changed = PieceApprox(size, contours);
 
-                var sqpoints = SquareApprox(size, contours);
-                if (sqpoints != null)
-                {
-                    var changed = PieceApprox(size, contours);
-
-                    Linker.Piece Square = new Linker.Piece();
-                    foreach (var ps in sqpoints)
-                    {
-                        Square.Vertexes.Add(new Linker.Point(ps.X, ps.Y));
-                    }
-
-                    double av = 0;
-                    var lines = Square.Vertexes.AsLinesWithLength();
-                    foreach (var line in lines)
-                        av += line.Item3;
-                    av /= lines.Count;
-
-                    double ratio = 6 / av;
-
-                    var bpoint = lines[0];
-                    double cos = Math.Abs(bpoint.Item1.X - bpoint.Item2.X) / bpoint.Item3;
-                    double rad = Math.Acos(cos);
-
-                    Log.WriteLine("Square's Average Line Length : {0}", av);
-
-                    int count = Math.Min(changed.Count, ContourLimit);
-                    Recognized?.Invoke(this, new ContoursEventArgs(changed.GetRange(0, count).ToArray(), ratio, rad));
-                }
+                int count = Math.Min(changed.Count, ContourLimit);
+                Recognized?.Invoke(this, new ContoursEventArgs(changed.GetRange(0, count).ToArray(),
+                    PieceCoefficient, PieceRotation));
             }
+        }
+
+        public void UpdateCoefficientAndRotation(OpenCvSharp.Size Size, OpenCvSharp.Point[][] Contours)
+        {
+            var sqpoints = SquareApprox(Size, Contours);
+            if (sqpoints == null) return;
+
+            Linker.Piece Square = new Linker.Piece();
+            foreach (var ps in sqpoints)
+            {
+                Square.Vertexes.Add(new Linker.Point(ps.X, ps.Y));
+            }
+
+            double av = 0;
+            var lines = Square.Vertexes.AsLinesWithLength();
+            foreach (var line in lines)
+                av += line.Item3;
+            av /= lines.Count;
+
+            PieceCoefficient = 6 / av;
+
+            var bpoint = lines[0];
+            double cos = Math.Abs(bpoint.Item1.X - bpoint.Item2.X) / bpoint.Item3;
+            PieceRotation= Math.Acos(cos);
+
+            Log.Write("Scale : {0}, Rotation : {1}", PieceCoefficient, PieceRotation);
         }
 
         double GetLength(OpenCvSharp.Point P1, OpenCvSharp.Point P2)
@@ -219,7 +248,7 @@ namespace ProCon28.Controls
                 bool f = false;
                 foreach (var p in points)
                 {
-                    if (p.X == 0 || p.Y == 0 || p.X == Size.Width || p.Y == Size.Height)
+                    if (p.X == 0 || p.Y == 0 || p.X == Size.Width - 1 || p.Y == Size.Height - 1)
                     {
                         f = true;
                         break;
@@ -228,8 +257,12 @@ namespace ProCon28.Controls
                 if (!f)
                 {
                     double len = Cv2.ArcLength(points, true);
-                    var approx = Cv2.ApproxPolyDP(points, Config.Current.PieceApprox * len, true);
-                    changed.Add(approx);
+
+                    if(len >= MinimumArcLength)
+                    {
+                        var approx = Cv2.ApproxPolyDP(points, Config.Current.PieceApprox * len, true);
+                        changed.Add(approx);
+                    }
                 }
             }
 
@@ -259,7 +292,7 @@ namespace ProCon28.Controls
                 bool f = false;
                 foreach (var p in points)
                 {
-                    if (p.X == 0 || p.Y == 0 || p.X == Size.Width || p.Y == Size.Height)
+                    if (p.X == 0 || p.Y == 0 || p.X == Size.Width - 1 || p.Y == Size.Height - 1)
                     {
                         f = true;
                         break;
@@ -268,7 +301,9 @@ namespace ProCon28.Controls
                 if (!f)
                 {
                     double len = Cv2.ArcLength(points, true);
-                    changed.Add(Cv2.ApproxPolyDP(points, Config.Current.SquareApprox * len, true));
+
+                    if (len >= MinimumArcLength)
+                        changed.Add(Cv2.ApproxPolyDP(points, Config.Current.SquareApprox * len, true));
                 }
             }
 
@@ -277,25 +312,11 @@ namespace ProCon28.Controls
             List<OpenCvSharp.Point[]> returns = new List<OpenCvSharp.Point[]>();
             foreach (OpenCvSharp.Point[] contour in changed)
             {
-                if (contour.Length == 4)
-                {
-                    double l1, l2, l3, l4;
-                    l1 = GetLength(contour[0], contour[1]);
-                    l2 = GetLength(contour[1], contour[2]);
-                    l3 = GetLength(contour[2], contour[3]);
-                    l4 = GetLength(contour[3], contour[0]);
-
-                    if (IsInRatio(1, Thresh, l1, l2, l3, l4))
-                    {
-                        returns.Add(contour);
-                    }
-                }
+                if (contour.Length == 4 && Cv2.ContourArea(contour, false) > 1000)
+                    return contour;
             }
 
-            if (returns.Count > 0)
-                return returns.OrderByDescending((contour) => Cv2.ArcLength(contour, true)).First();
-            else
-                return null;
+            return null;
         }
 
         bool IsInRatio(double ExpectRatio, double Threshold, params double[] Args)

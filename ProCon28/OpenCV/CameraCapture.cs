@@ -14,6 +14,7 @@ namespace ProCon28.OpenCV
         Task captureTask;
         Window window;
         VideoCapture capture;
+        double gammaparam = 1.0;
 
         public event EventHandler MouseClicked;
 
@@ -25,6 +26,30 @@ namespace ProCon28.OpenCV
 
             captureTask = Task.Run(action: Capture);
             Log.Write("OpenCV Initialized [Camera : {0}, Window : {1}]", Device, Window);
+        }
+
+        public void UseGammaOptimization()
+        {
+            AddSlider("Gamma", (int)(gammaparam * 100), 500, (val) =>
+            {
+                gammaparam = val / 100.0;
+                if (gammaparam == 0)
+                    gammaparam = 0.01;
+            });
+            Filters.Add(Gamma);
+        }
+
+        Mat Gamma(Mat Image)
+        {
+            byte[] lut = new byte[256];
+            for(int i = 0; 256 > i; i++)
+            {
+                lut[i] = (byte)(Math.Pow(i / 255.0, 1.0 / gammaparam) * 255);
+            }
+            Mat gamma = new Mat();
+            Cv2.LUT(Image, lut, gamma);
+            Image.Dispose();
+            return gamma;
         }
 
         private void Window_OnMouseCallback(MouseEvent @event, int x, int y, MouseEvent flags)
@@ -107,10 +132,10 @@ namespace ProCon28.OpenCV
             }
 
             Log.Write("Disposing the device...");
+            Window.DestroyAllWindows();
             if (window != null)
             {
                 window.Image?.Dispose();
-                window.Close();
                 window.Dispose();
                 window = null;
             }

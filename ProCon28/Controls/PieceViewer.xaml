@@ -6,13 +6,21 @@
              xmlns:local="clr-namespace:ProCon28.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <ScrollViewer>
-        <StackPanel x:Name="PiecesStack">
-            <StackPanel.ContextMenu>
-                <ContextMenu Opened="ContextMenu_Opened">
-                    <MenuItem x:Name="RemoveItem" Header="削除" IsEnabled="False" Click="RemoveItem_Click"/>
-                </ContextMenu>
-            </StackPanel.ContextMenu>
-        </StackPanel>
-    </ScrollViewer>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <ScrollViewer Margin="0,26,0,0" Grid.ColumnSpan="2">
+            <StackPanel x:Name="PiecesStack">
+                <StackPanel.ContextMenu>
+                    <ContextMenu Opened="ContextMenu_Opened">
+                        <MenuItem x:Name="RemoveItem" Header="削除" IsEnabled="False" Click="RemoveItem_Click"/>
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
+            </StackPanel>
+        </ScrollViewer>
+        <Button x:Name="LoadB" Content="読み込み" VerticalAlignment="Top" Height="21" Margin="10,0" Click="LoadB_Click"/>
+        <Button x:Name="WriteB" Content="書き込み" VerticalAlignment="Top" Height="21" Grid.Column="1" Margin="5,0,10,0" Click="WriteB_Click"/>
+    </Grid>
 </UserControl>

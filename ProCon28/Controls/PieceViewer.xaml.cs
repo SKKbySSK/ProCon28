@@ -12,13 +12,16 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Forms;
+using ProCon28.Linker.Extensions;
+using System.IO;
 
 namespace ProCon28.Controls
 {
     /// <summary>
     /// PieceViewer.xaml の相互作用ロジック
     /// </summary>
-    public partial class PieceViewer : UserControl
+    public partial class PieceViewer : System.Windows.Controls.UserControl
     {
         public event EventHandler SelectedPieceChanged;
 
@@ -136,6 +139,34 @@ namespace ProCon28.Controls
         {
             if (SelectedPiece != null) RemoveItem.IsEnabled = true;
             else RemoveItem.IsEnabled = false;
+        }
+
+        private void LoadB_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog() { Filter = "Piecesファイル|*.pbin|全てのファイル|*.*", FileName = "Pieces.pbin" };
+            if(ofd.ShowDialog() == DialogResult.OK)
+            {
+                using (FileStream fs = new FileStream(ofd.FileName, FileMode.Open, FileAccess.Read))
+                {
+                    byte[] bs = new byte[fs.Length];
+                    fs.Read(bs, 0, (int)fs.Length);
+
+                    Pieces.AddRange(new Linker.PieceCollection(bs));
+                }
+            }
+        }
+
+        private void WriteB_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog() { Filter = "Piecesファイル|*.pbin|全てのファイル|*.*", FileName = "Pieces.pbin" };
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                using(FileStream fs = new FileStream(sfd.FileName, FileMode.OpenOrCreate, FileAccess.Write))
+                {
+                    byte[] bs = Pieces.AsBytes();
+                    fs.Write(bs, 0, bs.Length);
+                }
+            }
         }
     }
 }

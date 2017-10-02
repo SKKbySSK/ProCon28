@@ -19,14 +19,14 @@ namespace ProCon28.Controls
 {
     public class ContoursEventArgs : EventArgs
     {
-        public ContoursEventArgs(OpenCvSharp.Point[][] Contours, double Scale, double Rotation)
+        public ContoursEventArgs(OpenCvSharp.Point[] Contour, double Scale, double Rotation)
         {
-            this.Contours = Contours;
+            this.Contour = Contour;
             this.Scale = Scale;
             this.Rotation = Rotation;
         }
 
-        public OpenCvSharp.Point[][] Contours { get; }
+        public OpenCvSharp.Point[] Contour { get; }
         public double Scale { get; }
         public double Rotation { get; }
     }
@@ -36,13 +36,14 @@ namespace ProCon28.Controls
     /// </summary>
     public partial class Camera : UserControl
     {
-        const int ContourLimit = 2;
-
         public event EventHandler<ContoursEventArgs> Recognized;
 
         public double PieceCoefficient { get; private set; } = 1.0;
         public double PieceRotation { get; private set; } = 0;
-        int MinimumArcLength { get; set; } = 30;
+        int MinimumArea { get; set; } = 200;
+        int SquareMaximumArcLength { get; set; } = 300;
+        int ContourIndex { get; set; } = 1;
+        Mat PerspectiveTransform { get; set; }
 
         Mat Intrinsic, Distortion;
 
@@ -74,10 +75,15 @@ namespace ProCon28.Controls
                 }
                 if (State.Key == System.Windows.Forms.Keys.F)
                 {
-                    using(Mat img = camera.RetrieveMat(true))
+                    using(Mat img = camera.RetrieveMat(false))
                     {
-                        UpdateCoefficientAndRotation(img.Size(), FindContours(img));
+                        FixCamera(img.Size(), FindContours(img));
                     }
+                }
+                if(State.Key == System.Windows.Forms.Keys.R)
+                {
+                    PerspectiveTransform?.Dispose();
+                    PerspectiveTransform = null;
                 }
             }
         }
@@ -111,7 +117,10 @@ namespace ProCon28.Controls
                 Config.Current.Camera = dev;
 
             camera = new CameraCapture(Config.Current.Camera, "Recognizer");
-            camera.AddSlider("Arc Length", MinimumArcLength, 1000, val => MinimumArcLength = val);
+            camera.UseGammaOptimization();
+            camera.AddSlider("Index", ContourIndex, 100, (val) => ContourIndex = val);
+            camera.AddSlider("Min Length", MinimumArea, 1000, val => MinimumArea = val);
+            camera.AddSlider("Sq Length", SquareMaximumArcLength, 1000, val => SquareMaximumArcLength = val);
 
             if (CalibC.SelectedIndex > 0)
             {
@@ -138,6 +147,9 @@ namespace ProCon28.Controls
             Distortion?.Dispose();
             Distortion = null;
 
+            PerspectiveTransform?.Dispose();
+            PerspectiveTransform = null;
+
             RefreshDirB.IsEnabled = true;
             CalibC.IsEnabled = true;
             StopB.IsEnabled = false;
@@ -156,42 +168,100 @@ namespace ProCon28.Controls
 
         private void CaptureB_Click(object sender, RoutedEventArgs e)
         {
-            using(Mat capture = camera.RetrieveMat(true))
+            using(Mat capture = camera.RetrieveMat(false))
             {
                 OpenCvSharp.Size size = capture.Size();
                 var contours = FindContours(capture);
                 var changed = PieceApprox(size, contours);
 
-                int count = Math.Min(changed.Count, ContourLimit);
-                Recognized?.Invoke(this, new ContoursEventArgs(changed.GetRange(0, count).ToArray(),
+                int ind = Math.Max(0, Math.Min(changed.Count - 1, ContourIndex));
+                Recognized?.Invoke(this, new ContoursEventArgs(changed[ind],
                     PieceCoefficient, PieceRotation));
             }
         }
 
-        public void UpdateCoefficientAndRotation(OpenCvSharp.Size Size, OpenCvSharp.Point[][] Contours)
+        public void FixCamera(OpenCvSharp.Size Size, OpenCvSharp.Point[][] Contours)
         {
             var sqpoints = SquareApprox(Size, Contours);
             if (sqpoints == null) return;
+            sqpoints = AsAntiClockwise(sqpoints);
 
-            Linker.Piece Square = new Linker.Piece();
-            foreach (var ps in sqpoints)
-            {
-                Square.Vertexes.Add(new Linker.Point(ps.X, ps.Y));
-            }
+            double arclen = Cv2.ArcLength(sqpoints, true);
+            PieceCoefficient = (6 * 4) / arclen;
 
-            double av = 0;
-            var lines = Square.Vertexes.AsLinesWithLength();
-            foreach (var line in lines)
-                av += line.Item3;
-            av /= lines.Count;
+            OpenCvSharp.Point p1 = sqpoints[0], p2 = sqpoints[1];
+            int x = Math.Abs(p1.X - p2.X), y = Math.Abs(p1.Y - p2.Y);
 
-            PieceCoefficient = 6 / av;
-
-            var bpoint = lines[0];
-            double cos = Math.Abs(bpoint.Item1.X - bpoint.Item2.X) / bpoint.Item3;
-            PieceRotation= Math.Acos(cos);
+            PieceRotation = Math.Atan2(y, x);
 
             Log.Write("Scale : {0}, Rotation : {1}", PieceCoefficient, PieceRotation);
+
+            bool shouldConvert = false;
+
+            for(int i = 0;sqpoints.Length > i; i++)
+            {
+                if(i == sqpoints.Length - 1)
+                {
+                    if ((int)(Math.Round(sqpoints[i].DistanceTo(sqpoints[0]) * PieceCoefficient)) != 6)
+                        shouldConvert = true;
+                }
+                else
+                {
+                    if ((int)(Math.Round(sqpoints[i].DistanceTo(sqpoints[i + 1]) * PieceCoefficient)) != 6)
+                        shouldConvert = true;
+                }
+
+                if (shouldConvert)
+                    break;
+            }
+
+            if (!shouldConvert)
+            {
+                Log.Write("No need to convert");
+            }
+            else
+            {
+
+                PerspectiveTransform?.Dispose();
+                PerspectiveTransform = null;
+
+                int len = p2.Y - p1.Y;
+                Point2f[] dst = new Point2f[4];
+                dst[0] = p1;
+                dst[1] = new Point2f(p1.X, p1.Y + len);
+                dst[2] = new Point2f(p1.X + len, p1.Y + len);
+                dst[3] = new Point2f(p1.X + len, p1.Y);
+
+                PerspectiveTransform = Cv2.GetPerspectiveTransform(ToFloatArray(sqpoints), dst);
+            }
+        }
+
+        OpenCvSharp.Point[] AsAntiClockwise(OpenCvSharp.Point[] Points)
+        {
+            OpenCvSharp.Point BasePoint = Points[0];
+            var ps = Points.OrderBy(p => Math.Atan2(BasePoint.X - p.X, BasePoint.Y - p.Y)).ToList();
+
+            int ind = 0, sum = 0;
+            for(int i = 0;ps.Count > i; i++)
+            {
+                int temp = ps[i].X + ps[i].Y;
+                if(temp < sum || i == 0)
+                {
+                    ind = i;
+                    sum = temp;
+                }
+            }
+
+            if (ind > 0)
+            {
+                List<OpenCvSharp.Point> sorted = new List<OpenCvSharp.Point>();
+                sorted.AddRange(ps.GetRange(ind, ps.Count - ind));
+                sorted.AddRange(ps.GetRange(0, ind));
+
+                return sorted.ToArray();
+            }
+            else
+                return ps.ToArray();
         }
 
         double GetLength(OpenCvSharp.Point P1, OpenCvSharp.Point P2)
@@ -228,9 +298,9 @@ namespace ProCon28.Controls
             var contours = FindContours(Image);
 
             var Pieces = PieceApprox(size, contours);
-
-            int count = Math.Min(Pieces.Count, ContourLimit);
-            Cv2.DrawContours(Image, Pieces.GetRange(0, count), -1, Scalar.Red, 3);
+            
+            int ind = Math.Max(0, Math.Min(Pieces.Count - 1, ContourIndex));
+            Cv2.DrawContours(Image, new OpenCvSharp.Point[][] { Pieces[ind] }, -1, Scalar.Red, 3);
 
             var Square = SquareApprox(size, contours);
 
@@ -256,10 +326,9 @@ namespace ProCon28.Controls
                 }
                 if (!f)
                 {
-                    double len = Cv2.ArcLength(points, true);
-
-                    if(len >= MinimumArcLength)
+                    if(Cv2.ContourArea(points, false) >= MinimumArea)
                     {
+                        double len = Cv2.ArcLength(points, true);
                         var approx = Cv2.ApproxPolyDP(points, Config.Current.PieceApprox * len, true);
                         changed.Add(approx);
                     }
@@ -302,8 +371,10 @@ namespace ProCon28.Controls
                 {
                     double len = Cv2.ArcLength(points, true);
 
-                    if (len >= MinimumArcLength)
+                    if(Cv2.ContourArea(points, false) >= MinimumArea && len <= SquareMaximumArcLength)
+                    {
                         changed.Add(Cv2.ApproxPolyDP(points, Config.Current.SquareApprox * len, true));
+                    }
                 }
             }
 
@@ -312,7 +383,7 @@ namespace ProCon28.Controls
             List<OpenCvSharp.Point[]> returns = new List<OpenCvSharp.Point[]>();
             foreach (OpenCvSharp.Point[] contour in changed)
             {
-                if (contour.Length == 4 && Cv2.ContourArea(contour, false) > 1000)
+                if (contour.Length == 4)
                     return contour;
             }
 
@@ -356,6 +427,11 @@ namespace ProCon28.Controls
 
         OpenCvSharp.Point[][] FindContours(Mat Image)
         {
+            if(PerspectiveTransform != null && !PerspectiveTransform.IsDisposed)
+            {
+                Cv2.WarpPerspective(Image, Image, PerspectiveTransform, Image.Size());
+            }
+
             Mat gray = new Mat();
             Cv2.CvtColor(Image, gray, ColorConversionCodes.BGR2GRAY);
             //Cv2.GaussianBlur(gray, gray, new OpenCvSharp.Size(5, 5), 0);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace ProCon28.Linker.Extensions
 {
@@ -221,8 +222,120 @@ namespace ProCon28.Linker.Extensions
                 clone.Y *= -1;
                 p.Vertexes[i] = clone;
             }
-            p.Convert();
+            p = p.Convert();
             return p;
+        }
+        
+        class LineConnection
+        {
+            public int Index1;
+            public int Index2;
+            public Point X1;
+            public Point X2;
+            public Point Y1;
+            public Point Y2;
+            public double Length1;
+            public double Length2;
+            public double Difference;
+        }
+
+        //public static bool TryCombinePieces(out Piece CombinedPiece, params Piece[] Pieces)
+        //{
+
+        //}
+
+        public static bool TryCombineTwoPieces(this Piece Piece1, Piece Piece2, double Threshold, out Piece CombinedPiece)
+        {
+            var lines1 = Piece1.Vertexes.AsLinesWithLength();
+            var lines2 = Piece2.Vertexes.AsLinesWithLength();
+            int count1 = lines1.Count;
+            int count2 = lines2.Count;
+
+            List<LineConnection> connections = new List<LineConnection>();
+            for (int i1 = 0; count1 > i1; i1++)
+            {
+                var l1 = lines1[i1];
+                for (int i2 = 0; count2 > i2; i2++)
+                {
+                    var l2 = lines2[i2];
+                    double diff = Math.Abs(l1.Item3 - l2.Item3);
+                    if (diff <= Threshold)
+                    {
+                        connections.Add(new LineConnection()
+                        {
+                            Index1 = i1,
+                            Index2 = i2,
+                            X1 = l1.Item1,
+                            X2 = l2.Item1,
+                            Y1 = l1.Item1,
+                            Y2 = l2.Item2,
+                            Length1 = l1.Item3,
+                            Length2 = l2.Item3,
+                            Difference = diff
+                        });
+                    }
+                }
+            }
+            connections = connections.OrderBy((lc) => lc.Difference).ToList();
+
+            List<LineConnection> minDifferences = new List<LineConnection>();
+
+            double mdiff = connections.First().Difference;
+            foreach (var con in connections)
+            {
+                if (mdiff == con.Difference)
+                    minDifferences.Add(con);
+                else
+                    break;
+            }
+
+            CombinedPiece = null;
+
+            Console.WriteLine("Difference : {0}", mdiff);
+            foreach (var connection in minDifferences)
+            {
+                Bitmap bmp = new Bitmap(300, 300);
+                Graphics g = Graphics.FromImage(bmp);
+                g.Clear(Color.White);
+
+                double angle1 = Point.Abs(connection.X2 - connection.X1).GetAngle();
+                double angle2 = Point.Abs(connection.Y2 - connection.Y1).GetAngle();
+
+                g.DrawPolygon(Pens.Black, Piece2.Vertexes.Select(p => new PointF(p.X, p.Y)).ToArray());
+                
+                var py = Piece2.Vertexes[connection.Index2] - Piece1.Vertexes[connection.Index1];
+                var px = Piece1.Vertexes[connection.Index1] - Piece2.Vertexes[connection.Index2];
+                g.DrawPolygon(Pens.Black, Piece1.Vertexes.Move(new Point((int)(px.X + connection.Length1), py.Y)).Select(p => new PointF(p.X, p.Y)).ToArray());
+
+                CombinedPiece = new Piece();
+                for(int i1 = 0;Piece1.Vertexes.Count > i1; i1++)
+                {
+                    if (i1 == connection.Index1)
+                    {
+                        PointCollection svertexes = new PointCollection();
+                        svertexes.AddRange(Piece2.Vertexes.Skip(connection.Index2));
+                        svertexes.AddRange(Piece2.Vertexes.Take(connection.Index2));
+                        svertexes = svertexes.Move(Piece2.Vertexes[connection.Index2]);
+                        
+
+                        for (int i2 = 1; svertexes.Count > i2; i2++)
+                        {
+                            var p = svertexes[i2];
+                            CombinedPiece.Vertexes.Add(p);
+                        }
+                    }
+                    else
+                    {
+                        var p = Piece1.Vertexes[i1];
+                        CombinedPiece.Vertexes.Add(p);
+                    }
+                }
+
+                g.Dispose();
+                bmp.Save("ex.bmp");
+            }
+
+            return false;
         }
 
         public static bool IsDirectionJudge(this Piece Piece, int index) //辺に対して、trueなら角度的に考えて正の方向に,falseなら負の方向にピースがある

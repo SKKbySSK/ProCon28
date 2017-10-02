@@ -23,7 +23,6 @@ namespace ProCon28.Windows
     /// </summary>
     public partial class Main : Window
     {
-
         IList<(Linker.Point, Linker.Point)> Lines;
         List<Linker.Piece> Logs = new List<Linker.Piece>();
 
@@ -37,6 +36,7 @@ namespace ProCon28.Windows
             PieceG.VertexMoved += PieceG_Vertex;
             PieceG.VertexRemoved += PieceG_Vertex;
             PieceG.PieceChanged += PieceG_PieceChanged;
+            PieceList.Pieces.CollectionChanged += Pieces_CollectionChanged;
 
             BatchC.DataContext = Batch.ViewModel.Current;
             if (Batch.ViewModel.Current.BatchFiles.Count > 0)
@@ -45,6 +45,20 @@ namespace ProCon28.Windows
             SortC.IsChecked = Config.Current.ClockwiseSort;
             BlurS.Value = Config.Current.BlurThreshold;
             StraightS.Value = Config.Current.StraightThreshold;
+        }
+
+        private void Pieces_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            {
+                TransferPiecesView.Stop();
+                return;
+            }
+
+            if (TransferPiecesView.IsTransferring)
+            {
+                TransferPiecesView.TransferPieces(PieceList.Pieces);
+            }
         }
 
         private void PieceG_PieceChanged(object sender, EventArgs e)
@@ -249,24 +263,21 @@ namespace ProCon28.Windows
         private void Camera_Recognized(object sender, Controls.ContoursEventArgs e)
         {
             List<Linker.Piece> Pieces = new List<Linker.Piece>();
-            foreach (var shape in e.Contours)
+            Linker.Piece p = new Linker.Piece();
+
+            foreach (var point in e.Contour)
             {
-                Linker.Piece p = new Linker.Piece();
-
-                foreach(var point in shape)
-                {
-                    Linker.Point lp =
-                        new Linker.Point((int)(Math.Round(point.X * e.Scale)), (int)(Math.Round(point.Y * e.Scale)));
-                    if (!p.Vertexes.Contains(lp))
-                        p.Vertexes.Add(lp);
-                }
-
-                p = p.Convert();//.UnsafeRotate(e.Rotation);
-                PieceList.Pieces.Add(p);
-                Pieces.Add(p);
+                Linker.Point lp =
+                    new Linker.Point((int)(Math.Round(point.X * e.Scale)), (int)(Math.Round(point.Y * e.Scale)));
+                if (!p.Vertexes.Contains(lp))
+                    p.Vertexes.Add(lp);
             }
 
-            if(Pieces.Count > 2)
+            p = p.Convert();
+            PieceList.Pieces.Add(p);
+            Pieces.Add(p);
+
+            if (Pieces.Count > 2)
             {
                 ComparePieces(Pieces[0], Pieces[1]);
             }
@@ -313,6 +324,15 @@ namespace ProCon28.Windows
         private void QrReader_Recognized(object sender, Controls.QrReaderEventArgs e)
         {
             PieceList.Pieces.AddRange(ShapeQRManager.GeneratePieces(e.Result));
+        }
+
+        private void ConnectB_Click(object sender, RoutedEventArgs e)
+        {
+            if(PieceList.Pieces.Count >= 2)
+            {
+                PieceList.Pieces[0].TryCombineTwoPieces(PieceList.Pieces[1], 1, out Linker.Piece Combined);
+                PieceList.Pieces.Add(Combined);
+            }
         }
     }
 }

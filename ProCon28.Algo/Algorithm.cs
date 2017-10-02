@@ -83,30 +83,49 @@ namespace ProCon28.Algo
             }
         }
 
-        public Piece PieceBond(Piece Source1, Piece Source2, List<(int, int)> FitIndex)
+        public CompositePiece PieceBond(Piece Source1, Piece Source2, List<(int, int)> FitIndex)
         {
-            Piece p = null;
+            CompositePiece p = null;
+            List<(double, bool)> Side1 = Source1.PieceSideData();
+            List<(double, bool)> Side2 = Source2.PieceSideData();
+            bool Turn ;
+            int sideIndex1, sideIndex2;
+            int disIndex1 = FitIndex[0].Item1 - FitIndex[1].Item1;
+            int disIndex2 = FitIndex[0].Item2 - FitIndex[0].Item2;
+            if (Math.Abs(disIndex1) != 1) { disIndex1 *= -1; }
+            if (Math.Abs(disIndex2) != 1) { disIndex2 *= -1; }
+            if (disIndex1 * disIndex2 > 0)
+                Turn = false;
+            else
+                Turn = true;
+            if(Turn)
+                Source2 = Source2.FlipPiece();
 
+            List<(double, bool)> sl1 = Source1.PieceSideData();
+            List<(double, bool)> sl2 = Source2.PieceSideData();
+            if (disIndex1 > 0)
+                sideIndex1 = FitIndex[0].Item1;
+            else
+                sideIndex1 = FitIndex[1].Item1;
+            if (disIndex2 > 0)
+                sideIndex2 = FitIndex[0].Item2;
+            else
+                sideIndex2 = FitIndex[1].Item2;
+            double Slope1 = sl1[sideIndex1].Item1;
+            double Slope2 = sl2[sideIndex2].Item1;
+            double disSlope = Slope1 - Slope2;
+            Source2 = Source2.RotatePiece(disSlope);
 
+            bool Dir1 = sl1[sideIndex1].Item2;
+            bool Dir2 = sl1[sideIndex2].Item2;
+            if (Dir1 == Dir2)
+                Source2 = Source2.RotatePiece(Math.PI);
+
+            Point Move = Source2.Vertexes[FitIndex[0].Item2] - Source1.Vertexes[FitIndex[0].Item1];
+            Source2 = Source2.Convert(Move);
+            
 
             return p;
-        }
-
-
-        internal class LineJudge {
-
-            public LineJudge(bool j,bool t, bool p1,bool p2)
-            {
-                IsJudge = j;
-                IsTurn = t;
-                IsPIPI1 = p1;
-                IsPIPI2 = p2;
-            }
-
-            public bool IsJudge { get; }
-            public bool IsTurn  { get; }
-            public bool IsPIPI1 { get; }
-            public bool IsPIPI2 { get; }
         }
 
         public bool Rounding(double Value1, double Value2)

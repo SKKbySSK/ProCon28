@@ -7,7 +7,7 @@ using ProCon28.Linker;
 
 namespace ProCon28.Algo
 {
-    class CompositePiece : Piece
+    public class CompositePiece : Piece
     {
         public CompositePiece( List<Piece> S) : base()
         {

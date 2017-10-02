@@ -31,8 +31,8 @@ namespace ProCon28.Algo
         {
             while (true)
             {
-                List<int> Judge = new List<int>();
-                List<int> Ans = new List<int>();
+                List<List<(int, int)>> Judge = new List<List<(int, int)>>();
+
                 Random rand = new Random();
                 int index = rand.Next(LineList.Count);
                 LineData Line1 = LineList[index];
@@ -42,9 +42,16 @@ namespace ProCon28.Algo
                 {
                     index2++;
                     if (index2 > LineList.Count) { UpDown = false; }
-                    if (Rounding(Line1.Length, LineList[index2].Length))
+                    LineData Line2 = LineList[index2];
+                    if (Rounding(Line1.Length, Line2.Length))
                     {
-                        Judge.Add(index2);
+                        PiecePair pp = new PiecePair(PieceCollection[Line1.PieceNumber],Line1.LineNumber, PieceCollection[Line2.PieceNumber], Line2.LineNumber, true);
+                        List<(int, int)> ppResult = pp.MainJudge();
+                        if (ppResult[0].Item1 != -1) { Judge.Add(ppResult); }
+                        pp = new PiecePair(PieceCollection[Line1.PieceNumber], Line1.LineNumber, PieceCollection[Line2.PieceNumber], Line2.LineNumber, false);
+                        ppResult = pp.MainJudge();
+                        if (ppResult[0].Item1 != -1) { Judge.Add(ppResult); }
+
                     }
                     else
                     {
@@ -57,142 +64,68 @@ namespace ProCon28.Algo
                 {
                     index2--;
                     if (index2 < 0) { UpDown = false; }
-                    if (Rounding(Line1.Length , LineList[index2].Length))
+                    LineData Line2 = LineList[index2];
+                    if (Rounding(Line1.Length , Line2.Length))
                     {
-                        Judge.Add(index2);
+                        PiecePair pp = new PiecePair(PieceCollection[Line1.PieceNumber], Line1.LineNumber, PieceCollection[Line2.PieceNumber], Line2.LineNumber, true);
+                        List<(int, int)> ppResult = pp.MainJudge();
+                        if (ppResult[0].Item1 != -1) { Judge.Add(ppResult); }
+                        pp = new PiecePair(PieceCollection[Line1.PieceNumber], Line1.LineNumber, PieceCollection[Line2.PieceNumber], Line2.LineNumber, false);
+                        ppResult = pp.MainJudge();
+                        if (ppResult[0].Item1 != -1) { Judge.Add(ppResult); }
                     }
                     else
                     {
                         UpDown = false;
                     }
                 }
-                foreach (int i in Judge)
-                {
 
-                }
             }
         }
 
-        public IList<(int, int)> JudgePiecePair(Piece Piece1, int index1, Piece Piece2, int index2)
+        public CompositePiece PieceBond(Piece Source1, Piece Source2, List<(int, int)> FitIndex)
         {
-            List<(int, int)> r = new List<(int, int)>();
-            r.Add((-1, -1));
-            LineJudge First = JudgeLine(Piece1, index1, Piece2, index2);
-            if (First.IsJudge)
-            { 
-                int added1 = index1 - 1, added2 = index2 - 1;
-                if (added1 == -1) { added1 = Piece1.Vertexes.Count; }
-                if (added2 == -1) { added2 = Piece2.Vertexes.Count; }
-
-                if (First.IsTurn)
-                {
-                    r.Add((index1, index2));
-                    r.Add((added1, added2));
-
-                    if (First.IsPIPI1)
-                    {
-                        
-                    }
-                    if (First.IsPIPI2)
-                    {
-
-                    }
-                }
-                else
-                {
-                    r.Add((index1, added2));
-                    r.Add((added1, index2));
-                }
-                r.RemoveAt(0);
-            }
-
-            return r;
-        }
-
-        internal LineJudge JudgeLine(Piece Piece1, int index1, Piece Piece2, int index2)
-        {
-            bool j = false;
-            bool t = true;
-            bool p1 = false;
-            bool p2 = false;
-            List<(double, bool)> sdl1 = Piece1.PieceSideData();
-            List<(double, bool)> sdl2 = Piece2.PieceSideData();
-            double Angle11 = Piece1.GetAngle2PI(index1 - 1) + Piece2.GetAngle2PI(index2 - 1);
-            double Angle12 = Piece1.GetAngle2PI(index1) + Piece2.GetAngle2PI(index2);
-            double Angle21 = Piece1.GetAngle2PI(index1 - 1) + Piece2.GetAngle2PI(index2);
-            double Angle22 = Piece1.GetAngle2PI(index1) + Piece2.GetAngle2PI(index2 - 1);
-
-            if ( Rounding(Angle11 , Math.PI) || Rounding(Angle12 , Math.PI))
-            {
-                j = true;
-            }
-            else 
-            {
-                if (Rounding(Angle11 , Math.PI * 2))
-                {
-                    j = true;
-                    p1 = true;
-                }
-                if (Rounding(Angle12 , Math.PI * 2))
-                {
-                    j = true;
-                    p2 = true;
-                }
-            }
-
-            if (Rounding(Angle21 , Math.PI)|| Rounding(Angle22 , Math.PI))
-            {
-                j = true;
-                t = false;
-            }
+            CompositePiece p = null;
+            List<(double, bool)> Side1 = Source1.PieceSideData();
+            List<(double, bool)> Side2 = Source2.PieceSideData();
+            bool Turn ;
+            int sideIndex1, sideIndex2;
+            int disIndex1 = FitIndex[0].Item1 - FitIndex[1].Item1;
+            int disIndex2 = FitIndex[0].Item2 - FitIndex[0].Item2;
+            if (Math.Abs(disIndex1) != 1) { disIndex1 *= -1; }
+            if (Math.Abs(disIndex2) != 1) { disIndex2 *= -1; }
+            if (disIndex1 * disIndex2 > 0)
+                Turn = false;
             else
-            {
-                if (Rounding(Angle21 , Math.PI * 2))
-                {
-                    j = true;
-                    p1 = true;
-                    t = false;
-                }
-                if (Rounding(Angle22 , Math.PI * 2))
-                {
-                    j = true;
-                    p2 = true;
-                    t = false;
-                }
-            }
-            double difSlope = Math.Abs(sdl1[index1].Item1 - sdl2[index1].Item1);
-            if (!(Rounding(difSlope,0) || Rounding(difSlope , Math.PI / 2 ) || Rounding(difSlope , Math.PI) || Rounding(difSlope , Math.PI * 3 / 2) || Rounding(difSlope,Math.PI * 2)))
-            {
-                j = false;
-            }
-            LineJudge r = new LineJudge(j,t,p1,p2);
-            return r;
-        }
+                Turn = true;
+            if(Turn)
+                Source2 = Source2.FlipPiece();
 
-        public Piece PieceBond(Piece Source1, Piece Source2, List<(int, int)> FitIndex)
-        {
-            Piece p = null;
+            List<(double, bool)> sl1 = Source1.PieceSideData();
+            List<(double, bool)> sl2 = Source2.PieceSideData();
+            if (disIndex1 > 0)
+                sideIndex1 = FitIndex[0].Item1;
+            else
+                sideIndex1 = FitIndex[1].Item1;
+            if (disIndex2 > 0)
+                sideIndex2 = FitIndex[0].Item2;
+            else
+                sideIndex2 = FitIndex[1].Item2;
+            double Slope1 = sl1[sideIndex1].Item1;
+            double Slope2 = sl2[sideIndex2].Item1;
+            double disSlope = Slope1 - Slope2;
+            Source2 = Source2.RotatePiece(disSlope);
 
+            bool Dir1 = sl1[sideIndex1].Item2;
+            bool Dir2 = sl1[sideIndex2].Item2;
+            if (Dir1 == Dir2)
+                Source2 = Source2.RotatePiece(Math.PI);
 
+            Point Move = Source2.Vertexes[FitIndex[0].Item2] - Source1.Vertexes[FitIndex[0].Item1];
+            Source2 = Source2.Convert(Move);
+            
 
             return p;
-        }
-
-
-        internal class LineJudge {
-
-            public LineJudge(bool j,bool t, bool p1,bool p2)
-            {
-                IsJudge = j;
-                IsTurn = t;
-                IsPIPI1 = p1;
-                IsPIPI2 = p2;
-            }
-
-            public bool IsJudge { get; }
-            public bool IsTurn  { get; }
-            public bool IsPIPI1 { get; }
-            public bool IsPIPI2 { get; }
         }
 
         public bool Rounding(double Value1, double Value2)

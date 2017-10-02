@@ -16,39 +16,48 @@
             <RowDefinition/>
             <RowDefinition Height="102.857"/>
         </Grid.RowDefinitions>
-        <Controls:PieceGenerator x:Name="PieceG" Margin="288,0,0.143,1.143"/>
-        <Controls:PieceViewer x:Name="PieceList" Background="#FFF7F7F7" Margin="0.857,40,-0.286,10.143" Grid.Column="1" MouseDoubleClick="PieceList_MouseDoubleClick"/>
-        <Button x:Name="AddB" Content="リストへ追加" Margin="213,192,0,0" VerticalAlignment="Top" Click="AddB_Click" HorizontalAlignment="Left" Width="75" Height="20"/>
-        <ScrollViewer HorizontalAlignment="Left" Margin="0,218,0,146.143" Width="288">
-            <StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <ComboBox x:Name="BatchC" ItemsSource="{Binding Path=BatchFiles}" Width="150"/>
-                    <Button x:Name="BatchReloadB" Content="R" Width="30" Click="BatchReloadB_Click"/>
-                </StackPanel>
-                <Button x:Name="BatchB" Content="バッチ処理" Click="BatchB_Click"/>
-                <Button x:Name="UndoB" Content="戻す" Click="UndoB_Click" Margin="0,20,0,0"/>
-                <Button x:Name="DuplicateB" Content="重複点除去" Margin="0,20,0,0" Click="DuplicateB_Click"/>
-                <Button x:Name="SortB" Content="ソート" Click="SortB_Click" Margin="0,20,0,0"/>
-                <CheckBox x:Name="SortC" Content="時計回り" IsChecked="True"/>
-                <Button x:Name="BlurB" Click="BlurB_Click" Content="ブラー" Margin="0,20,0,0"/>
-                <Slider x:Name="BlurS" Maximum="30" Minimum="1" Value="15"/>
-                <Button x:Name="StraightB" Content="直線処理" Margin="0,20,0,0" Click="StraightB_Click"/>
-                <Slider x:Name="StraightS" Maximum="1" Minimum="0" Value="0"/>
-                <Button x:Name="GcdB" Content="自動比率調整" Margin="0, 20, 0, 0" Click="GcdB_Click"/>
-                <Button x:Name="RatioB" Content="比率調整" Click="RatioB_Click"/>
-                <Slider x:Name="RatioS" Maximum="1" Minimum="0" Value="0" ValueChanged="RatioS_ValueChanged" IsSnapToTickEnabled="True"/>
-                <TextBox x:Name="RatioT" Text="1"/>
-                <Button x:Name="ContoursB" Content="輪郭抽出" Margin="0,20,0,0" Click="ContoursB_Click"/>
-            </StackPanel>
-        </ScrollViewer>
-        <Controls:PieceView x:Name="PieceP" HorizontalAlignment="Left" Width="288" Height="144" VerticalAlignment="Bottom" Margin="0,0,0,2.143"/>
+        <Controls:PieceGenerator x:Name="PieceG" Margin="293,0,0.143,1.143"/>
+        <Controls:OpenCvCapture x:Name="OpenCvCapture" Margin="293,0,0.143,0.143" Visibility="Hidden"/>
+        <Controls:PieceViewer x:Name="PieceList" Background="#FFF7F7F7" Margin="0.857,6,-0.286,10.143" Grid.Column="1" MouseDoubleClick="PieceList_MouseDoubleClick"/>
+        <Controls:PieceView x:Name="PieceP" HorizontalAlignment="Left" Width="293" Height="144" VerticalAlignment="Bottom" Margin="0,0,0,2.143"/>
         <ListBox x:Name="ConsoleL" Background="Black" Foreground="White" Margin="0,2.857,0.143,0" Grid.Row="1"/>
-        <Button x:Name="EmptyB" Content="空ピース" HorizontalAlignment="Left" Margin="0,192,0,0" VerticalAlignment="Top" Width="75" Click="EmptyB_Click" Height="21"/>
-        <Controls:Camera Recognized="Camera_Recognized" HorizontalAlignment="Left" Width="288" Height="192" VerticalAlignment="Top"/>
         <Controls:TransferPiecesView x:Name="TransferPiecesView" Grid.Row="1" RequestingPieces="TransferPiecesView_RequestingPieces" Margin="0.857,28.857,-0.286,0" Grid.Column="1"/>
-        <Button x:Name="ClearPB" Content="クリア" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,9.714,79" VerticalAlignment="Bottom" Width="75" Click="ClearPB_Click" Height="21" Grid.Row="1"/>
-        <Controls:QrReader HorizontalAlignment="Left" Height="29" VerticalAlignment="Top" Width="217" Margin="9.857,6,0,0" Grid.Column="1" Recognized="QrReader_Recognized"/>
-        <Button x:Name="ConnectB" Content="接続" Grid.Column="1" HorizontalAlignment="Left" Margin="5,3,0,0" Grid.Row="1" VerticalAlignment="Top" Width="75" Height="21" Click="ConnectB_Click"/>
+        <Button x:Name="ClearPB" Content="クリア" Grid.Column="1" Margin="9.857,0,9.714,79" VerticalAlignment="Bottom" Click="ClearPB_Click" Height="21" Grid.Row="1"/>
+        <TabControl HorizontalAlignment="Left" Margin="5,10,0,146.143" Width="283">
+            <TabItem Header="カメラ認識">
+                <Grid Background="#FFE5E5E5">
+                    <Controls:Camera x:Name="Camera" Recognized="Camera_Recognized" QrRecognized="Camera_QrRecognized" Initializing="Camera_Initializing"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="ツール">
+                <Grid Background="#FFE5E5E5">
+                    <ScrollViewer Background="White">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <ComboBox x:Name="BatchC" ItemsSource="{Binding BatchFiles}" Width="150"/>
+                                <Button x:Name="BatchReloadB" Content="R" Width="30" Click="BatchReloadB_Click"/>
+                            </StackPanel>
+                            <Button x:Name="BatchB" Content="バッチ処理" Click="BatchB_Click"/>
+                            <Button x:Name="UndoB" Content="戻す" Click="UndoB_Click" Margin="0,20,0,0"/>
+                            <Button x:Name="DuplicateB" Content="重複点除去" Margin="0,20,0,0" Click="DuplicateB_Click"/>
+                            <Button x:Name="SortB" Content="ソート" Click="SortB_Click" Margin="0,20,0,0"/>
+                            <CheckBox x:Name="SortC" Content="時計回り" IsChecked="True"/>
+                            <Button x:Name="BlurB" Click="BlurB_Click" Content="ブラー" Margin="0,20,0,0"/>
+                            <Slider x:Name="BlurS" Maximum="30" Minimum="1" Value="15"/>
+                            <Button x:Name="StraightB" Content="直線処理" Margin="0,20,0,0" Click="StraightB_Click"/>
+                            <Slider x:Name="StraightS" Maximum="1" Minimum="0" Value="0"/>
+                            <Button x:Name="GcdB" Content="自動比率調整" Margin="0, 20, 0, 0" Click="GcdB_Click"/>
+                            <Button x:Name="RatioB" Content="比率調整" Click="RatioB_Click"/>
+                            <Slider x:Name="RatioS" Maximum="1" Minimum="0" Value="0" ValueChanged="RatioS_ValueChanged" IsSnapToTickEnabled="True"/>
+                            <TextBox x:Name="RatioT" Text="1"/>
+                            <Button x:Name="ContoursB" Content="輪郭抽出" Margin="0,20,0,0" Click="ContoursB_Click"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Button x:Name="EmptyB" Content="空ピース" HorizontalAlignment="Left" Margin="133,6,0,0" VerticalAlignment="Top" Width="75" Click="EmptyB_Click" Height="21"/>
+        <Button x:Name="AddB" Content="リストへ追加" Margin="213,6,0,0" VerticalAlignment="Top" Click="AddB_Click" HorizontalAlignment="Left" Width="75" Height="20"/>
 
     </Grid>
 </Window>

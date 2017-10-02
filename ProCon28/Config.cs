@@ -12,9 +12,14 @@ namespace ProCon28
     {
         public int TCP_Port { get; set; } = 50000;
 
-        public int Camera { get; set; } = 2;
+        public int Camera { get; set; } = 0;
         public double PieceApprox { get; set; } = 0.01;
         public double SquareApprox { get; set; } = 0.02;
+        public double MinimumArea { get; set; } = 700;
+        public double SquareMaximumArcLength { get; set; } = 80;
+        public int ContourIndex { get; set; } = 1;
+        public double Gamma { get; set; } = 1.0;
+
         public double BlurThreshold { get; set; } = 10;
         public double StraightThreshold { get; set; } = 0.1;
         public bool ClockwiseSort { get; set; } = true;

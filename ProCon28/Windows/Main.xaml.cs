@@ -37,6 +37,11 @@ namespace ProCon28.Windows
             PieceG.VertexRemoved += PieceG_Vertex;
             PieceG.PieceChanged += PieceG_PieceChanged;
             PieceList.Pieces.CollectionChanged += Pieces_CollectionChanged;
+            OpenCvCapture.WorkerFinished += (sender, e) =>
+            {
+                OpenCvCapture.Visibility = Visibility.Hidden;
+                PieceG.Visibility = Visibility.Visible;
+            };
 
             BatchC.DataContext = Batch.ViewModel.Current;
             if (Batch.ViewModel.Current.BatchFiles.Count > 0)
@@ -257,6 +262,7 @@ namespace ProCon28.Windows
                 PieceG.Piece = piece;
                 ClearLog();
                 AppendLog();
+                Camera.Stop();
             }
         }
 
@@ -276,35 +282,6 @@ namespace ProCon28.Windows
             p = p.Convert();
             PieceList.Pieces.Add(p);
             Pieces.Add(p);
-
-            if (Pieces.Count > 2)
-            {
-                ComparePieces(Pieces[0], Pieces[1]);
-            }
-        }
-
-        void ComparePieces(Linker.Piece Piece1, Linker.Piece Piece2)
-        {
-            var lines1 = Piece1.Vertexes.AsLinesWithLength();
-            var lines2 = Piece2.Vertexes.AsLinesWithLength();
-
-
-            (Linker.Point, Linker.Point, double)? p1 = null, p2 = null;
-            foreach (var line1 in lines1)
-            {
-                foreach(var line2 in lines2)
-                {
-                    if(Math.Abs(line1.Item3 - line2.Item3) <= 0.500)
-                    {
-                        p1 = line1;
-                        p2 = line2;
-                        break;
-                    }
-                }
-            }
-
-            if (p1.HasValue && p2.HasValue)
-                Log.Write("{0} - {1}", p1.Value.Item3, p2.Value.Item3);
         }
 
         private void TransferPiecesView_RequestingPieces(object sender, Controls.RoutedPieceEventArgs e)
@@ -321,18 +298,18 @@ namespace ProCon28.Windows
             ShapeQRManager.Reset();
         }
 
-        private void QrReader_Recognized(object sender, Controls.QrReaderEventArgs e)
+        private void Camera_Initializing(object sender, EventArgs e)
         {
-            PieceList.Pieces.AddRange(ShapeQRManager.GeneratePieces(e.Result));
+            OpenCV.WorkerCapture worker = new OpenCV.WorkerCapture(Config.Current.Camera);
+            Camera.Capture = worker;
+            OpenCvCapture.Initialize(worker);
+            OpenCvCapture.Visibility = Visibility.Visible;
+            PieceG.Visibility = Visibility.Hidden;
         }
 
-        private void ConnectB_Click(object sender, RoutedEventArgs e)
+        private void Camera_QrRecognized(object sender, Controls.QrReaderEventArgs e)
         {
-            if(PieceList.Pieces.Count >= 2)
-            {
-                PieceList.Pieces[0].TryCombineTwoPieces(PieceList.Pieces[1], 1, out Linker.Piece Combined);
-                PieceList.Pieces.Add(Combined);
-            }
+            PieceList.Pieces.AddRange(ShapeQRManager.GeneratePieces(e.Result));
         }
     }
 }

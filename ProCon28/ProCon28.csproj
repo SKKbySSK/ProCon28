@@ -106,6 +106,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Batch\ViewModel.cs" />
+    <Compile Include="Controls\OpenCvCapture.xaml.cs">
+      <DependentUpon>OpenCvCapture.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\PieceView.xaml.cs">
       <DependentUpon>PieceView.xaml</DependentUpon>
     </Compile>
@@ -121,8 +124,10 @@
     <Compile Include="KeyboardHook.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="OpenCV\CameraCapture.cs" />
+    <Compile Include="OpenCV\ICamera.cs" />
     <Compile Include="OpenCV\QR\Decoder.cs" />
     <Compile Include="OpenCV\QR\Piece.cs" />
+    <Compile Include="OpenCV\WorkerCapture.cs" />
     <Compile Include="PieceEdit\Blur.cs" />
     <Compile Include="PieceEdit\ExtractContours.cs" />
     <Compile Include="PieceEdit\GcdConvert.cs" />
@@ -132,6 +137,10 @@
     <Compile Include="Controls\CameraDialog.xaml.cs">
       <DependentUpon>Camera.xaml</DependentUpon>
     </Compile>
+    <Page Include="Controls\OpenCvCapture.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\PieceGenerator.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

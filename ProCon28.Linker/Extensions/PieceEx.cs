@@ -228,8 +228,10 @@ namespace ProCon28.Linker.Extensions
         
         class LineConnection
         {
-            public int Index1;
-            public int Index2;
+            public int Index1_0;
+            public int Index1_1;
+            public int Index2_0;
+            public int Index2_1;
             public Point X1;
             public Point X2;
             public Point Y1;
@@ -244,7 +246,7 @@ namespace ProCon28.Linker.Extensions
 
         //}
 
-        public static bool TryCombineTwoPieces(this Piece Piece1, Piece Piece2, double Threshold, out Piece CombinedPiece)
+        public static bool TryCombineTwoPieces(this Piece Piece1, Piece Piece2, double Threshold, out IList<Piece> Pieces)
         {
             var lines1 = Piece1.Vertexes.AsLinesWithLength();
             var lines2 = Piece2.Vertexes.AsLinesWithLength();
@@ -263,8 +265,10 @@ namespace ProCon28.Linker.Extensions
                     {
                         connections.Add(new LineConnection()
                         {
-                            Index1 = i1,
-                            Index2 = i2,
+                            Index1_0 = i1,
+                            Index1_1 = i1 + 1 == count1 ? 0 : i1 + 1,
+                            Index2_0 = i2,
+                            Index2_1 = i2 + 1 == count2 ? 0 : i2 + 1,
                             X1 = l1.Item1,
                             X2 = l2.Item1,
                             Y1 = l1.Item1,
@@ -289,34 +293,23 @@ namespace ProCon28.Linker.Extensions
                     break;
             }
 
-            CombinedPiece = null;
+            Pieces = new List<Piece>();
 
             Console.WriteLine("Difference : {0}", mdiff);
             foreach (var connection in minDifferences)
             {
-                Bitmap bmp = new Bitmap(300, 300);
-                Graphics g = Graphics.FromImage(bmp);
-                g.Clear(Color.White);
-
-                double angle1 = Point.Abs(connection.X2 - connection.X1).GetAngle();
-                double angle2 = Point.Abs(connection.Y2 - connection.Y1).GetAngle();
-
-                g.DrawPolygon(Pens.Black, Piece2.Vertexes.Select(p => new PointF(p.X, p.Y)).ToArray());
+                Piece CombinedPiece = new Piece();
                 
-                var py = Piece2.Vertexes[connection.Index2] - Piece1.Vertexes[connection.Index1];
-                var px = Piece1.Vertexes[connection.Index1] - Piece2.Vertexes[connection.Index2];
-                g.DrawPolygon(Pens.Black, Piece1.Vertexes.Move(new Point((int)(px.X + connection.Length1), py.Y)).Select(p => new PointF(p.X, p.Y)).ToArray());
-
-                CombinedPiece = new Piece();
                 for(int i1 = 0;Piece1.Vertexes.Count > i1; i1++)
                 {
-                    if (i1 == connection.Index1)
+                    var p1 = Piece1.Vertexes[i1];
+                    if (i1 == connection.Index1_0)
                     {
                         PointCollection svertexes = new PointCollection();
-                        svertexes.AddRange(Piece2.Vertexes.Skip(connection.Index2));
-                        svertexes.AddRange(Piece2.Vertexes.Take(connection.Index2));
-                        svertexes = svertexes.Move(Piece2.Vertexes[connection.Index2]);
                         
+                        svertexes.AddRange(Piece2.Vertexes.Skip(connection.Index2_0));
+                        svertexes.AddRange(Piece2.Vertexes.Take(connection.Index2_0));
+                        svertexes = svertexes.Move(Piece1.Vertexes[connection.Index1_0] - Piece2.Vertexes[connection.Index2_0]);
 
                         for (int i2 = 1; svertexes.Count > i2; i2++)
                         {
@@ -324,15 +317,10 @@ namespace ProCon28.Linker.Extensions
                             CombinedPiece.Vertexes.Add(p);
                         }
                     }
-                    else
-                    {
-                        var p = Piece1.Vertexes[i1];
-                        CombinedPiece.Vertexes.Add(p);
-                    }
-                }
 
-                g.Dispose();
-                bmp.Save("ex.bmp");
+                    CombinedPiece.Vertexes.Add(p1);
+                }
+                Pieces.Add(CombinedPiece.Convert());
             }
 
             return false;

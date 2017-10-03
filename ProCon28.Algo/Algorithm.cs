@@ -12,13 +12,16 @@ namespace ProCon28.Algo
     public class Algorithm
     {
         PieceCollection PieceCollection;
+        PieceCollection NonRemove = new PieceCollection();
         SortedLineDataCollection LineList = new SortedLineDataCollection();
         public Algorithm(PieceCollection pcol)
         {
             PieceCollection = pcol;
+            NonRemove = pcol;
             for (int i = 0; i < pcol.Count; i++)
             {
                 PointCollection PointCol = pcol[i].Vertexes;
+
                 IList<(Point, Point, double)> pl = PointCol.AsLinesWithLength();
                 for (int j = 0; j < PointCol.Count; j++)
                 {
@@ -146,13 +149,9 @@ namespace ProCon28.Algo
 
 
             int Start1 = FitIndex[0].Item1;
-            int End1 = FitIndex[FitIndex.Count - 1].Item1 - Start1;
-            if (End1 < 0)
-                End1 += Piece1.Vertexes.Count;
+            int End1 = FitIndex[FitIndex.Count - 1].Item1;
             int Start2 = FitIndex[FitIndex.Count - 1].Item2;
-            int End2 = FitIndex[0].Item2 - Start2;
-            if (End2 < 0)
-                End2 += Piece2.Vertexes.Count;
+            int End2 = FitIndex[0].Item2;
             bool rot1, rot2;
             if (disIndex1 > 0)
                 rot1 = true;
@@ -163,38 +162,67 @@ namespace ProCon28.Algo
             else
                 rot2 = true;
 
-            List<Point> ps1 = new List<Point>();
-            ps1.AddRange(Piece1.Vertexes.Skip(Start1));
-            ps1.AddRange(Piece1.Vertexes.Take(Start1));
-            List<Point> ps2 = new List<Point>();
-            ps2.AddRange(Piece2.Vertexes.Skip(Start1));
-            ps2.AddRange(Piece2.Vertexes.Take(Start1));
-
             List<Point> Return = new List<Point>();
-            for(int i = 0; i < End1 + 1; i++)
+            if (rot1)
             {
-                Return.Add(ps1[i]);
+                if (Start1 > End1)
+                    End1 += Piece1.Vertexes.Count;
+                for(int i = Start1; i <= End1; i++)
+                {
+                    int ri = i % Piece1.Vertexes.Count;
+                    Return.Add(Piece1.Vertexes[ri]);
+                }
             }
-            for(int i = 1; i < End1; i++)
+            else
             {
-                Return.Add(ps2[i]);
+                if (Start1 < End1)
+                    End1 -= Piece1.Vertexes.Count;
+                for(int i = Start1; i >= End1; i--)
+                {
+                    int ri = i;
+                    if (ri < 0)
+                        ri += Piece1.Vertexes.Count;
+                    Return.Add(Piece1.Vertexes[ri]);
+                }
             }
-            CompositePiece p = new CompositePiece( Return, Source);
-            return p;
+            if (rot2)
+            {
+                if (Start2 > End1)
+                    End2 += Piece2.Vertexes.Count;
+                for (int i = Start2; i <= End2; i++)
+                {
+                    int ri = i % Piece2.Vertexes.Count;
+                    Return.Add(Piece2.Vertexes[ri]);
+                }
+            }
+            else
+            {
+                if (Start2 < End2)
+                    End2 -= Piece2.Vertexes.Count;
+                for (int i = Start2; i >= End1; i--)
+                {
+                    int ri = i;
+                    if (ri < 0)
+                        ri += Piece2.Vertexes.Count;
+                    Return.Add(Piece2.Vertexes[ri]);
+                }
+            }
+            Piece rt = new Piece();
+            rt.Vertexes.AddRange(Return);
+            for(int i = 0; i < Return.Count; i++)
+            {
+                if( Rounding(rt.GetAngle(i), Math.PI))
+                {
+                    rt.Vertexes.RemoveAt(i);
+                    i--;
+                }
+            }
+            return new CompositePiece(rt.Vertexes, Source);
         }
 
         public bool Rounding(double Value1, double Value2)
         {
-            bool r;
-            if (Math.Abs(Value1 - Value2) < 0.001)
-            {
-                r = true;
-            }
-            else
-            {
-                r = false;
-            }
-            return r;
+            return Math.Abs(Value1 - Value2) < Config.Current.Threshold;
         }
     }
 }

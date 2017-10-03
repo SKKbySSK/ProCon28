@@ -14,6 +14,7 @@ namespace ProCon28.Algo
         public double ItemWidth { get; set; } = 150;
         public string TCP_IP { get; set; } = "";
         public int TCP_Port { get; set; } = 50000;
+        public double Threshold { get; set; } = 0.01;
 
         static Lazy<Config> config = new Lazy<Config>(() =>
         {

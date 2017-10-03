@@ -60,6 +60,7 @@ namespace ProCon28.Controls
         int ContourIndex { get; set; }
         double Gamma { get; set; }
         Mat PerspectiveTransform { get; set; }
+        bool UsePerspective { get; set; } = false;
 
         Mat Intrinsic, Distortion;
         bool Locked;
@@ -123,7 +124,7 @@ namespace ProCon28.Controls
                 {
                     using(Mat img = Capture.RetrieveMat(false))
                     {
-                        FixCamera(img.Size(), FindContours(img));
+                        FixCamera(img.Size(), ReduceContours(img).ToArray());
                     }
                 }
                 if(State.Key == System.Windows.Forms.Keys.R)
@@ -265,8 +266,8 @@ namespace ProCon28.Controls
                 BeginQrB.IsEnabled = true;
 
                 Locked = false;
-                Capture.Stop();
-                Capture.Dispose();
+                Capture?.Stop();
+                Capture?.Dispose();
                 Capture = null;
             }
             catch (Exception ex)
@@ -305,13 +306,13 @@ namespace ProCon28.Controls
         {
             using(Mat capture = Capture.RetrieveMat(false))
             {
-                OpenCvSharp.Size size = capture.Size();
-                var contours = FindContours(capture);
-                var changed = PieceApprox(size, contours);
+                var changed = ReduceContours(capture);
 
-                int ind = Math.Max(0, Math.Min(changed.Count - 1, ContourIndex));
-                Recognized?.Invoke(this, new ContoursEventArgs(changed[ind],
-                    PieceCoefficient, PieceRotation));
+                foreach (var ps in changed)
+                {
+                    Recognized?.Invoke(this, new ContoursEventArgs(ps,
+                        PieceCoefficient, PieceRotation));
+                }
             }
         }
 
@@ -437,23 +438,53 @@ namespace ProCon28.Controls
         {
             if (Image == null) return null;
 
-            OpenCvSharp.Size size = Image.Size();
-            var contours = FindContours(Image);
+            var Contours = ReduceContours(Image);
+            Cv2.DrawContours(Image, Contours, -1, Scalar.Red, 3);
 
-            var Pieces = PieceApprox(size, contours);
-            
-            if(Pieces.Count > 0)
-            {
-                int ind = Math.Max(0, Math.Min(Pieces.Count - 1, ContourIndex));
-                Cv2.DrawContours(Image, new OpenCvSharp.Point[][] { Pieces[ind] }, -1, Scalar.Red, 3);
-            }
-
-            var Square = SquareApprox(size, contours);
+            var Square = SquareApprox(Image.Size(), Contours.ToArray());
 
             if (Square != null)
                 Cv2.DrawContours(Image, new OpenCvSharp.Point[][] { Square }, -1, Scalar.LightBlue, 3);
 
             return Image;
+        }
+
+        List<OpenCvSharp.Point[]> ReduceContours(Mat Image)
+        {
+            var contours = FindContours(Image);
+
+            var Contours = PieceApprox(Image.Size(), contours);
+
+            List<OpenCvSharp.Point[]> cs = new List<OpenCvSharp.Point[]>();
+
+            var ps = Capture.RecognizerPoints.ToArray();
+            foreach (var rec in ps)
+            {
+                double min = -1;
+                int minind = -1;
+
+                for (int i = 0; Contours.Count > i; i++)
+                {
+                    var contour = Contours[i];
+
+                    if(Cv2.ContourArea(contour) >= MinimumArea)
+                    {
+                        foreach (var p in contour)
+                        {
+                            double diff = rec.DistanceTo(p);
+                            if (min == -1 || diff < min)
+                            {
+                                min = diff;
+                                minind = i;
+                            }
+                        }
+                    }
+                }
+
+                if (minind > -1)
+                    cs.Add(Contours[minind]);
+            }
+            return cs;
         }
 
         /// <summary>
@@ -481,7 +512,7 @@ namespace ProCon28.Controls
                     if(Cv2.ContourArea(points, false) >= MinimumArea)
                     {
                         double len = Cv2.ArcLength(points, true);
-                        var approx = Cv2.ApproxPolyDP(points, Config.Current.PieceApprox * len, true);
+                        var approx = Cv2.ApproxPolyDP(points, PieceApproxVal * len, true);
                         changed.Add(approx);
                     }
                 }
@@ -517,7 +548,7 @@ namespace ProCon28.Controls
 
                     if(Cv2.ContourArea(points, false) >= MinimumArea && len <= SquareMaximumArcLength)
                     {
-                        changed.Add(Cv2.ApproxPolyDP(points, Config.Current.SquareApprox * len, true));
+                        changed.Add(Cv2.ApproxPolyDP(points, SquareApproxVal * len, true));
                     }
                 }
             }
@@ -534,6 +565,11 @@ namespace ProCon28.Controls
             return null;
         }
 
+        private void PerspectiveC_StateChanged(object sender, RoutedEventArgs e)
+        {
+            UsePerspective = PerspectiveC.IsChecked ?? false;
+        }
+
         /// <summary>
         /// 輪郭検出
         /// </summary>
@@ -541,7 +577,7 @@ namespace ProCon28.Controls
         /// <returns></returns>
         OpenCvSharp.Point[][] FindContours(Mat Image)
         {
-            if(PerspectiveTransform != null && !PerspectiveTransform.IsDisposed)
+            if(PerspectiveTransform != null && !PerspectiveTransform.IsDisposed && UsePerspective)
             {
                 Cv2.WarpPerspective(Image, Image, PerspectiveTransform, Image.Size());
             }

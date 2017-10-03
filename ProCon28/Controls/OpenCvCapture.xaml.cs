@@ -28,6 +28,18 @@ namespace ProCon28.Controls
         public OpenCvCapture()
         {
             InitializeComponent();
+            KeyboardHook.HookEvent += KeyboardHook_HookEvent;
+        }
+
+        private void KeyboardHook_HookEvent(ref KeyboardHook.StateKeyboard state)
+        {
+            if(state.Stroke == KeyboardHook.Stroke.KEY_UP)
+            {
+                if(state.Key == System.Windows.Forms.Keys.R)
+                {
+                    Worker?.RecognizerPoints.Clear();
+                }
+            }
         }
 
         public void Initialize(OpenCV.WorkerCapture Worker)
@@ -35,15 +47,21 @@ namespace ProCon28.Controls
             this.Worker = Worker;
             Worker.Retrieved += Worker_Retrieved;
             Worker.Finished += Worker_Finished;
+            MatView.Width = Worker.Width;
+            MatView.Height = Worker.Height;
+            KeyboardHook.Start();
         }
 
         private void Worker_Finished(object sender, EventArgs e)
         {
             Worker.Retrieved -= Worker_Retrieved;
             Worker.Finished -= Worker_Finished;
+            Worker = null;
             MatView.Source = null;
             Last?.Dispose();
             Last = null;
+
+            KeyboardHook.Stop();
             WorkerFinished?.Invoke(this, new EventArgs());
         }
 
@@ -58,10 +76,26 @@ namespace ProCon28.Controls
 
             if(e.Image != null)
             {
+                foreach(var pos in Worker.RecognizerPoints)
+                {
+                    OpenCvSharp.Cv2.Circle(e.Image, pos, 5, OpenCvSharp.Scalar.Blue, 3);
+                }
                 var img = e.Image.ToBitmapSource();
+
                 MatView.Source = img;
                 Last = e.Image;
             }
+        }
+
+        private void MatView_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var pos = e.GetPosition(MatView);
+            Worker?.RecognizerPoints.Add(new OpenCvSharp.Point(Math.Round(pos.X), Math.Round(pos.Y)));
+        }
+
+        private void MatView_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Worker?.RecognizerPoints.Clear();
         }
     }
 }

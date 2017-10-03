@@ -15,6 +15,8 @@ using System.Windows.Shapes;
 using ProCon28.Linker.Extensions;
 using ProCon28.Linker;
 using ProCon28.Algo.Line;
+using OFD = System.Windows.Forms.OpenFileDialog;
+using System.IO;
 
 namespace ProCon28.Algo
 {
@@ -84,6 +86,26 @@ namespace ProCon28.Algo
             catch(Exception ex)
             {
                 Console.WriteLine(ex);
+            }
+        }
+
+        private void RefFileB_Click(object sender, RoutedEventArgs e)
+        {
+            OFD ofd = new OFD();
+            if(ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                FilepathT.Text = ofd.FileName;
+            }
+        }
+
+        private void LoadB_Click(object sender, RoutedEventArgs e)
+        {
+            using (FileStream fs = new FileStream(FilepathT.Text, FileMode.Open, FileAccess.Read))
+            {
+                byte[] bs = new byte[fs.Length];
+                fs.Read(bs, 0, (int)fs.Length);
+                PieceCollection pcol = new PieceCollection(bs);
+                Shared.Pieces.AddRange(pcol);
             }
         }
     }

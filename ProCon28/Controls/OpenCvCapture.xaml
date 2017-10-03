@@ -7,6 +7,8 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Background="Black">
-        <Image x:Name="MatView"/>
+        <Viewbox>
+            <Image x:Name="MatView" MouseLeftButtonDown="MatView_MouseLeftButtonDown" MouseRightButtonDown="MatView_MouseRightButtonDown"/>
+        </Viewbox>
     </Grid>
 </UserControl>

@@ -9,10 +9,14 @@ namespace ProCon28.Algo
 {
     public class CompositePiece : Piece
     {
-        public CompositePiece( List<Piece> S) : base()
+        public CompositePiece( IEnumerable<Point> P ,IEnumerable<Piece> S )
         {
-            Source = S;
+            foreach(var piece in S)
+                Source.Add(piece);
+
+            foreach (var v in P)
+                Vertexes.Add(v);
         }
-        public List<Piece> Source { get; set; }
+        public PieceCollection Source { get; set; }
     }
 }

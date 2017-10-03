@@ -126,10 +126,7 @@ namespace ProCon28.Algo
                     }
                 }
             }
-            else
-            {
-                r.Add((-1, -1));
-            }
+            
             return r;
         }
 

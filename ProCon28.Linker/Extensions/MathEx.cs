@@ -27,5 +27,20 @@ namespace ProCon28
 
             return gcd;
         }
+
+        /// <summary>
+        /// 0以上π未満の範囲で値を返します
+        /// </summary>
+        /// <param name="X"></param>
+        /// <param name="Threshold"></param>
+        /// <returns></returns>
+        public static double Acos(double X, double Threshold = 0)
+        {
+            double val = Math.Acos(X);
+            if (Math.Abs(val - Math.PI) <= Threshold)
+                return 0;
+            else
+                return val;
+        }
     }
 }

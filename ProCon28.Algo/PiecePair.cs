@@ -215,13 +215,7 @@ namespace ProCon28.Algo
 
         public bool Rounding(double Value1, double Value2)
         {
-            bool r;
-            if (Math.Abs(Value1 - Value2) < 0.001)
-                r = true;
-            else
-                r = false;
-         
-            return r;
+            return Math.Abs(Value1 - Value2) < Config.Current.Threshold;
         }
 
         internal class JudgeData

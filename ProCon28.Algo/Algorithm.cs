@@ -102,10 +102,9 @@ namespace ProCon28.Algo
         public CompositePiece PieceBond(Piece Source1, Piece Source2, List<(int, int)> FitIndex)
         {
             List<Piece> Source = new List<Piece>();
-            if (Source1 is CompositePiece)
+            if (Source1 is CompositePiece s1)
             {
-                CompositePiece s = (CompositePiece)Source1;
-                foreach(Piece p in s.Source)
+                foreach(Piece p in s1.Source)
                 {
                     Source.Add(p);
                 }
@@ -115,10 +114,9 @@ namespace ProCon28.Algo
                 Source.Add(Source1);
             }
 
-            if (Source2 is CompositePiece)
+            if (Source2 is CompositePiece s2)
             {
-                CompositePiece s = (CompositePiece)Source2;
-                foreach (Piece p in s.Source)
+                foreach (Piece p in s2.Source)
                 {
                     Source.Add(p);
                 }

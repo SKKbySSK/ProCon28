@@ -28,6 +28,10 @@ namespace ProCon28.OpenCV
 
         public IList<Action<Mat>> Interruptions { get; } = new List<Action<Mat>>();
         public IList<Func<Mat, Mat>> Filters { get; } = new List<Func<Mat, Mat>>();
+        public int Width { get => capture.FrameWidth; set => capture.FrameWidth = value; }
+        public int Height { get => capture.FrameHeight; set => capture.FrameHeight = value; }
+
+        public IList<Point> RecognizerPoints { get; } = new List<Point>();
 
         public event EventHandler<RetrievedEventArgs> Retrieved;
         public event EventHandler Finished;

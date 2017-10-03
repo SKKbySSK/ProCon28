@@ -36,6 +36,7 @@
                 <Slider x:Name="GammaS" Margin="58,130,9.857,0" VerticalAlignment="Top" Height="21" Maximum="5" Minimum="0" LargeChange="1" SmallChange="0.1"/>
                 <Label Content="{Binding Value, ElementName=GammaS}" HorizontalAlignment="Left" Margin="11,128,0,0" VerticalAlignment="Top" Width="43"/>
                 <Label Content="ガンマ" Margin="11,104,9,0" VerticalAlignment="Top"/>
+                <CheckBox x:Name="PerspectiveC" Content="透視変換" HorizontalAlignment="Left" Margin="11,312,0,0" VerticalAlignment="Top" Unchecked="PerspectiveC_StateChanged" Checked="PerspectiveC_StateChanged"/>
             </Grid>
         </ScrollViewer>
         <Button x:Name="BeginQrB" Content="形状情報" Margin="10,99,9.714,0" VerticalAlignment="Top" Height="26" Click="BeginQrB_Click"/>

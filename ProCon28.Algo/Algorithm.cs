@@ -11,13 +11,11 @@ namespace ProCon28.Algo
 {
     public class Algorithm
     {
-        PieceCollection PieceCollection;
-        PieceCollection NonRemove = new PieceCollection();
+        public PieceCollection PieceCollection;
         SortedLineDataCollection LineList = new SortedLineDataCollection();
         public Algorithm(PieceCollection pcol)
         {
             PieceCollection = pcol;
-            NonRemove = pcol;
             for (int i = 0; i < pcol.Count; i++)
             {
                 PointCollection PointCol = pcol[i].Vertexes;
@@ -25,65 +23,76 @@ namespace ProCon28.Algo
                 IList<(Point, Point, double)> pl = PointCol.AsLinesWithLength();
                 for (int j = 0; j < PointCol.Count; j++)
                 {
-                    LineList.Add(new LineData(pl, j, i));
+                    LineList.Add(new LineData(pl, j, PieceCollection[i]));
                 }
             }
         }
 
         public void SearchCanBondPiecePair()
         {
-            while (true)
-            {
-                List<List<(int, int)>> Judge = new List<List<(int, int)>>();
+            #region ichiou
+            //while (true)
+            //{
+            //    List<(List<(int, int)>, Piece)> Judge = new List<(List<(int, int)>, Piece)>();
 
-                Random rand = new Random();
-                int index = rand.Next(LineList.Count);
-                LineData Line1 = LineList[index];
-                int index2 = index;
-                bool UpDown = true;
-                while (UpDown)
-                {
-                    index2++;
-                    if (index2 > LineList.Count) { UpDown = false; }
-                    LineData Line2 = LineList[index2];
-                    if (Rounding(Line1.Length, Line2.Length))
-                    {
-                        PiecePair pp = new PiecePair(PieceCollection[Line1.PieceNumber],Line1.LineNumber, PieceCollection[Line2.PieceNumber], Line2.LineNumber, true);
-                        List<(int, int)> ppResult = pp.MainJudge();
-                        if (ppResult[0].Item1 != -1) { Judge.Add(ppResult); }
-                        pp = new PiecePair(PieceCollection[Line1.PieceNumber], Line1.LineNumber, PieceCollection[Line2.PieceNumber], Line2.LineNumber, false);
-                        ppResult = pp.MainJudge();
-                        if (ppResult[0].Item1 != -1) { Judge.Add(ppResult); }
+            //    Random rand = new Random();
+            //    int index = rand.Next(LineList.Count);
+            //    LineData Line1 = LineList[index];
+            //    int index2 = index;
+            //    bool UpDown = true;
+            //    while (UpDown)
+            //    {
+            //        index2++;
+            //        if (index2 > LineList.Count) { UpDown = false; }
+            //        LineData Line2 = LineList[index2];
+            //        if (Rounding(Line1.Length, Line2.Length))
+            //        {
+            //            PiecePair pp = new PiecePair(Line1.Piece,Line1.LineNumber, Line2.Piece, Line2.LineNumber, true);
+            //            List<(int, int)> ppResult = pp.MainJudge();
+            //            if (ppResult[0].Item1 != -1) { Judge.Add((ppResult,Line2.Piece)); }
+            //            pp = new PiecePair(Line1.Piece, Line1.LineNumber, Line2.Piece, Line2.LineNumber, false);
+            //            ppResult = pp.MainJudge();
+            //            if (ppResult[0].Item1 != -1) { Judge.Add((ppResult, Line2.Piece)); }
 
-                    }
-                    else
-                    {
-                        UpDown = false;
-                    }
-                }
-                index2 = index;
-                UpDown = true;
-                while (UpDown)
-                {
-                    index2--;
-                    if (index2 < 0) { UpDown = false; }
-                    LineData Line2 = LineList[index2];
-                    if (Rounding(Line1.Length , Line2.Length))
-                    {
-                        PiecePair pp = new PiecePair(PieceCollection[Line1.PieceNumber], Line1.LineNumber, PieceCollection[Line2.PieceNumber], Line2.LineNumber, true);
-                        List<(int, int)> ppResult = pp.MainJudge();
-                        if (ppResult[0].Item1 != -1) { Judge.Add(ppResult); }
-                        pp = new PiecePair(PieceCollection[Line1.PieceNumber], Line1.LineNumber, PieceCollection[Line2.PieceNumber], Line2.LineNumber, false);
-                        ppResult = pp.MainJudge();
-                        if (ppResult[0].Item1 != -1) { Judge.Add(ppResult); }
-                    }
-                    else
-                    {
-                        UpDown = false;
-                    }
-                }
+            //        }
+            //        else
+            //        {
+            //            UpDown = false;
+            //        }
+            //    }
+            //    index2 = index;
+            //    UpDown = true;
+            //    while (UpDown)
+            //    {
+            //        index2--;
+            //        if (index2 < 0) { UpDown = false; }
+            //        LineData Line2 = LineList[index2];
+            //        if (Rounding(Line1.Length , Line2.Length))
+            //        {
+            //            PiecePair pp = new PiecePair(Line1.Piece, Line1.LineNumber, Line2.Piece, Line2.LineNumber, true);
+            //            List<(int, int)> ppResult = pp.MainJudge();
+            //            if (ppResult[0].Item1 != -1) { Judge.Add((ppResult, Line2.Piece)); }
+            //            pp = new PiecePair(Line1.Piece, Line1.LineNumber, Line2.Piece, Line2.LineNumber, false);
+            //            ppResult = pp.MainJudge();
+            //            if (ppResult[0].Item1 != -1) { Judge.Add((ppResult, Line2.Piece)); }
+            //        }
+            //        else
+            //        {
+            //            UpDown = false;
+            //        }
+            //    }
 
-            }
+            //    rand = new Random();
+            //    int r = rand.Next(Judge.Count);
+            //    CompositePiece newPiece = PieceBond(Line1.Piece, Judge[r]);
+            //    PieceCollection.Remove(Line1.Piece);
+            //    PieceCollection.Remove(Judge[r].Item2);
+            //    PieceCollection.Add(newPiece);
+
+
+            //}
+#endregion
+
         }
 
         public CompositePiece PieceBond(Piece Source1, Piece Source2, List<(int, int)> FitIndex)
@@ -218,6 +227,11 @@ namespace ProCon28.Algo
                 }
             }
             return new CompositePiece(rt.Vertexes, Source);
+        }
+
+        internal class Judge
+        {
+
         }
 
         public bool Rounding(double Value1, double Value2)

@@ -12,30 +12,30 @@ namespace ProCon28.Algo.Line
 {
     public class LineData
     {
-        public LineData(Point Start, Point End, double Length, int LineNumber, int PieceNumber)
+        public LineData(Point Start, Point End, double Length, int LineNumber, Piece Piece)
         {
             this.Start = Start;
             this.End = End;
             this.Length = Length;
-            this.PieceNumber = PieceNumber;
+            this.Piece = Piece;
             this.LineNumber = LineNumber;
         }
 
-        public LineData(IList<(Point, Point, double)> Lines, int LineNumber, int PieceNumber)
+        public LineData(IList<(Point, Point, double)> Lines, int LineNumber, Piece Piece)
         {
             var Line = Lines[LineNumber];
 
             Start = Line.Item1;
             End = Line.Item2;
             Length = Line.Item3;
-            this.PieceNumber = PieceNumber;
+            this.Piece = Piece;
             this.LineNumber = LineNumber;
         }
         
         public Point Start { get; set; }
         public Point End { get; set; }
         public double Length { get; set; }
-        public int PieceNumber { get; set; }
+        public Piece Piece { get; set; }
         public int LineNumber { get; set; }
     }
 

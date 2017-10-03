@@ -15,15 +15,6 @@ using System.Windows.Shapes;
 
 namespace ProCon28.Controls
 {
-    public class QrReaderEventArgs : EventArgs
-    {
-        public QrReaderEventArgs(string Result)
-        {
-            this.Result = Result;
-        }
-
-        public string Result { get; }
-    }
 
     /// <summary>
     /// QrReader.xaml の相互作用ロジック

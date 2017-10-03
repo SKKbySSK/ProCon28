@@ -31,26 +31,41 @@ namespace ProCon28.Controls
         public double Rotation { get; }
     }
 
+    public class QrReaderEventArgs : EventArgs
+    {
+        public QrReaderEventArgs(string Result)
+        {
+            this.Result = Result;
+        }
+
+        public string Result { get; }
+    }
+
     /// <summary>
     /// CameraDialog.xaml の相互作用ロジック
     /// </summary>
     public partial class Camera : UserControl
     {
         public event EventHandler<ContoursEventArgs> Recognized;
+        public event EventHandler<QrReaderEventArgs> QrRecognized;
+        public event EventHandler Initializing;
 
         public double PieceCoefficient { get; private set; } = 1.0;
         public double PieceRotation { get; private set; } = 0;
-        int MinimumArea { get; set; } = 200;
-        int SquareMaximumArcLength { get; set; } = 300;
-        int ContourIndex { get; set; } = 1;
+
+        double PieceApproxVal { get; set; }
+        double SquareApproxVal { get; set; }
+        double MinimumArea { get; set; }
+        double SquareMaximumArcLength { get; set; }
+        int ContourIndex { get; set; }
+        double Gamma { get; set; }
         Mat PerspectiveTransform { get; set; }
 
         Mat Intrinsic, Distortion;
+        bool Locked;
 
         public System.Collections.ObjectModel.ObservableCollection<string> CalibrationFiles { get; }
             = new System.Collections.ObjectModel.ObservableCollection<string>();
-
-        CameraCapture camera;
 
         public Camera()
         {
@@ -59,23 +74,54 @@ namespace ProCon28.Controls
             UpdateCalibrations();
 
             CamT.Text = Config.Current.Camera.ToString();
-            ThreshS.Value = Config.Current.PieceApprox;
-            SqThreshS.Value = Config.Current.SquareApprox;
+
+            ThreshS.ValueChanged += (sender, e) => PieceApproxVal = ThreshS.Value;
+            SqThreshS.ValueChanged += (sender, e) => SquareApproxVal = SqThreshS.Value;
+            PiAreaS.ValueChanged += (sender, e) => MinimumArea = PiAreaS.Value;
+            SqArcS.ValueChanged += (sender, e) => SquareMaximumArcLength = SqArcS.Value;
+            ContourS.ValueChanged += (sender, e) => ContourIndex = (int)ContourS.Value;
+            GammaS.ValueChanged += (sender, e) => Gamma = GammaS.Value;
+            ResetB_Click(null, null);
 
             KeyboardHook.HookEvent += OnKeyStateChanged;
         }
 
+        private void ResetB_Click(object sender, RoutedEventArgs e)
+        {
+            GammaS.Value = Config.Current.Gamma;
+            ContourS.Value = Config.Current.ContourIndex;
+            SqArcS.Value = Config.Current.SquareMaximumArcLength;
+            PiAreaS.Value = Config.Current.MinimumArea;
+            ThreshS.Value = Config.Current.PieceApprox;
+            SqThreshS.Value = Config.Current.SquareApprox;
+        }
+
+        ICamera cam = null;
+        public ICamera Capture
+        {
+            get { return cam; }
+            set
+            {
+                if (!Locked)
+                    cam = value;
+                else
+                    throw new Exception("ロック中です");
+            }
+        }
+
         void OnKeyStateChanged(ref KeyboardHook.StateKeyboard State)
         {
+            if (Capture == null) return;
+
             if(State.Stroke == KeyboardHook.Stroke.KEY_UP)
             {
                 if (State.Key == System.Windows.Forms.Keys.C)
                 {
-                    CaptureB_Click(null, null);
+                    CaptureCurrent();
                 }
                 if (State.Key == System.Windows.Forms.Keys.F)
                 {
-                    using(Mat img = camera.RetrieveMat(false))
+                    using(Mat img = Capture.RetrieveMat(false))
                     {
                         FixCamera(img.Size(), FindContours(img));
                     }
@@ -105,23 +151,27 @@ namespace ProCon28.Controls
             catch (Exception) { }
         }
 
-        private void BeginB_Click(object sender, RoutedEventArgs e)
+        #region ShapeQR
+
+        private void BeginQrB_Click(object sender, RoutedEventArgs e)
         {
+            if (int.TryParse(CamT.Text, out int dev) && dev > -1)
+                Config.Current.Camera = dev;
+
+            Initializing?.Invoke(this, new EventArgs());
+            if (Capture == null) return;
+            Locked = true;
+
             RefreshDirB.IsEnabled = false;
             CalibC.IsEnabled = false;
             StopB.IsEnabled = true;
             BeginB.IsEnabled = false;
-            CameraOperationGrid.IsEnabled = true;
+            BeginQrB.IsEnabled = false;
 
-            if (int.TryParse(CamT.Text, out int dev) && dev > -1)
-                Config.Current.Camera = dev;
+            Capture.Filters.Clear();
+            Capture.Interruptions.Clear();
 
-            camera = new CameraCapture(Config.Current.Camera, "Recognizer");
-            camera.UseGammaOptimization();
-            camera.AddSlider("Index", ContourIndex, 100, (val) => ContourIndex = val);
-            camera.AddSlider("Min Length", MinimumArea, 1000, val => MinimumArea = val);
-            camera.AddSlider("Sq Length", SquareMaximumArcLength, 1000, val => SquareMaximumArcLength = val);
-
+            Capture.Filters.Add(ApplyGamma);
             if (CalibC.SelectedIndex > 0)
             {
                 FileStorage fs = new FileStorage(CalibC.SelectedItem.ToString(),
@@ -130,35 +180,99 @@ namespace ProCon28.Controls
                 Distortion = fs["Distortion"].ReadMat();
                 fs.Dispose();
 
-                camera.Filters.Add(Calibrate);
+                Capture.Filters.Add(Calibrate);
             }
-            camera.Filters.Add(Contours);
+            Capture.Interruptions.Add(QrRecognize);
+            Capture.Begin();
+        }
+
+        void QrRecognize(Mat Image)
+        {
+            string res = OpenCV.QR.Decoder.Decode(Image);
+
+            if (!string.IsNullOrEmpty(res))
+            {
+                if (ShapeQRManager.AddShape(res))
+                {
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        QrRecognized?.Invoke(this, new QrReaderEventArgs(res));
+                    }));
+                }
+            }
+        }
+
+        #endregion
+
+        private void BeginB_Click(object sender, RoutedEventArgs e)
+        {
+            if (int.TryParse(CamT.Text, out int dev) && dev > -1)
+                Config.Current.Camera = dev;
+
+            Initializing?.Invoke(this, new EventArgs());
+            if (Capture == null) return;
+            Locked = true;
+
+            RefreshDirB.IsEnabled = false;
+            CalibC.IsEnabled = false;
+            StopB.IsEnabled = true;
+            BeginB.IsEnabled = false;
+            BeginQrB.IsEnabled = false;
+
+            Capture.Filters.Clear();
+            Capture.Interruptions.Clear();
+
+            Capture.Filters.Add(ApplyGamma);
+            if (CalibC.SelectedIndex > 0)
+            {
+                FileStorage fs = new FileStorage(CalibC.SelectedItem.ToString(),
+                    FileStorage.Mode.FormatXml | FileStorage.Mode.Read);
+                Intrinsic = fs["Intrinsic"].ReadMat();
+                Distortion = fs["Distortion"].ReadMat();
+                fs.Dispose();
+
+                Capture.Filters.Add(Calibrate);
+            }
+            Capture.Filters.Add(Contours);
 
             KeyboardHook.Start();
-            camera.Begin();
+            Capture.Begin();
         }
 
         private void StopB_Click(object sender, RoutedEventArgs e)
         {
-            KeyboardHook.Stop();
-            Intrinsic?.Dispose();
-            Intrinsic = null;
+            Stop();
+        }
 
-            Distortion?.Dispose();
-            Distortion = null;
+        public void Stop()
+        {
+            try
+            {
+                KeyboardHook.Stop();
+                Intrinsic?.Dispose();
+                Intrinsic = null;
 
-            PerspectiveTransform?.Dispose();
-            PerspectiveTransform = null;
+                Distortion?.Dispose();
+                Distortion = null;
 
-            RefreshDirB.IsEnabled = true;
-            CalibC.IsEnabled = true;
-            StopB.IsEnabled = false;
-            BeginB.IsEnabled = true;
-            CameraOperationGrid.IsEnabled = false;
+                PerspectiveTransform?.Dispose();
+                PerspectiveTransform = null;
 
-            camera.Stop();
-            camera.Dispose();
-            camera = null;
+                RefreshDirB.IsEnabled = true;
+                CalibC.IsEnabled = true;
+                StopB.IsEnabled = false;
+                BeginB.IsEnabled = true;
+                BeginQrB.IsEnabled = true;
+
+                Locked = false;
+                Capture.Stop();
+                Capture.Dispose();
+                Capture = null;
+            }
+            catch (Exception ex)
+            {
+                Log.Write(ex);
+            }
         }
 
         private void RefreshDirB_Click(object sender, RoutedEventArgs e)
@@ -166,9 +280,30 @@ namespace ProCon28.Controls
             UpdateCalibrations();
         }
 
-        private void CaptureB_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// ガンマ補正を行います
+        /// </summary>
+        /// <param name="Image"></param>
+        /// <returns></returns>
+        Mat ApplyGamma(Mat Image)
         {
-            using(Mat capture = camera.RetrieveMat(false))
+            byte[] lut = new byte[256];
+            for (int i = 0; 256 > i; i++)
+            {
+                lut[i] = (byte)(Math.Pow(i / 255.0, 1.0 / Gamma) * 255);
+            }
+            Mat gamma = new Mat();
+            Cv2.LUT(Image, lut, gamma);
+            Image.Dispose();
+            return gamma;
+        }
+
+        /// <summary>
+        /// 現在のフレームをキャプチャし、ピースを認識します
+        /// </summary>
+        private void CaptureCurrent()
+        {
+            using(Mat capture = Capture.RetrieveMat(false))
             {
                 OpenCvSharp.Size size = capture.Size();
                 var contours = FindContours(capture);
@@ -180,6 +315,11 @@ namespace ProCon28.Controls
             }
         }
 
+        /// <summary>
+        /// 四角形を輪郭から検出した後、カメラの歪みとピースとの距離を計算してスケールを取得します
+        /// </summary>
+        /// <param name="Size"></param>
+        /// <param name="Contours"></param>
         public void FixCamera(OpenCvSharp.Size Size, OpenCvSharp.Point[][] Contours)
         {
             var sqpoints = SquareApprox(Size, Contours);
@@ -232,10 +372,15 @@ namespace ProCon28.Controls
                 dst[2] = new Point2f(p1.X + len, p1.Y + len);
                 dst[3] = new Point2f(p1.X + len, p1.Y);
 
-                PerspectiveTransform = Cv2.GetPerspectiveTransform(ToFloatArray(sqpoints), dst);
+                PerspectiveTransform = Cv2.GetPerspectiveTransform(sqpoints.Select(p => (Point2f)p1), dst);
             }
         }
 
+        /// <summary>
+        /// 四角形の頂点を反時計回りにソートします
+        /// </summary>
+        /// <param name="Points"></param>
+        /// <returns></returns>
         OpenCvSharp.Point[] AsAntiClockwise(OpenCvSharp.Point[] Points)
         {
             OpenCvSharp.Point BasePoint = Points[0];
@@ -264,13 +409,11 @@ namespace ProCon28.Controls
                 return ps.ToArray();
         }
 
-        double GetLength(OpenCvSharp.Point P1, OpenCvSharp.Point P2)
-        {
-            double x = P1.X - P2.Y;
-            double y = P1.Y - P2.Y;
-            return Math.Sqrt(x * x + y * y);
-        }
-
+        /// <summary>
+        /// キャリブレーションを行います
+        /// </summary>
+        /// <param name="Image"></param>
+        /// <returns></returns>
         Mat Calibrate(Mat Image)
         {
             if (Intrinsic == null || Distortion == null || Image == null) return null;
@@ -285,11 +428,11 @@ namespace ProCon28.Controls
             }
         }
 
-        private void ThreshS_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            Config.Current.PieceApprox = ThreshS.Value;
-        }
-
+        /// <summary>
+        /// 輪郭を画像に描画します
+        /// </summary>
+        /// <param name="Image"></param>
+        /// <returns></returns>
         Mat Contours(Mat Image)
         {
             if (Image == null) return null;
@@ -299,8 +442,11 @@ namespace ProCon28.Controls
 
             var Pieces = PieceApprox(size, contours);
             
-            int ind = Math.Max(0, Math.Min(Pieces.Count - 1, ContourIndex));
-            Cv2.DrawContours(Image, new OpenCvSharp.Point[][] { Pieces[ind] }, -1, Scalar.Red, 3);
+            if(Pieces.Count > 0)
+            {
+                int ind = Math.Max(0, Math.Min(Pieces.Count - 1, ContourIndex));
+                Cv2.DrawContours(Image, new OpenCvSharp.Point[][] { Pieces[ind] }, -1, Scalar.Red, 3);
+            }
 
             var Square = SquareApprox(size, contours);
 
@@ -310,6 +456,12 @@ namespace ProCon28.Controls
             return Image;
         }
 
+        /// <summary>
+        /// ピースを検出します
+        /// </summary>
+        /// <param name="Size"></param>
+        /// <param name="Contours"></param>
+        /// <returns></returns>
         List<OpenCvSharp.Point[]> PieceApprox(OpenCvSharp.Size Size, OpenCvSharp.Point[][] Contours)
         {
             List<OpenCvSharp.Point[]> changed = new List<OpenCvSharp.Point[]>();
@@ -338,21 +490,13 @@ namespace ProCon28.Controls
             return changed.OrderByDescending((ps => Cv2.ArcLength(ps, true))).ToList();
         }
 
-        //VertexComparer vcomparer = new VertexComparer();
-
-        //class VertexComparer : IEqualityComparer<OpenCvSharp.Point[]>
-        //{
-        //    public bool Equals(OpenCvSharp.Point[] x, OpenCvSharp.Point[] y)
-        //    {
-        //        return x.Length == y.Length;
-        //    }
-
-        //    public int GetHashCode(OpenCvSharp.Point[] obj)
-        //    {
-        //        return obj.Length;
-        //    }
-        //}
-
+        /// <summary>
+        /// 正方形を検出します
+        /// </summary>
+        /// <param name="Size"></param>
+        /// <param name="Contours"></param>
+        /// <param name="Thresh"></param>
+        /// <returns></returns>
         OpenCvSharp.Point[] SquareApprox(OpenCvSharp.Size Size, OpenCvSharp.Point[][] Contours, double Thresh = 0.7)
         {
             List<OpenCvSharp.Point[]> changed = new List<OpenCvSharp.Point[]>();
@@ -390,41 +534,11 @@ namespace ProCon28.Controls
             return null;
         }
 
-        bool IsInRatio(double ExpectRatio, double Threshold, params double[] Args)
-        {
-            List<double> diff = new List<double>();
-
-            int count = Args.Length;
-            for(int i = 0;count > i; i++)
-            {
-                if (i == count - 1)
-                    diff.Add(Math.Abs(ExpectRatio - (Args[0] / Args[count - 1])));
-                else
-                    diff.Add(Math.Abs(ExpectRatio - (Args[i] / Args[i + 1])));
-            }
-
-            foreach(double d in diff)
-            {
-                if (d > Threshold)
-                    return false;
-            }
-
-            return true;
-        }
-
-        Point2f[] ToFloatArray(OpenCvSharp.Point[] Points)
-        {
-            Point2f[] ret = new Point2f[Points.Length];
-            for (int i = 0; Points.Length > i; i++)
-                ret[i] = Points[i];
-            return ret;
-        }
-
-        private void SqThreshS_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            Config.Current.SquareApprox = SqThreshS.Value;
-        }
-
+        /// <summary>
+        /// 輪郭検出
+        /// </summary>
+        /// <param name="Image"></param>
+        /// <returns></returns>
         OpenCvSharp.Point[][] FindContours(Mat Image)
         {
             if(PerspectiveTransform != null && !PerspectiveTransform.IsDisposed)

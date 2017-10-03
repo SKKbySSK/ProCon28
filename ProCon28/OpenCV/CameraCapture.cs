@@ -7,7 +7,7 @@ using OpenCvSharp;
 
 namespace ProCon28.OpenCV
 {
-    public class CameraCapture : IDisposable
+    public class CameraCapture : ICamera
     {
         bool disposing = false;
         bool retrieve = false;

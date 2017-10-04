@@ -129,6 +129,8 @@ namespace ProCon28.OpenCV
             {
                 Log.Write(ex.Message);
             }
+
+            GC.SuppressFinalize(this);
         }
     }
 }

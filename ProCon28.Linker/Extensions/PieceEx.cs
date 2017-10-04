@@ -150,6 +150,13 @@ namespace ProCon28.Linker.Extensions
         /// <returns></returns>
         public static Piece Convert(this Piece Piece, Point BasePoint)
         {
+            if (Piece is CompositePiece cp)
+            {
+                PieceCollection newSource = new PieceCollection();
+                newSource.AddRange(cp.Source.Select(piece => piece.Convert(BasePoint)));
+                cp.Source = newSource;
+            }
+
             Piece clone = (Piece)Piece.Clone();
             for (int i = 0; clone.Vertexes.Count > i; i++)
             {
@@ -163,6 +170,7 @@ namespace ProCon28.Linker.Extensions
 
         public static Piece Convert(this Piece Piece)
         {
+
             if (Piece.Vertexes.Count == 0) return Piece;
             Point bp = Piece.Vertexes[0];
             foreach (Point p in Piece.Vertexes)
@@ -177,6 +185,13 @@ namespace ProCon28.Linker.Extensions
 
         public static Piece RotatePiece(this Piece Piece, double rad)
         {
+            if (Piece is CompositePiece cp)
+            {
+                PieceCollection newSource = new PieceCollection();
+                newSource.AddRange(cp.Source.Select(piece => piece.RotatePiece(rad)));
+                cp.Source = newSource;
+            }
+
             Piece p = (Piece)Piece.Clone();
             PointCollection pcol = p.Vertexes;
             bool change = false;
@@ -197,6 +212,13 @@ namespace ProCon28.Linker.Extensions
 
         public static Piece UnsafeRotate(this Piece Piece, double Radian)
         {
+            if (Piece is CompositePiece cp)
+            {
+                PieceCollection newSource = new PieceCollection();
+                newSource.AddRange(cp.Source.Select(piece => piece.UnsafeRotate(Radian)));
+                cp.Source = newSource;
+            }
+
             Piece p = (Piece)Piece.Clone();
 
             PointCollection pcol = new PointCollection();
@@ -214,6 +236,13 @@ namespace ProCon28.Linker.Extensions
 
         public static Piece FlipPiece(this Piece Piece)
         {
+            if(Piece is CompositePiece cp)
+            {
+                PieceCollection newSource = new PieceCollection();
+                newSource.AddRange(cp.Source.Select(piece => piece.FlipPiece()));
+                cp.Source = newSource;
+            }
+
             Piece p = (Piece)Piece.Clone();
             for (int i = 0; i < p.Vertexes.Count; i++)
             {
@@ -326,28 +355,66 @@ namespace ProCon28.Linker.Extensions
             return false;
         }
 
-        public static bool IsDirectionJudge(this Piece Piece, int index) //辺に対して、trueなら角度的に考えて正の方向に,falseなら負の方向にピースがある
+        public static bool IsDirectionJudge(this Piece Piece, int index) 
         {
             bool r;
             IList<(Point, Point, double)> LL = Piece.Vertexes.AsLinesWithLength();
-            Point Start = LL[index].Item1;
-            Point End = LL[index].Item2;
-            int a = End.X - Start.X;
-            int b = - End.Y + Start.Y;
-            int c = - Start.X * a - Start.Y * b;
-            double DistSum = 0;
-            foreach (Point p in Piece.Vertexes)
+            Point S = LL[index].Item1;
+            Point E = LL[index].Item2;
+            double sx = S.X, sy = S.Y;
+            double ex = E.X, ey = E.Y;
+            double cp1x = (sx + ex * Math.PI) / (Math.PI + 1); //ランダムな浮動小数点の代用としてPIを使用
+            double cp1y = (sy + ey * Math.PI) / (Math.PI + 1); //ランダムでは遅くちょっと不味いことが起こるやもしれないため
+            double cp3x, cp3y;
+            if (sx != cp1x)
             {
-                DistSum += a * p.X + b * p.Y + c;
-            }
-            if(DistSum > 0)
-            {
-                r = true;
+                cp3x = cp1x + 1;
+                cp3y = -(sx - cp1x) * (cp3x - cp1x) / (sy - cp1y) + cp1y;
             }
             else
             {
-                r = false;
+                cp3x = cp1x;
+                cp3y = cp1y + 1;
             }
+
+            int count = 0;
+            for(int i = 0; i < LL.Count; i++)
+            {
+                if(i == index) { continue; }
+                double cp2x = LL[i].Item1.X;
+                double cp2y = LL[i].Item1.Y;
+                double cp4x = LL[i].Item2.X;
+                double cp4y = LL[i].Item2.Y;
+
+                double s1 = ((cp4x - cp2x) * (cp1y - cp2y) - (cp4y - cp2y) * (cp1x - cp2x)) / 2;
+                double s2 = ((cp4x - cp2x) * (cp2y - cp3y) - (cp4y - cp2y) * (cp2x - cp3x)) / 2;
+                double crossx = cp1x + (cp3x - cp1x) * s1 / (s1 + s2);
+                double crossy = cp1y + (cp3y - cp1y) * s1 / (s1 + s2);
+                if (cp2x == cp4x)
+                {
+                    if (cp2y < cp4y)
+                    {
+                        if (cp2y < crossy && cp4y > crossy) { count++; }
+                    }
+                    else
+                    {
+                        if (cp4y < crossy && cp2y > crossy) { count++; }
+                    }
+                }
+                else if (cp2x < cp4x)
+                {
+                    if (cp2x < crossx && cp4x > crossx) { count++; }
+                }
+                else
+                {
+                    if (cp4x < crossx && cp2x > crossx) { count++; }
+                }
+            }
+
+            if(count % 2 == 1)
+                r = true;
+            else
+                r = false;
             return r;
         }
 

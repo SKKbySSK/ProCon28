@@ -155,12 +155,15 @@ namespace ProCon28.Algo
             bool j = false;
             bool p1 = false;
             bool p2 = false;
+            int minus1 = index1 - 1, minus2 = index2 - 1;
             List<(double, bool)> sdl1 = Piece1.PieceSideData();
             List<(double, bool)> sdl2 = Piece2.PieceSideData();
-            double Angle11 = Piece1.GetAngle2PI(index1 - 1) + Piece2.GetAngle2PI(index2 - 1);
+            if (index1 == 0) { minus1 = Piece1.Vertexes.Count - 1; }
+            if (index2 == 0) { minus2 = Piece2.Vertexes.Count - 1; }
+            double Angle11 = Piece1.GetAngle2PI(minus1) + Piece2.GetAngle2PI(minus2);
             double Angle12 = Piece1.GetAngle2PI(index1) + Piece2.GetAngle2PI(index2);
-            double Angle21 = Piece1.GetAngle2PI(index1 - 1) + Piece2.GetAngle2PI(index2);
-            double Angle22 = Piece1.GetAngle2PI(index1) + Piece2.GetAngle2PI(index2 - 1);
+            double Angle21 = Piece1.GetAngle2PI(minus1) + Piece2.GetAngle2PI(index2);
+            double Angle22 = Piece1.GetAngle2PI(index1) + Piece2.GetAngle2PI(minus2);
 
             if (Turn)
             {
@@ -202,7 +205,7 @@ namespace ProCon28.Algo
                     }
                 }
             }
-            double difSlope = Math.Abs(sdl1[index1].Item1 - sdl2[index1].Item1);
+            double difSlope = Math.Abs(sdl1[index1].Item1 - sdl2[index2].Item1);
             if (!(Rounding(difSlope, 0) || Rounding(difSlope, Math.PI / 2) || Rounding(difSlope, Math.PI) || Rounding(difSlope, Math.PI * 3 / 2) || Rounding(difSlope, Math.PI * 2)))
             {
                 j = false;

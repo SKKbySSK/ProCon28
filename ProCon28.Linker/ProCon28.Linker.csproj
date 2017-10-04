@@ -67,6 +67,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompositePiece.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="DoublePoint.cs" />
     <Compile Include="Extensions\CollectionEx.cs" />

@@ -48,6 +48,7 @@ namespace ProCon28.Algo
             pcol.AddRange(Shared.Pieces);
 
             Algorithm Algorithm = new Algorithm(pcol);
+            Algorithm.SearchCanBondPiecePair();
         }
 
         private void ItemWS_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

@@ -58,20 +58,20 @@ namespace ProCon28.Algo
 
                     PiecePair pp = new PiecePair(Line1.Piece, Line1.LineNumber, Line2.Piece, Line2.LineNumber, true);
                     List<(int, int)> Fit = pp.MainJudge();
-                    if(Fit != null)
+                    if(Fit.Count != 0)
                     {
                         JudgeList.Add(new Judge(Fit, Line1.Piece, Line2.Piece));
                     }
 
                     pp = new PiecePair(Line1.Piece, Line1.LineNumber, Line2.Piece, Line2.LineNumber, false);
                     Fit = pp.MainJudge();
-                    if (Fit != null)
+                    if (Fit.Count != 0)
                     {
                         JudgeList.Add(new Judge(Fit, Line1.Piece, Line2.Piece));
                     }
                 }
 
-                if( JudgeList != null)
+                if( JudgeList.Count != 0)
                 {
                     randIndex = rand.Next(JudgeList.Count);
                     Judge Chosen = JudgeList[randIndex];
@@ -102,30 +102,6 @@ namespace ProCon28.Algo
         public CompositePiece PieceBond(Piece Source1, Piece Source2, List<(int, int)> FitIndex)
         {
             List<Piece> Source = new List<Piece>();
-            if (Source1 is CompositePiece s1)
-            {
-                foreach(Piece p in s1.Source)
-                {
-                    Source.Add(p);
-                }
-            }
-            else
-            {
-                Source.Add(Source1);
-            }
-
-            if (Source2 is CompositePiece s2)
-            {
-                foreach (Piece p in s2.Source)
-                {
-                    Source.Add(p);
-                }
-            }
-            else
-            {
-                Source.Add(Source2);
-            }
-
             Piece Piece1 = (Piece)Source1.Clone();
             Piece Piece2 = (Piece)Source2.Clone();
             int sideIndex1, sideIndex2;
@@ -252,6 +228,31 @@ namespace ProCon28.Algo
                     i--;
                 }
             }
+
+            if (Source1 is CompositePiece s1)
+            {
+                foreach (Piece p in s1.Source)
+                {
+                    Source.Add(p);
+                }
+            }
+            else
+            {
+                Source.Add(Piece1);
+            }
+
+            if (Source2 is CompositePiece s2)
+            {
+                foreach (Piece p in s2.Source)
+                {
+                    Source.Add(p);
+                }
+            }
+            else
+            {
+                Source.Add(Piece2);
+            }
+
             return new CompositePiece(rt.Vertexes, Source);
         }
 

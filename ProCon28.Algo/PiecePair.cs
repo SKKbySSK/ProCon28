@@ -141,10 +141,14 @@ namespace ProCon28.Algo
         {
             int index1, index2;
             index1 = Start1 + loop;
+            if (index1 < 0) { index1 += Piece1.Vertexes.Count ; }
+            if (index1 >= Piece1.Vertexes.Count) { index1 -= Piece1.Vertexes.Count; }
             if (Turn)
                 index2 = Start2 + loop;
             else
                 index2 = Start2 - loop;
+            if (index2 < 0) { index2 += Piece2.Vertexes.Count; }
+            if (index2 >= Piece2.Vertexes.Count) { index2 -= Piece2.Vertexes.Count; }
             JudgeData r = LineJudge(index1, index2);
             
             return r;
@@ -205,11 +209,11 @@ namespace ProCon28.Algo
                     }
                 }
             }
-            double difSlope = Math.Abs(sdl1[index1].Item1 - sdl2[index2].Item1);
-            if (!(Rounding(difSlope, 0) || Rounding(difSlope, Math.PI / 2) || Rounding(difSlope, Math.PI) || Rounding(difSlope, Math.PI * 3 / 2) || Rounding(difSlope, Math.PI * 2)))
-            {
-                j = false;
-            }
+            //double difSlope = Math.Abs(sdl1[index1].Item1 - sdl2[index2].Item1);
+            //if (!(Rounding(difSlope, 0) || Rounding(difSlope, Math.PI / 2) || Rounding(difSlope, Math.PI) || Rounding(difSlope, Math.PI * 3 / 2) || Rounding(difSlope, Math.PI * 2)))
+            //{
+            //    j = false;
+            //}
             return new JudgeData(j, p1, p2);
         }
 

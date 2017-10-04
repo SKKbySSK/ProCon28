@@ -10,6 +10,7 @@ namespace ProCon28.Linker
     {
         public CompositePiece( IEnumerable<Point> P ,IEnumerable<Piece> S )
         {
+            Source = new PieceCollection();
             foreach(var piece in S)
                 Source.Add(piece);
 

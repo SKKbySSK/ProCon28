@@ -306,7 +306,14 @@ namespace ProCon28.Controls
         {
             using(Mat capture = Capture.RetrieveMat(false))
             {
-                var changed = ReduceContours(capture);
+                List<OpenCvSharp.Point[]> changed;
+                if (CalibC.SelectedIndex > 0)
+                {
+                    using (Mat calib = Calibrate(capture))
+                        changed = ReduceContours(calib);
+                }
+                else
+                    changed = ReduceContours(capture);
 
                 foreach (var ps in changed)
                 {

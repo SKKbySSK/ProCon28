@@ -22,6 +22,8 @@ namespace ProCon28.Controls
     public partial class OpenCvCapture : UserControl
     {
         OpenCV.WorkerCapture Worker;
+        bool ldrag = false;
+        System.Windows.Point lastpos;
 
         public event EventHandler WorkerFinished;
 
@@ -47,8 +49,8 @@ namespace ProCon28.Controls
             this.Worker = Worker;
             Worker.Retrieved += Worker_Retrieved;
             Worker.Finished += Worker_Finished;
-            MatView.Width = Worker.Width;
-            MatView.Height = Worker.Height;
+            MatParent.Width = Worker.Width;
+            MatParent.Height = Worker.Height;
             KeyboardHook.Start();
         }
 
@@ -96,6 +98,67 @@ namespace ProCon28.Controls
         private void MatView_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             Worker?.RecognizerPoints.Clear();
+        }
+
+        private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if(e.LeftButton == MouseButtonState.Pressed)
+            {
+                ldrag = true;
+                lastpos = e.GetPosition(MatView);
+                Grid.CaptureMouse();
+            }
+        }
+
+        private void Grid_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if(e.LeftButton == MouseButtonState.Released && ldrag)
+            {
+                Grid.ReleaseMouseCapture();
+                ldrag = false;
+            }
+        }
+
+        private void Grid_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!ldrag) return;
+
+            Point mouse = e.GetPosition(MatView);
+            Point diff = new Point(mouse.X - lastpos.X, mouse.Y - lastpos.Y);
+            double l = 0, t = 0, w = 0, h = 0;
+
+            if (diff.X >= 0 && diff.Y >= 0)
+            {
+                l = lastpos.X;
+                t = lastpos.Y;
+                w = diff.X;
+                h = diff.Y;
+            }
+            else if (diff.X >= 0 && diff.Y <= 0)
+            {
+                l = lastpos.X;
+                t = mouse.Y;
+                w = diff.X;
+                h = -diff.Y;
+            }
+            else if (diff.X <= 0 && diff.Y >= 0)
+            {
+                l = mouse.X;
+                t = lastpos.Y;
+                w = -diff.X;
+                h = diff.Y;
+            }
+            else
+            {
+                l = mouse.X;
+                t = mouse.Y;
+                w = -diff.X;
+                h = -diff.Y;
+            }
+
+            MatCrop.Margin = new Thickness(l, t, 0, 0);
+            MatCrop.Width = w;
+            MatCrop.Height = h;
         }
     }
 }

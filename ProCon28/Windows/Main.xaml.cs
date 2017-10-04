@@ -50,6 +50,13 @@ namespace ProCon28.Windows
             SortC.IsChecked = Config.Current.ClockwiseSort;
             BlurS.Value = Config.Current.BlurThreshold;
             StraightS.Value = Config.Current.StraightThreshold;
+
+            var ps = new Linker.Point[] 
+            {
+                new Linker.Point(0, 0), new Linker.Point(5, 5), new Linker.Point(0, 10)
+            };
+            Linker.Piece p1 = new Linker.Piece(ps.ToList().GetRange(0, 3));
+            Linker.CompositePiece cp = new Linker.CompositePiece(ps, new Linker.Piece[] { p1 });
         }
 
         private void Pieces_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

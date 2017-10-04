@@ -22,6 +22,11 @@ namespace ProCon28.Linker
             this.Vertexes = Vertexes;
         }
 
+        public Piece(IEnumerable<Point> Vertexes) : this()
+        {
+            this.Vertexes.AddRange(Vertexes);
+        }
+
         public Piece(byte[] Bytes)
         {
             using (MemoryStream ms = new MemoryStream(Bytes))

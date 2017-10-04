@@ -82,9 +82,25 @@ namespace ProCon28.Controls
         {
             GeometryGroup paths = new GeometryGroup();
 
-            var lines = Piece.Vertexes.AsLines();
-            foreach(var line in lines)
-                paths.Children.Add(new LineGeometry(new System.Windows.Point(line.Item1.X * Sample, line.Item1.Y * Sample), new System.Windows.Point(line.Item2.X * Sample, line.Item2.Y * Sample)));
+            if(Piece is CompositePiece cp)
+            {
+                foreach(Piece p in cp.Source)
+                {
+                    var lines = p.Vertexes.AsLines();
+                    foreach (var line in lines)
+                        paths.Children.Add(new LineGeometry(
+                            new System.Windows.Point(line.Item1.X * Sample, line.Item1.Y * Sample),
+                            new System.Windows.Point(line.Item2.X * Sample, line.Item2.Y * Sample)));
+                }
+            }
+            else
+            {
+                var lines = Piece.Vertexes.AsLines();
+                foreach (var line in lines)
+                    paths.Children.Add(new LineGeometry(
+                        new System.Windows.Point(line.Item1.X * Sample, line.Item1.Y * Sample),
+                        new System.Windows.Point(line.Item2.X * Sample, line.Item2.Y * Sample)));
+            }
 
             DrawingImage di = new DrawingImage(new GeometryDrawing(Brushes.White, new Pen(Brushes.Black, 1), paths));
             di.Freeze();

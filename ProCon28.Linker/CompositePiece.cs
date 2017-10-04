@@ -16,6 +16,7 @@ namespace ProCon28.Linker
             foreach (var v in P)
                 Vertexes.Add(v);
         }
+
         public PieceCollection Source { get; set; }
     }
 }

@@ -56,15 +56,15 @@ namespace ProCon28.Linker
             return p;
         }
 
-        public static bool operator ==(Piece Piece1, Piece Piece2)
-        {
-            return Piece1.GUID == Piece2.GUID;
-        }
+        //public static bool operator ==(Piece Piece1, Piece Piece2)
+        //{
+        //    return Piece1.GUID == Piece2.GUID;
+        //}
 
-        public static bool operator !=(Piece Piece1, Piece Piece2)
-        {
-            return Piece1.GUID != Piece2.GUID;
-        }
+        //public static bool operator !=(Piece Piece1, Piece Piece2)
+        //{
+        //    return Piece1.GUID != Piece2.GUID;
+        //}
 
         /// <summary>
         /// 指定の方法で頂点をソートします

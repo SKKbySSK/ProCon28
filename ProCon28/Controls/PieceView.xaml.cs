@@ -80,29 +80,31 @@ namespace ProCon28.Controls
 
         ImageSource CreateImage(Piece Piece)
         {
-            GeometryGroup paths = new GeometryGroup();
+            GeometryGroup gg = new GeometryGroup();
 
             if(Piece is CompositePiece cp)
             {
                 foreach(Piece p in cp.Source)
                 {
+                    var paths = new GeometryGroup();
                     var lines = p.Vertexes.AsLines();
                     foreach (var line in lines)
                         paths.Children.Add(new LineGeometry(
                             new System.Windows.Point(line.Item1.X * Sample, line.Item1.Y * Sample),
                             new System.Windows.Point(line.Item2.X * Sample, line.Item2.Y * Sample)));
+                    gg.Children.Add(paths);
                 }
             }
             else
             {
                 var lines = Piece.Vertexes.AsLines();
                 foreach (var line in lines)
-                    paths.Children.Add(new LineGeometry(
+                    gg.Children.Add(new LineGeometry(
                         new System.Windows.Point(line.Item1.X * Sample, line.Item1.Y * Sample),
                         new System.Windows.Point(line.Item2.X * Sample, line.Item2.Y * Sample)));
             }
 
-            DrawingImage di = new DrawingImage(new GeometryDrawing(Brushes.White, new Pen(Brushes.Black, 1), paths));
+            DrawingImage di = new DrawingImage(new GeometryDrawing(Brushes.Transparent, new Pen(Brushes.Black, 1), gg));
             di.Freeze();
 
             return di;

@@ -53,10 +53,15 @@ namespace ProCon28.Windows
 
             var ps = new Linker.Point[] 
             {
-                new Linker.Point(0, 0), new Linker.Point(5, 5), new Linker.Point(0, 10)
+                new Linker.Point(0, 0), new Linker.Point(5, 5), new Linker.Point(0, 10),
+                new Linker.Point(0, 10), new Linker.Point(5, 5), new Linker.Point(10, 15),
+                new Linker.Point(5, 5), new Linker.Point(10, 0), new Linker.Point(10, 15)
             };
             Linker.Piece p1 = new Linker.Piece(ps.ToList().GetRange(0, 3));
-            Linker.CompositePiece cp = new Linker.CompositePiece(ps, new Linker.Piece[] { p1 });
+            Linker.Piece p2 = new Linker.Piece(ps.ToList().GetRange(3, 3));
+            Linker.Piece p3 = new Linker.Piece(ps.ToList().GetRange(6, 3));
+            Linker.CompositePiece cp = new Linker.CompositePiece(ps, new Linker.Piece[] { p1, p2, p3 });
+            PieceList.Pieces.Add(cp);
         }
 
         private void Pieces_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

@@ -73,7 +73,7 @@ namespace ProCon28.Algo
 
                 if( JudgeList.Count != 0)
                 {
-                    randIndex = rand.Next(JudgeList.Count);
+                    randIndex = RandomSelect(JudgeList.Count);
                     Judge Chosen = JudgeList[randIndex];
                     CompositePiece newPiece = PieceBond(Chosen.Piece1, Chosen.Piece2, Chosen.Fit);
 
@@ -98,6 +98,20 @@ namespace ProCon28.Algo
                 }
             }
         }
+
+        public int SelectFit()
+        {
+            int r = 0;
+            return r;
+        }
+
+        public int RandomSelect(int max)
+        {
+            Random rand = new Random();
+            int r = rand.Next(max);
+            return r;
+        }
+
 
         public CompositePiece PieceBond(Piece Source1, Piece Source2, List<(int, int)> FitIndex)
         {

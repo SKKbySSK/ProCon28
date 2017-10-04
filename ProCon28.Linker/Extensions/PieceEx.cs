@@ -150,6 +150,13 @@ namespace ProCon28.Linker.Extensions
         /// <returns></returns>
         public static Piece Convert(this Piece Piece, Point BasePoint)
         {
+            if (Piece is CompositePiece cp)
+            {
+                PieceCollection newSource = new PieceCollection();
+                newSource.AddRange(cp.Source.Select(piece => piece.Convert(BasePoint)));
+                cp.Source = newSource;
+            }
+
             Piece clone = (Piece)Piece.Clone();
             for (int i = 0; clone.Vertexes.Count > i; i++)
             {
@@ -163,6 +170,7 @@ namespace ProCon28.Linker.Extensions
 
         public static Piece Convert(this Piece Piece)
         {
+
             if (Piece.Vertexes.Count == 0) return Piece;
             Point bp = Piece.Vertexes[0];
             foreach (Point p in Piece.Vertexes)
@@ -177,6 +185,13 @@ namespace ProCon28.Linker.Extensions
 
         public static Piece RotatePiece(this Piece Piece, double rad)
         {
+            if (Piece is CompositePiece cp)
+            {
+                PieceCollection newSource = new PieceCollection();
+                newSource.AddRange(cp.Source.Select(piece => piece.RotatePiece(rad)));
+                cp.Source = newSource;
+            }
+
             Piece p = (Piece)Piece.Clone();
             PointCollection pcol = p.Vertexes;
             bool change = false;
@@ -197,6 +212,13 @@ namespace ProCon28.Linker.Extensions
 
         public static Piece UnsafeRotate(this Piece Piece, double Radian)
         {
+            if (Piece is CompositePiece cp)
+            {
+                PieceCollection newSource = new PieceCollection();
+                newSource.AddRange(cp.Source.Select(piece => piece.UnsafeRotate(Radian)));
+                cp.Source = newSource;
+            }
+
             Piece p = (Piece)Piece.Clone();
 
             PointCollection pcol = new PointCollection();
@@ -214,6 +236,13 @@ namespace ProCon28.Linker.Extensions
 
         public static Piece FlipPiece(this Piece Piece)
         {
+            if(Piece is CompositePiece cp)
+            {
+                PieceCollection newSource = new PieceCollection();
+                newSource.AddRange(cp.Source.Select(piece => piece.FlipPiece()));
+                cp.Source = newSource;
+            }
+
             Piece p = (Piece)Piece.Clone();
             for (int i = 0; i < p.Vertexes.Count; i++)
             {

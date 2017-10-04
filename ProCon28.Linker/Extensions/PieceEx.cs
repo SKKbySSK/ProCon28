@@ -68,7 +68,7 @@ namespace ProCon28.Linker.Extensions
             p1 -= angle;
             p2 -= angle;
 
-            double rad = Math.Acos(GetAngle(Piece, Vertex));
+            double rad = GetAngle(Piece, Vertex);
             //角度が180以上かどうかの判定
             //ここからかなり不安な処理を行う、消す場合は次のコメントアウトまで
             double p1angle, p2angle, changing;

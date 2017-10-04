@@ -143,7 +143,7 @@ namespace ProCon28.Algo
             sl1 = Piece1.PieceSideData();
             sl2 = Piece2.PieceSideData();
             bool Dir1 = sl1[sideIndex1].Item2;
-            bool Dir2 = sl1[sideIndex2].Item2;
+            bool Dir2 = sl2[sideIndex2].Item2;
             if (Dir1 == Dir2)
                 Piece2 = Piece2.RotatePiece(Math.PI);
 
@@ -238,7 +238,7 @@ namespace ProCon28.Algo
             {
                 if( Rounding(rt.GetAngle(i), Math.PI))
                 {
-                    rt.Vertexes.RemoveAt(i);
+                    Return.RemoveAt(i);
                     i--;
                 }
             }

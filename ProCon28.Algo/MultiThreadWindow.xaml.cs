@@ -41,7 +41,6 @@ namespace ProCon28.Algo
             for(int i = 0;Config.Current.MT_Limitation > i; i++)
             {
                 Algorithm algo = new Algorithm(ClonePieces(), Dispatcher);
-                alg
                 Tasks.Add((algo.SearchAsync(), algo));
             }
         }

@@ -52,7 +52,7 @@ namespace ProCon28.Algo
                 int updata1 = Start1, updata2 = Start2;
                 int index1 = added1, index2 = added2;
                 int i = 0;
-                while (jd.IsPIPI1)
+                while (jd.IsPIPI2)
                 {
                     i--;
                     jd = OtherJudge(i);
@@ -62,7 +62,7 @@ namespace ProCon28.Algo
                         if (updata1 == -1) { updata1 = Piece1.Vertexes.Count - 1; }
                         if (index1 == -1) { index1 = Piece1.Vertexes.Count - 1; }
                         if (updata1 == Piece1.Vertexes.Count) { updata1 = 0; }
-                        if (index1 == Piece2.Vertexes.Count) { index1 = 0; }
+                        if (index1 == Piece1.Vertexes.Count) { index1 = 0; }
                         if (Turn)
                         {
                             updata2--; index2--;
@@ -82,9 +82,9 @@ namespace ProCon28.Algo
                         }
 
                         if (Turn)
-                            r.Insert(0, (index1, index2));
+                            r.Add((index1, index2));
                         else
-                            r.Insert(0, (index1, updata2));
+                            r.Add((index1, updata2));
                     }
                 }
                 updata1 = Start1; updata2 = Start2;
@@ -99,8 +99,8 @@ namespace ProCon28.Algo
                         updata1++; index1++;
                         if (updata1 == -1) { updata1 = Piece1.Vertexes.Count - 1; }
                         if (index1 == -1) { index1 = Piece1.Vertexes.Count - 1; }
-                        if (updata1 == Piece1.Vertexes.Count - 1) { updata1 = 0; }
-                        if (index1 == Piece2.Vertexes.Count - 1) { index1 = 0; }
+                        if (updata1 == Piece1.Vertexes.Count) { updata1 = 0; }
+                        if (index1 == Piece1.Vertexes.Count) { index1 = 0; }
                         if (Turn)
                         {
                             updata2++; index2++;
@@ -109,10 +109,10 @@ namespace ProCon28.Algo
                         {
                             updata2--; index2--;
                         }
-                        if (updata2 == -1) { updata2 = Piece1.Vertexes.Count - 1; }
+                        if (updata2 == -1) { updata2 = Piece2.Vertexes.Count - 1; }
                         if (index2 == -1) { index2 = Piece2.Vertexes.Count - 1; }
-                        if (updata2 == Piece1.Vertexes.Count - 1) { updata2 = 0; }
-                        if (index2 == Piece2.Vertexes.Count - 1) { index2 = 0; }
+                        if (updata2 == Piece2.Vertexes.Count) { updata2 = 0; }
+                        if (index2 == Piece2.Vertexes.Count) { index2 = 0; }
 
                         if (Rounding(Length1[updata1].Item3, Length2[updata2].Item3))
                         {
@@ -120,9 +120,9 @@ namespace ProCon28.Algo
                         }
 
                         if (Turn)
-                            r.Add((updata1, updata2));
+                            r.Insert(0, (updata1, updata2));
                         else
-                            r.Add((updata1, index2));
+                            r.Insert(0, (updata1, index2));
                     }
                 }
             }

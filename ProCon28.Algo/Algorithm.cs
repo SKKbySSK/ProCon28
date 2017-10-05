@@ -54,6 +54,11 @@ namespace ProCon28.Algo
             });
         }
 
+        public Task SearchAsync()
+        {
+            return Task.Run(() => search());
+        }
+
         public void Abort()
         {
             aborted = true;
@@ -62,7 +67,7 @@ namespace ProCon28.Algo
         public void search(List<int> Duplicates = null)
         {
             if (Duplicates == null) Duplicates = new List<int>();
-            while (PieceCollection.Count > 1 || !aborted)
+            while (PieceCollection.Count > 1 && !aborted)
             {
                 List<Judge> JudgeList = new List<Judge>();
                 

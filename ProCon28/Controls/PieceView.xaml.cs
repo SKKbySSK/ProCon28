@@ -96,7 +96,7 @@ namespace ProCon28.Controls
         {
             DrawingGroup dg = new DrawingGroup();
 
-            if(Piece is CompositePiece cp)
+            if (Piece is CompositePiece cp)
             {
                 int i = 0;
                 foreach(Piece p in cp.Source)
@@ -115,7 +115,7 @@ namespace ProCon28.Controls
                     i++;
                 }
             }
-            else
+
             {
                 GeometryGroup gg = new GeometryGroup();
                 var lines = Piece.Vertexes.AsLines();
@@ -123,10 +123,9 @@ namespace ProCon28.Controls
                     gg.Children.Add(new LineGeometry(
                         new System.Windows.Point(line.Item1.X * Sample, line.Item1.Y * Sample),
                         new System.Windows.Point(line.Item2.X * Sample, line.Item2.Y * Sample)));
-                
-                dg.Children.Add(new GeometryDrawing(Brushes.Transparent, new Pen(Brushes.Black, 1), gg));
-            }
 
+                dg.Children.Add(new GeometryDrawing(Brushes.Transparent, new Pen(Brushes.Black, 10), gg));
+            }
 
             return new DrawingImage(dg);
         }

@@ -17,6 +17,9 @@ namespace ProCon28.Algo
         public double Threshold { get; set; } = 0.01;
         public string LastFilePath { get; set; } = "Pieces.pbin";
 
+        public int MT_Limitation { get; set; } = 50;
+        public int MT_Retry { get; set; } = 100;
+
         static Lazy<Config> config = new Lazy<Config>(() =>
         {
             if (File.Exists(Linker.Constants.AlgoConfigFileName))

@@ -83,6 +83,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Config.cs" />
+    <Compile Include="MultiThreadWindow.xaml.cs">
+      <DependentUpon>MultiThreadWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PiecePair.cs" />
     <Compile Include="Shared.cs" />
     <Compile Include="Views\PieceCollectionView.xaml.cs">
@@ -103,6 +106,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="MultiThreadWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\PieceCollectionView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

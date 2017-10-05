@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using ProCon28.Linker.Extensions;
 
 namespace ProCon28.Algo
 {
@@ -19,7 +20,7 @@ namespace ProCon28.Algo
     /// </summary>
     public partial class MultiThreadWindow : Window
     {
-        List<(Task, Algorithm)> Tasks = new List<(Task, Algorithm)>();
+        List<AlgoInfo> Tasks = new List<AlgoInfo>();
         Linker.PieceCollection PieceCollection;
 
         public MultiThreadWindow(Linker.PieceCollection Pieces)
@@ -27,12 +28,15 @@ namespace ProCon28.Algo
             InitializeComponent();
             PieceCollection = Pieces;
 
+            BasePiecesView.Pieces = Pieces;
             RetryT.Text = Config.Current.MT_Retry.ToString();
             ProcessT.Text = Config.Current.MT_Limitation.ToString();
         }
 
         private void BeginB_Click(object sender, RoutedEventArgs e)
         {
+            Stop();
+
             if (int.TryParse(RetryT.Text, out int retry))
                 Config.Current.MT_Retry = retry;
             if (int.TryParse(ProcessT.Text, out int limit))
@@ -41,8 +45,22 @@ namespace ProCon28.Algo
             for(int i = 0;Config.Current.MT_Limitation > i; i++)
             {
                 Algorithm algo = new Algorithm(ClonePieces(), Dispatcher);
-                Tasks.Add((algo.SearchAsync(), algo));
+                algo.Sleeping += Algo_Sleeping;
+                AlgoInfo info = new AlgoInfo(algo, Dispatcher);
+                info.Finished = (ps) =>
+                {
+                    AddTab(ps);
+                };
+                info.Begin();
+                Tasks.Add(info);
             }
+        }
+
+        private void Algo_Sleeping(object sender, RoutedSleepEventArgs e)
+        {
+            Random rnd = new Random();
+            e.Index = rnd.Next(e.TempResults.Length);
+            e.Wait = false;
         }
 
         Linker.PieceCollection ClonePieces()
@@ -51,6 +69,99 @@ namespace ProCon28.Algo
             foreach (var p in PieceCollection)
                 pcol.Add((Linker.Piece)p.Clone());
             return pcol;
+        }
+
+        TabPage AddTab(IList<Linker.Piece> Pieces)
+        {
+            TabPage tp = new TabPage();
+            tp.Header = Pieces.Count + "個";
+            tp.Pieces = Pieces;
+            ResultTab.Items.Add(tp);
+            return tp;
+        }
+
+        private void CancelB_Click(object sender, RoutedEventArgs e)
+        {
+            Stop();
+        }
+
+        void Stop()
+        {
+            foreach (var val in Tasks)
+            {
+                val.Cancel = true;
+            }
+            Task.WhenAll(Tasks.Select(t => t.CurrentTask));
+            Tasks.Clear();
+        }
+    }
+
+    class TabPage : TabItem
+    {
+        Views.PieceCollectionView pcolv = new Views.PieceCollectionView();
+        public TabPage()
+        {
+            Content = pcolv;
+        }
+
+        Linker.PieceCollection ps = new Linker.PieceCollection();
+        public IList<Linker.Piece> Pieces
+        {
+            get { return pcolv.Pieces; }
+            set { pcolv.Pieces = value; }
+        }
+    }
+
+    class AlgoInfo
+    {
+        public AlgoInfo(Algorithm Algo, System.Windows.Threading.Dispatcher Dispatcher)
+        {
+            Algorithm = Algo;
+            this.Dispatcher = Dispatcher;
+        }
+
+        public Algorithm Algorithm { get; }
+        public int TryCount { get; private set; } = 0;
+        public Action<Linker.PieceCollection> Finished { get; set; }
+        private System.Windows.Threading.Dispatcher Dispatcher;
+        public Task CurrentTask { get; private set; }
+
+        public bool Cancel { get; set; } = false;
+
+        public void Begin()
+        {
+            if (CurrentTask != null) return;
+
+            CurrentTask = Task.Run(() =>
+            {
+                int lastcount = Algorithm.PieceCollection.Count;
+                for(int i = 0;Config.Current.MT_Limitation > i; i++)
+                {
+                    if (Cancel)
+                        break;
+
+                    Algorithm.search();
+
+                    if (Cancel)
+                        break;
+
+                    int count = Algorithm.PieceCollection.Count;
+                    if (count == 1)
+                        break;
+                    else if(count != lastcount)
+                    {
+                        if (Cancel)
+                            break;
+                        lastcount = count;
+                        i = 0;
+                    }
+                }
+
+                if(Finished != null)
+                {
+                    Dispatcher.BeginInvoke(new Action(() => Finished(Algorithm.PieceCollection)));
+                }
+            });
         }
     }
 }

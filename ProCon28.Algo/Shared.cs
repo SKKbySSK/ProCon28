@@ -11,6 +11,6 @@ namespace ProCon28.Algo
 {
     static class Shared
     {
-        public static ObservableCollection<Piece> Pieces { get; } = new ObservableCollection<Piece>();
+        public static PieceCollection Pieces { get; } = new PieceCollection();
     }
 }

@@ -13,5 +13,13 @@ namespace ProCon28.Linker.Extensions
             foreach (T item in Items)
                 Collection.Add(item);
         }
+
+        public static PieceCollection AsPieceCollection(this IEnumerable<Piece> Pieces)
+        {
+            PieceCollection pcol = new PieceCollection();
+            foreach (var p in Pieces)
+                pcol.Add(p);
+            return pcol;
+        }
     }
 }

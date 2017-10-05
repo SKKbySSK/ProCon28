@@ -161,5 +161,11 @@ namespace ProCon28.Algo
                 _ev.Wait = false;
             }
         }
+
+        private void auto_Click(object sender, RoutedEventArgs e)
+        {
+            MultiThreadWindow multiThreadWindow = new MultiThreadWindow(Shared.Pieces);
+            multiThreadWindow.Show();
+        }
     }
 }

@@ -58,11 +58,15 @@ namespace ProCon28.Linker
 
         //public static bool operator ==(Piece Piece1, Piece Piece2)
         //{
+        //    if (Piece1 == null) return false;
+        //    if (Piece2 == null) return false;
         //    return Piece1.GUID == Piece2.GUID;
         //}
 
         //public static bool operator !=(Piece Piece1, Piece Piece2)
         //{
+        //    if (Piece1 == null) return true;
+        //    if (Piece1 == null) return true;
         //    return Piece1.GUID != Piece2.GUID;
         //}
 

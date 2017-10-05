@@ -28,13 +28,26 @@ namespace ProCon28.Algo
             }
         }
 
-        public void SearchCanBondPiecePair()
+        public Piece[] SearchCanBondPiecePair(List<int> Duplicates = null)
         {
-            while (true)
+            if (Duplicates == null) Duplicates = new List<int>();
+            while (PieceCollection.Count > 1)
             {
                 List<Judge> JudgeList = new List<Judge>();
-                Random rand = new Random();
-                int randIndex = rand.Next(LineList.Count);
+                
+                int randIndex = -1;
+                int seed = 0;
+                while (true)
+                {
+                    if(Duplicates.Count == LineList.Count) { return PieceCollection.ToArray(); }
+                    if (!Duplicates.Contains(randIndex) && randIndex > -1)
+                        break;
+                    else
+                        randIndex = new Random(Environment.TickCount + seed).Next(LineList.Count);
+                    seed++;
+                }
+
+                Duplicates.Add(randIndex);
                 LineData Line1 = LineList[randIndex];
 
                 int Start = randIndex ;
@@ -95,8 +108,11 @@ namespace ProCon28.Algo
                     {
                         LineList.Add(new LineData(pl, j, newPiece));
                     }
+                    Duplicates.Clear();
                 }
             }
+
+            return PieceCollection.ToArray();
         }
 
         public int SelectFit()
@@ -164,7 +180,7 @@ namespace ProCon28.Algo
                 sl1 = Piece1.PieceSideData();
                 sl2 = Piece2.PieceSideData();
                 Dir1 = sl1[sideIndex1].Item2;
-                Dir2 = sl1[sideIndex2].Item2;
+                Dir2 = sl2[sideIndex2].Item2;
                 if (Dir1 == Dir2)
                     Piece2 = Piece2.RotatePiece(Math.PI);
 

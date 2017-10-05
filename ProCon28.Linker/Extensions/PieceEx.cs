@@ -185,12 +185,16 @@ namespace ProCon28.Linker.Extensions
 
         public static Piece RotatePiece(this Piece Piece, double rad)
         {
+            return UnsafeRotate(Piece, rad);
+
+
             if (Piece is CompositePiece cp)
             {
                 PieceCollection newSource = new PieceCollection();
                 newSource.AddRange(cp.Source.Select(piece => piece.RotatePiece(rad)));
                 cp.Source = newSource;
             }
+
 
             Piece p = (Piece)Piece.Clone();
             PointCollection pcol = p.Vertexes;

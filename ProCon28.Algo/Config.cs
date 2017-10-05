@@ -15,6 +15,7 @@ namespace ProCon28.Algo
         public string TCP_IP { get; set; } = "";
         public int TCP_Port { get; set; } = 50000;
         public double Threshold { get; set; } = 0.01;
+        public string LastFilePath { get; set; } = "Pieces.pbin";
 
         static Lazy<Config> config = new Lazy<Config>(() =>
         {

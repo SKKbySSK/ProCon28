@@ -39,6 +39,7 @@ namespace ProCon28.Algo
 
             IpBox.Text = Config.Current.TCP_IP;
             PortBox.Text = Config.Current.TCP_Port.ToString();
+            FilepathT.Text = Config.Current.LastFilePath;
             constructing = false;
         }
 
@@ -48,7 +49,7 @@ namespace ProCon28.Algo
             pcol.AddRange(Shared.Pieces);
 
             Algorithm Algorithm = new Algorithm(pcol);
-            Algorithm.SearchCanBondPiecePair();
+            Shared.Pieces.AddRange(Algorithm.SearchCanBondPiecePair());
         }
 
         private void ItemWS_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -107,6 +108,7 @@ namespace ProCon28.Algo
                 fs.Read(bs, 0, (int)fs.Length);
                 PieceCollection pcol = new PieceCollection(bs);
                 Shared.Pieces.AddRange(pcol);
+                Config.Current.LastFilePath = FilepathT.Text;
             }
         }
     }

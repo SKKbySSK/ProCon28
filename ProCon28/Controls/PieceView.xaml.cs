@@ -33,9 +33,18 @@ namespace ProCon28.Controls
             get { return p; }
             set
             {
+                if (p != null)
+                    p.Vertexes.CollectionChanged -= Vertexes_CollectionChanged;
                 p = value;
                 RedrawPiece();
+                if(p != null)
+                    p.Vertexes.CollectionChanged += Vertexes_CollectionChanged;
             }
+        }
+
+        private void Vertexes_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            RedrawPiece();
         }
 
         public void RedrawPiece()

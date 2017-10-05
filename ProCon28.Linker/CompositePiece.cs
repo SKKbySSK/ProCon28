@@ -19,10 +19,5 @@ namespace ProCon28.Linker
         }
 
         public PieceCollection Source { get; set; }
-
-        public override object Clone()
-        {
-            return base.Clone();
-        }
     }
 }

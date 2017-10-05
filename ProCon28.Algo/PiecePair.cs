@@ -30,9 +30,10 @@ namespace ProCon28.Algo
         IList<(Point, Point, double)> Length2 { get; }
         bool Turn { get; set; }
 
+        List<(int, int)> Return { get; set; } = new List<(int, int)>();
+
         public List<(int, int)> MainJudge()
         {
-            List<(int, int)> r = new List<(int, int)>();
             JudgeData jd = StartJudge();
             if (jd.IsJudge)
             {
@@ -41,100 +42,36 @@ namespace ProCon28.Algo
                 if (added2 == -1) { added2 = Piece2.Vertexes.Count - 1; }
                 if (Turn)
                 {
-                    r.Add((Start1, Start2));
-                    r.Add((added1, added2));
+                    Return.Add((Start1, Start2));
+                    Return.Add((added1, added2));
                 }
                 else
                 {
-                    r.Add((Start1, added2));
-                    r.Add((added1, Start2));
+                    Return.Add((Start1, added2));
+                    Return.Add((added1, Start2));
                 }
-                int updata1 = Start1, updata2 = Start2;
-                int index1 = added1, index2 = added2;
-                int i = 0;
-                while (jd.IsPIPI2)
-                {
-                    i--;
-                    jd = OtherJudge(i);
-                    if (jd.IsJudge )
-                    {
-                        updata1--; index1--;
-                        if (updata1 == -1) { updata1 = Piece1.Vertexes.Count - 1; }
-                        if (index1 == -1) { index1 = Piece1.Vertexes.Count - 1; }
-                        if (updata1 == Piece1.Vertexes.Count) { updata1 = 0; }
-                        if (index1 == Piece1.Vertexes.Count) { index1 = 0; }
-                        if (Turn)
-                        {
-                            updata2--; index2--;
-                        }
-                        else
-                        {
-                            updata2++; index2++;
-                        }
-                        if (updata2 == -1) { updata2 = Piece2.Vertexes.Count - 1; }
-                        if (index2 == -1) { index2 = Piece2.Vertexes.Count - 1; }
-                        if (updata2 == Piece2.Vertexes.Count) { updata2 = 0; }
-                        if (index2 == Piece2.Vertexes.Count) { index2 = 0; }
 
-                        if (Rounding(Length1[updata1].Item3, Length2[updata2].Item3))
-                        {
-                            break;
-                        }
-
-                        if (Turn)
-                            r.Add((index1, index2));
-                        else
-                            r.Add((index1, updata2));
-                    }
-                }
-                updata1 = Start1; updata2 = Start2;
-                index1 = added1; index2 = added2;
-                i = 0;
+                int l = 0;
                 while (jd.IsPIPI1)
                 {
-                    i++;
-                    jd = OtherJudge(i);
-                    if (jd.IsJudge)
-                    {
-                        updata1++; index1++;
-                        if (updata1 == -1) { updata1 = Piece1.Vertexes.Count - 1; }
-                        if (index1 == -1) { index1 = Piece1.Vertexes.Count - 1; }
-                        if (updata1 == Piece1.Vertexes.Count) { updata1 = 0; }
-                        if (index1 == Piece1.Vertexes.Count) { index1 = 0; }
-                        if (Turn)
-                        {
-                            updata2++; index2++;
-                        }
-                        else
-                        {
-                            updata2--; index2--;
-                        }
-                        if (updata2 == -1) { updata2 = Piece2.Vertexes.Count - 1; }
-                        if (index2 == -1) { index2 = Piece2.Vertexes.Count - 1; }
-                        if (updata2 == Piece2.Vertexes.Count) { updata2 = 0; }
-                        if (index2 == Piece2.Vertexes.Count) { index2 = 0; }
+                    l++;
+                    jd = OtherJudge(l);
+                }
 
-                        if (Rounding(Length1[updata1].Item3, Length2[updata2].Item3))
-                        {
-                            break;
-                        }
-
-                        if (Turn)
-                            r.Insert(0, (updata1, updata2));
-                        else
-                            r.Insert(0, (updata1, index2));
-                    }
+                l = 0;
+                while (jd.IsPIPI2)
+                {
+                    l--;
+                    jd = OtherJudge(l);
                 }
             }
-            
-            return r;
+
+            return Return; 
         }
 
         JudgeData StartJudge()
         {
-            JudgeData r = LineJudge(Start1, Start2);
-
-            return r;
+            return LineJudge(Start1, Start2);
         }
 
         JudgeData OtherJudge(int loop)
@@ -149,8 +86,39 @@ namespace ProCon28.Algo
                 index2 = Start2 - loop;
             if (index2 < 0) { index2 += Piece2.Vertexes.Count; }
             if (index2 >= Piece2.Vertexes.Count) { index2 -= Piece2.Vertexes.Count; }
+
+            if(!Rounding( Length1[index1].Item3, Length2[index2].Item3))
+            {
+                return new JudgeData(false, false, false);
+            }
+
             JudgeData r = LineJudge(index1, index2);
-            
+
+            if (!r.IsJudge)
+            {
+                return new JudgeData(false, false, false); ;
+            }
+
+            int added1 = index1 - 1, added2 = index2 - 1;
+            if(added1 == -1) { added1 = Piece1.Vertexes.Count - 1; }
+            if(added1 == Piece1.Vertexes.Count) { added1 = 0; }
+            if(added2 == -1) { added2 = Piece2.Vertexes.Count - 1; }
+            if(added2 == Piece2.Vertexes.Count) { added2 = 0; }
+
+            if(loop > 0)
+            {
+                if (Turn)
+                    Return.Insert(0, (index1, index2));
+                else
+                    Return.Insert(0, (index1, added2));
+            }
+            else
+            {
+                if (Turn)
+                    Return.Add((index1, index2));
+                else
+                    Return.Add((index1, added2));
+            }
             return r;
         }
 

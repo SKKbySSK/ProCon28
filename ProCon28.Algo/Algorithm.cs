@@ -303,7 +303,7 @@ namespace ProCon28.Algo
             {
                 if (Start2 > End2)
                     End2 += Piece2.Vertexes.Count;
-                for (int i = Start2; i <= End2; i++)
+                for (int i = Start2 + 1; i < End2; i++)
                 {
                     int ri = i % Piece2.Vertexes.Count;
                     Return.Add(Piece2.Vertexes[ri]);
@@ -313,7 +313,7 @@ namespace ProCon28.Algo
             {
                 if (Start2 < End2)
                     End2 -= Piece2.Vertexes.Count;
-                for (int i = Start2; i >= End2; i--)
+                for (int i = Start2 - 1; i > End2; i--)
                 {
                     int ri = i;
                     if (ri < 0)
@@ -325,7 +325,7 @@ namespace ProCon28.Algo
             rt.Vertexes.AddRange(Return);
             for(int i = 0; i < Return.Count; i++)
             {
-                if( Rounding(rt.GetAngle(i), Math.PI))
+                if( Rounding(rt.GetAngle(i), Math.PI) || Rounding(rt.GetAngle(i), Math.PI * 2) || Rounding(rt.GetAngle(i),0))
                 {
                     Return.RemoveAt(i);
                     i--;

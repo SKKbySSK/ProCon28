@@ -9,13 +9,31 @@ using ProCon28.Linker.Extensions;
 
 namespace ProCon28.Algo
 {
+    public class BondEventArgs : EventArgs
+    {
+        public Piece[] Pieces { get; set; }
+    }
+
+    public class RoutedSleepEventArgs : EventArgs
+    {
+        public bool Wait { get; set; } = true;
+        public CompositePiece[] TempResults { get; set; }
+        public int Index { get; set; }
+    }
+
     public class Algorithm
     {
+        public event EventHandler<BondEventArgs> Bonded;
+        public event EventHandler<RoutedSleepEventArgs> Sleeping;
+
         public PieceCollection PieceCollection;
+        private System.Windows.Threading.Dispatcher disp;
+        private bool aborted = false;
         SortedLineDataCollection LineList = new SortedLineDataCollection();
-        public Algorithm(PieceCollection pcol)
+        public Algorithm(PieceCollection pcol, System.Windows.Threading.Dispatcher Dispatcher)
         {
             PieceCollection = pcol;
+            disp = Dispatcher;
             foreach(Piece p in PieceCollection )
             {
                 PointCollection PointCol = p.Vertexes;
@@ -28,10 +46,23 @@ namespace ProCon28.Algo
             }
         }
 
-        public Piece[] SearchCanBondPiecePair(List<int> Duplicates = null)
+        public void SearchCanBondPiecePair()
+        {
+            Task.Run(() =>
+            {
+                search();
+            });
+        }
+
+        public void Abort()
+        {
+            aborted = true;
+        }
+
+        public void search(List<int> Duplicates = null)
         {
             if (Duplicates == null) Duplicates = new List<int>();
-            while (PieceCollection.Count > 1)
+            while (PieceCollection.Count > 1 || !aborted)
             {
                 List<Judge> JudgeList = new List<Judge>();
                 
@@ -39,7 +70,13 @@ namespace ProCon28.Algo
                 int seed = 0;
                 while (true)
                 {
-                    if(Duplicates.Count == LineList.Count) { return PieceCollection.ToArray(); }
+                    if(Duplicates.Count == LineList.Count)
+                    {
+                        disp.BeginInvoke(new Action(() => {
+                            Bonded?.Invoke(this, new BondEventArgs() { Pieces = PieceCollection.ToArray() });
+                        }));
+                        return;
+                    }
                     if (!Duplicates.Contains(randIndex) && randIndex > -1)
                         break;
                     else
@@ -86,33 +123,64 @@ namespace ProCon28.Algo
 
                 if( JudgeList.Count != 0)
                 {
-                    randIndex = RandomSelect(JudgeList.Count);
-                    Judge Chosen = JudgeList[randIndex];
-                    CompositePiece newPiece = PieceBond(Chosen.Piece1, Chosen.Piece2, Chosen.Fit);
-
-                    PieceCollection.Remove(Chosen.Piece1);
-                    PieceCollection.Remove(Chosen.Piece2);
-                    for(int i = 0; i < LineList.Count; i++)
+                    //randIndex = RandomSelect(JudgeList.Count);
+                    List<CompositePiece> ResultList = new List<CompositePiece>();
+                    for(int i = 0;i < JudgeList.Count; i++)
                     {
-                        if(LineList[i].Piece == Chosen.Piece1 || LineList[i].Piece == Chosen.Piece2)
+                        Judge res = JudgeList[i];
+                        CompositePiece np = PieceBond(res.Piece1, res.Piece2, res.Fit);
+                        ResultList.Add(np);
+                    }
+
+                    RoutedSleepEventArgs ev = new RoutedSleepEventArgs()
+                    {
+                        Wait = true,
+                        TempResults = ResultList.ToArray()
+                    };
+                    disp.BeginInvoke(new Action(() =>
+                    {
+                        Sleeping?.Invoke(this, ev);
+                    }));
+                    while (ev.Wait)
+                    {
+                        if (aborted)
+                            return;
+                    }
+
+                    if(ev.Index > -1)
+                    {
+                        Judge Chosen = JudgeList[ev.Index];
+                        CompositePiece newPiece = PieceBond(Chosen.Piece1, Chosen.Piece2, Chosen.Fit);
+
+                        PieceCollection.Remove(Chosen.Piece1);
+                        PieceCollection.Remove(Chosen.Piece2);
+                        for (int i = 0; i < LineList.Count; i++)
                         {
-                            LineList.RemoveAt(i);
-                            i--;
+                            if (LineList[i].Piece == Chosen.Piece1 || LineList[i].Piece == Chosen.Piece2)
+                            {
+                                LineList.RemoveAt(i);
+                                i--;
+                            }
                         }
-                    }
 
-                    PieceCollection.Add(newPiece);
-                    PointCollection pcol = newPiece.Vertexes;
-                    IList<(Point, Point, double)> pl = pcol.AsLinesWithLength();
-                    for (int j = 0; j < pcol.Count; j++)
-                    {
-                        LineList.Add(new LineData(pl, j, newPiece));
+                        PieceCollection.Add(newPiece);
+                        PointCollection pcol = newPiece.Vertexes;
+                        IList<(Point, Point, double)> pl = pcol.AsLinesWithLength();
+                        for (int j = 0; j < pcol.Count; j++)
+                        {
+                            LineList.Add(new LineData(pl, j, newPiece));
+                        }
+                        Duplicates.Clear();
+                        disp.BeginInvoke(new Action(() => {
+                            Bonded?.Invoke(this, new BondEventArgs() { Pieces = PieceCollection.ToArray() });
+                        }));
                     }
-                    Duplicates.Clear();
                 }
             }
 
-            return PieceCollection.ToArray();
+            disp.BeginInvoke(new Action(() => {
+                Bonded?.Invoke(this, new BondEventArgs() { Pieces = PieceCollection.ToArray() });
+            }));
         }
 
         public int SelectFit()
@@ -153,7 +221,7 @@ namespace ProCon28.Algo
             List<(double, bool)> sl2 = Piece2.PieceSideData();
             double Slope1 = sl1[sideIndex1].Item1;
             double Slope2 = sl2[sideIndex2].Item1;
-            double disSlope = Slope1 - Slope2;
+            double disSlope = Slope2 -Slope1;
             Piece2 = Piece2.RotatePiece(disSlope);
 
             sl1 = Piece1.PieceSideData();
@@ -228,7 +296,7 @@ namespace ProCon28.Algo
             }
             if (rot2)
             {
-                if (Start2 > End1)
+                if (Start2 > End2)
                     End2 += Piece2.Vertexes.Count;
                 for (int i = Start2; i <= End2; i++)
                 {
@@ -240,7 +308,7 @@ namespace ProCon28.Algo
             {
                 if (Start2 < End2)
                     End2 -= Piece2.Vertexes.Count;
-                for (int i = Start2; i >= End1; i--)
+                for (int i = Start2; i >= End2; i--)
                 {
                     int ri = i;
                     if (ri < 0)

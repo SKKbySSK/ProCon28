@@ -53,6 +53,17 @@ namespace ProCon28.Algo.Views
             }
         }
 
+        public Piece SelectedPiece
+        {
+            get { return LV.SelectedItem == null ? null : ((PieceView)LV.SelectedItem).Piece; }
+        }
+
+        public int SelectedIndex
+        {
+            get { return LV.SelectedIndex; }
+            set { LV.SelectedIndex = value; }
+        }
+
         IList<Piece> pieces;
         public IList<Piece> Pieces
         {

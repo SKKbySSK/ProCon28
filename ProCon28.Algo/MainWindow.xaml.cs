@@ -17,6 +17,7 @@ using ProCon28.Linker;
 using ProCon28.Algo.Line;
 using OFD = System.Windows.Forms.OpenFileDialog;
 using System.IO;
+using System.ComponentModel;
 
 namespace ProCon28.Algo
 {
@@ -25,15 +26,15 @@ namespace ProCon28.Algo
     /// </summary>
     public partial class MainWindow : Window
     {
-
+        Algorithm algo;
+        RoutedSleepEventArgs _ev;
         bool constructing = true;
 
         public MainWindow()
         {
             InitializeComponent();
-
+            
             PieceView.Pieces = Shared.Pieces;
-            PiecesInfo.ItemsSource = Shared.Pieces;
             ItemHS.Value = Config.Current.ItemHeight;
             ItemWS.Value = Config.Current.ItemWidth;
 
@@ -46,10 +47,31 @@ namespace ProCon28.Algo
         private void import_Click(object sender, RoutedEventArgs e)
         {
             PieceCollection pcol = new PieceCollection();
-            pcol.AddRange(Shared.Pieces);
 
-            Algorithm Algorithm = new Algorithm(pcol);
-            Shared.Pieces.AddRange(Algorithm.SearchCanBondPiecePair());
+            foreach(Piece p in Shared.Pieces)
+            {
+                if (!(p is Linker.Frame))
+                    pcol.Add(p);
+            }
+
+            algo?.Abort();
+            algo = new Algorithm(pcol, Dispatcher);
+            algo.Bonded += Algorithm_Bonded;
+            algo.Sleeping += Algorithm_Sleeping;
+            algo.SearchCanBondPiecePair();
+        }
+
+        private void Algorithm_Sleeping(object sender, RoutedSleepEventArgs e)
+        {
+            TempPieces.Pieces.Clear();
+            TempPieces.Pieces.AddRange(e.TempResults);
+            _ev = e;
+        }
+
+        private void Algorithm_Bonded(object sender, BondEventArgs e)
+        {
+            Shared.Pieces.Clear();
+            Shared.Pieces.AddRange(e.Pieces);
         }
 
         private void ItemWS_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -109,6 +131,34 @@ namespace ProCon28.Algo
                 PieceCollection pcol = new PieceCollection(bs);
                 Shared.Pieces.AddRange(pcol);
                 Config.Current.LastFilePath = FilepathT.Text;
+            }
+        }
+
+        private void RemoveI_Click(object sender, RoutedEventArgs e)
+        {
+            if (PieceView.SelectedPiece != null) Shared.Pieces.Remove(PieceView.SelectedPiece);
+        }
+
+        private void ClearB_Click(object sender, RoutedEventArgs e)
+        {
+            Shared.Pieces.Clear();
+        }
+
+        private void TempPieces_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if(TempPieces.SelectedPiece != null)
+            {
+                _ev.Index = TempPieces.SelectedIndex;
+                _ev.Wait = false;
+            }
+        }
+
+        private void AbortB_Click(object sender, RoutedEventArgs e)
+        {
+            if (_ev != null)
+            {
+                _ev.Index = -1;
+                _ev.Wait = false;
             }
         }
     }

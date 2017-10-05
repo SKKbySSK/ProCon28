@@ -37,8 +37,8 @@ namespace ProCon28
         public static double Acos(double X, double Threshold = 0)
         {
             double val = Math.Acos(X);
-            if (Math.Abs(val - Math.PI) <= Threshold)
-                return 0;
+            if (Math.Abs(val) <= Threshold)
+                return Math.PI;
             else
                 return val;
         }

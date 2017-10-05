@@ -61,8 +61,8 @@ namespace ProCon28.Algo
                         updata1--; index1--;
                         if (updata1 == -1) { updata1 = Piece1.Vertexes.Count - 1; }
                         if (index1 == -1) { index1 = Piece1.Vertexes.Count - 1; }
-                        if (updata1 == Piece1.Vertexes.Count - 1) { updata1 = 0; }
-                        if (index1 == Piece2.Vertexes.Count - 1) { index1 = 0; }
+                        if (updata1 == Piece1.Vertexes.Count) { updata1 = 0; }
+                        if (index1 == Piece2.Vertexes.Count) { index1 = 0; }
                         if (Turn)
                         {
                             updata2--; index2--;
@@ -71,10 +71,10 @@ namespace ProCon28.Algo
                         {
                             updata2++; index2++;
                         }
-                        if (updata2 == -1) { updata2 = Piece1.Vertexes.Count - 1; }
+                        if (updata2 == -1) { updata2 = Piece2.Vertexes.Count - 1; }
                         if (index2 == -1) { index2 = Piece2.Vertexes.Count - 1; }
-                        if (updata2 == Piece1.Vertexes.Count - 1) { updata2 = 0; }
-                        if (index2 == Piece2.Vertexes.Count - 1) { index2 = 0; }
+                        if (updata2 == Piece2.Vertexes.Count) { updata2 = 0; }
+                        if (index2 == Piece2.Vertexes.Count) { index2 = 0; }
 
                         if (Rounding(Length1[updata1].Item3, Length2[updata2].Item3))
                         {
@@ -188,6 +188,8 @@ namespace ProCon28.Algo
                         p2 = true;
                     }
                 }
+                if (Angle11 > Math.PI * 2 || Angle12 > Math.PI * 2)
+                    j = false;
             }
             else
             {
@@ -208,7 +210,10 @@ namespace ProCon28.Algo
                         p2 = true;
                     }
                 }
+                if (Angle21 > Math.PI * 2 || Angle22 > Math.PI * 2)
+                    j = false;
             }
+            
             //double difSlope = Math.Abs(sdl1[index1].Item1 - sdl2[index2].Item1);
             //if (!(Rounding(difSlope, 0) || Rounding(difSlope, Math.PI / 2) || Rounding(difSlope, Math.PI) || Rounding(difSlope, Math.PI * 3 / 2) || Rounding(difSlope, Math.PI * 2)))
             //{

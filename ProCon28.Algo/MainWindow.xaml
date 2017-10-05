@@ -30,7 +30,13 @@
         <Button x:Name="next" Content="next" Grid.Column="1" HorizontalAlignment="Left" Margin="115,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Height="120"/>
         <Button x:Name="undo" Content="undo" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Grid.Column="1" Margin="220,10,0,0" Grid.Row="1" Height="57"/>
         <Button x:Name="redo" Content="redo" Grid.Column="1" HorizontalAlignment="Left" Margin="220,73,0,0" Grid.Row="1" VerticalAlignment="Top" Width="120" Height="57"/>
-        <Views:PieceCollectionView x:Name="PieceView" Grid.Column="1" Margin="10.143,105,33,32.857"/>
+        <Views:PieceCollectionView x:Name="PieceView" Grid.Column="1" Margin="10.143,105,33,32.857">
+            <Views:PieceCollectionView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="削除" Click="RemoveI_Click"/>
+                </ContextMenu>
+            </Views:PieceCollectionView.ContextMenu>
+        </Views:PieceCollectionView>
         <Slider x:Name="ItemWS" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,16,10" VerticalAlignment="Bottom" Width="162" Maximum="250" Minimum="50" SmallChange="10" LargeChange="50" Value="150" ValueChanged="ItemWS_ValueChanged"/>
         <Slider x:Name="ItemHS" Grid.Column="1" Margin="0,0,10,28" VerticalAlignment="Bottom" Height="162" Maximum="250" Minimum="50" SmallChange="10" LargeChange="50" Value="150" ValueChanged="ItemHS_ValueChanged" Orientation="Vertical" HorizontalAlignment="Right" Width="18"/>
         <Label Content="IP" HorizontalAlignment="Left" Margin="9,12,0,0" VerticalAlignment="Top" Width="51" Grid.Column="1"/>
@@ -43,11 +49,13 @@
                 <RowDefinition Height="380"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <ListBox x:Name="PiecesInfo" ItemTemplate="{StaticResource PieceListItem}" Margin="10"/>
+            <Views:PieceCollectionView x:Name="TempPieces" Margin="10,10,10,51" MouseDoubleClick="TempPieces_MouseDoubleClick" Grid.RowSpan="2"/>
+            <Button x:Name="AbortB" Content="無視" Margin="10,0,10,10" Grid.Row="1" VerticalAlignment="Bottom" Height="36" Click="AbortB_Click"/>
         </Grid>
         <Label Content="ファイル名" HorizontalAlignment="Left" Margin="8.143,74,0,0" VerticalAlignment="Top" Width="56" Grid.Column="1"/>
         <TextBox x:Name="FilepathT" Height="26" Margin="64.143,74,151,0" TextWrapping="Wrap" Text="Pieces.pbin" VerticalAlignment="Top" VerticalContentAlignment="Center" Grid.Column="1"/>
         <Button x:Name="LoadB" Content="読み込み" Grid.Column="1" HorizontalAlignment="Right" Margin="0,74,10,0" VerticalAlignment="Top" Width="75" Height="26" Click="LoadB_Click"/>
         <Button x:Name="RefFileB" Content="参照" Grid.Column="1" HorizontalAlignment="Right" Margin="0,74,90,0" VerticalAlignment="Top" Width="56" Height="26" Click="RefFileB_Click"/>
+        <Button x:Name="ClearB" Content="クリア" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,8" VerticalAlignment="Bottom" Width="75" Click="ClearB_Click"/>
     </Grid>
 </Window>

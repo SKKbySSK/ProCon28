@@ -72,6 +72,11 @@ namespace ProCon28.Controls
                     PLabel.Foreground = Brushes.Black;
                     PLabel.Content = string.Format("フレーム W:{0}, H:{1}", w - mw, h - mh);
                 }
+                else if(Piece is Linker.CompositePiece cp)
+                {
+                    PLabel.Foreground = Brushes.Black;
+                    PLabel.Content = string.Format("P:{0} V:{1}, W:{2}, H:{3}", cp.Source.Count, Piece.Vertexes.Count, w - mw, h - mh);
+                }
                 else
                 {
                     PLabel.Foreground = Piece.Vertexes.Count > Constants.MaximumVertex ? Brushes.Red : Brushes.Black;
@@ -89,34 +94,41 @@ namespace ProCon28.Controls
 
         ImageSource CreateImage(Piece Piece)
         {
-            GeometryGroup gg = new GeometryGroup();
+            DrawingGroup dg = new DrawingGroup();
 
             if(Piece is CompositePiece cp)
             {
+                int i = 0;
                 foreach(Piece p in cp.Source)
                 {
-                    var paths = new GeometryGroup();
+                    GeometryGroup gg = new GeometryGroup();
                     var lines = p.Vertexes.AsLines();
                     foreach (var line in lines)
-                        paths.Children.Add(new LineGeometry(
+                        gg.Children.Add(new LineGeometry(
                             new System.Windows.Point(line.Item1.X * Sample, line.Item1.Y * Sample),
                             new System.Windows.Point(line.Item2.X * Sample, line.Item2.Y * Sample)));
-                    gg.Children.Add(paths);
+
+                    int seed = Environment.TickCount + i;
+                    SolidColorBrush brush = new SolidColorBrush(Color.FromArgb(255, (byte)new Random(seed + 50).Next(100, 255),
+                        (byte)new Random(seed + 100).Next(100, 255), (byte)new Random(seed + 200).Next(100, 255)));
+                    dg.Children.Add(new GeometryDrawing(Brushes.Transparent, new Pen(brush, 10), gg));
+                    i++;
                 }
             }
             else
             {
+                GeometryGroup gg = new GeometryGroup();
                 var lines = Piece.Vertexes.AsLines();
                 foreach (var line in lines)
                     gg.Children.Add(new LineGeometry(
                         new System.Windows.Point(line.Item1.X * Sample, line.Item1.Y * Sample),
                         new System.Windows.Point(line.Item2.X * Sample, line.Item2.Y * Sample)));
+                
+                dg.Children.Add(new GeometryDrawing(Brushes.Transparent, new Pen(Brushes.Black, 1), gg));
             }
 
-            DrawingImage di = new DrawingImage(new GeometryDrawing(Brushes.Transparent, new Pen(Brushes.Black, 1), gg));
-            di.Freeze();
 
-            return di;
+            return new DrawingImage(dg);
         }
     }
 }

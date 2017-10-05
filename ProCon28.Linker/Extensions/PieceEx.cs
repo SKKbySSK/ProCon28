@@ -39,7 +39,7 @@ namespace ProCon28.Linker.Extensions
             p2 -= angle;
             double len1 = p1.GetLength(), len2 = p2.GetLength();
             double calc = ((p1.X * p2.X) + (p1.Y * p2.Y)) / (len1 * len2);
-            rad = Math.Acos(calc);
+            rad = MathEx.Acos(calc);
             return rad;
         }
 
@@ -234,8 +234,10 @@ namespace ProCon28.Linker.Extensions
 
                 pcol.Add(new Point((int)Math.Round(retX), (int)Math.Round(retY)));
             }
-
-            return new Piece(pcol).Convert();
+            p.Vertexes.Clear();
+            p.Vertexes.AddRange(pcol);
+            p = p.Convert();
+            return p;
         }
 
         public static Piece FlipPiece(this Piece Piece)
@@ -428,7 +430,8 @@ namespace ProCon28.Linker.Extensions
             IList<(Point, Point)> Line = Piece.Vertexes.AsLines();
             for(int i = 0;i < Piece.Vertexes.Count; i++)
             {
-                double Slope = Math.Tan( (Line[i].Item2.Y - Line[i].Item1.Y) / (double)(Line[i].Item2.X - Line[i].Item1.X));
+                double Slope = Math.Atan( (Line[i].Item2.Y - Line[i].Item1.Y) / (double)(Line[i].Item2.X - Line[i].Item1.X));
+                Slope = double.IsNaN(Slope) ? Math.PI / 2 : Slope;
                 bool IsDirect = Piece.IsDirectionJudge(i);
                 r.Add((Slope, IsDirect));
             }

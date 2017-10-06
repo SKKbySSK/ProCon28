@@ -54,7 +54,11 @@ namespace ProCon28.OpenCV
 
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            Retrieved?.Invoke(this, new RetrievedEventArgs((Mat)e.UserState));
+            if(e.UserState != null)
+            {
+                Retrieved?.Invoke(this, new RetrievedEventArgs((Mat)e.UserState));
+                ((IDisposable)e.UserState).Dispose();
+            }
         }
 
         private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

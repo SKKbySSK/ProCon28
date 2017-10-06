@@ -64,6 +64,15 @@ namespace ProCon28.Windows
             {
                 TransferPiecesView.TransferPieces(PieceList.Pieces);
             }
+
+            if (Instance.ProConMode)
+            {
+                DateTime dt = DateTime.Now;
+                Directory.CreateDirectory("PieceLogs");
+                byte[] raw = PieceList.Pieces.AsBytes();
+                using (FileStream fs = new FileStream("PieceLogs/" + dt.ToString("yy MM dd HH mm ss") + ".pbin", FileMode.Create, FileAccess.Write))
+                    fs.Write(raw, 0, raw.Length);
+            }
         }
 
         private void PieceG_PieceChanged(object sender, EventArgs e)
@@ -268,20 +277,29 @@ namespace ProCon28.Windows
 
         private void Camera_Recognized(object sender, Controls.ContoursEventArgs e)
         {
-            List<Linker.Piece> Pieces = new List<Linker.Piece>();
-            Linker.Piece p = new Linker.Piece();
+            if (e.Contour.Length < 2) return;
+
+            Linker.Piece dp = new Linker.Piece();
 
             foreach (var point in e.Contour)
             {
                 Linker.Point lp =
-                    new Linker.Point((int)(Math.Round(point.X * e.Scale)), (int)(Math.Round(point.Y * e.Scale)));
-                if (!p.Vertexes.Contains(lp))
-                    p.Vertexes.Add(lp);
+                    new Linker.Point(point.X, point.Y);
+                if (!dp.Vertexes.Contains(lp))
+                    dp.Vertexes.Add(lp);
             }
 
-            p = p.Convert();
-            PieceList.Pieces.Add(p);
-            Pieces.Add(p);
+            Linker.Point p1 = dp.Vertexes[0], p2 = dp.Vertexes[1];
+
+            dp = dp.Convert();
+            double angle = Math.Atan2(Math.Abs(p1.Y - p2.Y), Math.Abs(p1.X - p2.X));
+            dp = dp.UnsafeRotate(angle);
+
+            Linker.Piece scaled
+                = new Linker.Piece(dp.Vertexes.Select(p =>
+                new Linker.Point((int)(Math.Round(p.X * e.Scale)), (int)(Math.Round(p.Y * e.Scale)))));
+
+            PieceList.Pieces.Add(scaled);
         }
 
         private void TransferPiecesView_RequestingPieces(object sender, Controls.RoutedPieceEventArgs e)

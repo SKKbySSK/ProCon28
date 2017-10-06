@@ -12,6 +12,7 @@ namespace TestConsole
 
         public void Run()
         {
+            return;
             Console.WriteLine("要素数を入力");
             if(int.TryParse(Console.ReadLine(), out int count))
             {
@@ -21,7 +22,7 @@ namespace TestConsole
                 for(int i = 0;count > i; i++)
                 {
                     ProCon28.Algo.Line.LineData data = new ProCon28.Algo.Line.LineData(new ProCon28.Linker.Point(), new ProCon28.Linker.Point(),
-                        new Random(Environment.TickCount + i).Next(1, 300), 0, 0);
+                        new Random(Environment.TickCount + i).Next(1, 300), 0, null);
                     Console.WriteLine(data.Length);
                     col.Add(data);
                 }

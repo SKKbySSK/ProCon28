@@ -121,6 +121,7 @@
     <Compile Include="Controls\TransferPiecesView.xaml.cs">
       <DependentUpon>TransferPiecesView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Instance.cs" />
     <Compile Include="KeyboardHook.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="OpenCV\CameraCapture.cs" />

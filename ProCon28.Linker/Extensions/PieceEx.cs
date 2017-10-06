@@ -84,7 +84,13 @@ namespace ProCon28.Linker.Extensions
                 if (p2.Y < 0) { p2angle *= -1; }
             }
             else { p2angle = Math.Atan2(p2.Y, p2.X); }
-            if (Math.Abs(p2angle - p1angle) > Math.PI) { changing = p1angle; p1angle = p2angle; p2angle = changing; }
+            if (Math.Abs(p2angle - p1angle) > Math.PI)
+            {
+                if (p1angle < 0)
+                    p1angle += Math.PI * 2;
+                else
+                    p2angle += Math.PI * 2;
+            }
             double crad = p1angle + Math.PI / 10 * (p2angle - p1angle);
             double cp1x = angle.X + Math.Cos(crad), cp1y = angle.Y + Math.Sin(crad);
             double cp3x = angle.X, cp3y = angle.Y;
@@ -115,24 +121,27 @@ namespace ProCon28.Linker.Extensions
                 double s2 = ((cp4x - cp2x) * (cp2y - cp3y) - (cp4y - cp2y) * (cp2x - cp3x)) / 2;
                 double crossx = cp1x + (cp3x - cp1x) * s1 / (s1 + s2);
                 double crossy = cp1y + (cp3y - cp1y) * s1 / (s1 + s2);
-                if (cp2x == cp4x)
+                if ((crad < Math.PI && crossx > cp3x) || (crad > Math.PI && crossx < cp3x))
                 {
-                    if (cp2y < cp4y)
+                    if (cp2x == cp4x)
                     {
-                        if (cp2y < crossy && cp4y > crossy) { count++; }
+                        if (cp2y < cp4y)
+                        {
+                            if (cp2y < crossy && cp4y > crossy) { count++; }
+                        }
+                        else
+                        {
+                            if (cp4y < crossy && cp2y > crossy) { count++; }
+                        }
+                    }
+                    else if (cp2x < cp4x)
+                    {
+                        if (cp2x < crossx && cp4x > crossx) { count++; }
                     }
                     else
                     {
-                        if (cp4y < crossy && cp2y > crossy) { count++; }
+                        if (cp4x < crossx && cp2x > crossx) { count++; }
                     }
-                }
-                else if (cp2x < cp4x)
-                {
-                    if (cp2x < crossx && cp4x > crossx) { count++; }
-                }
-                else
-                {
-                    if (cp4x < crossx && cp2x > crossx) { count++; }
                 }
             }
             if (count % 2 == 0) { rad += Math.PI; }
@@ -377,24 +386,27 @@ namespace ProCon28.Linker.Extensions
                 double s2 = ((cp4x - cp2x) * (cp2y - cp3y) - (cp4y - cp2y) * (cp2x - cp3x)) / 2;
                 double crossx = cp1x + (cp3x - cp1x) * s1 / (s1 + s2);
                 double crossy = cp1y + (cp3y - cp1y) * s1 / (s1 + s2);
-                if (cp2x == cp4x)
+                if ((sx != cp1x && crossx > cp1x) || (sx == cp1x && crossy > cp1y))
                 {
-                    if (cp2y < cp4y)
+                    if (cp2x == cp4x)
                     {
-                        if (cp2y < crossy && cp4y > crossy) { count++; }
+                        if (cp2y < cp4y)
+                        {
+                            if (cp2y < crossy && cp4y > crossy) { count++; }
+                        }
+                        else
+                        {
+                            if (cp4y < crossy && cp2y > crossy) { count++; }
+                        }
+                    }
+                    else if (cp2x < cp4x)
+                    {
+                        if (cp2x < crossx && cp4x > crossx) { count++; }
                     }
                     else
                     {
-                        if (cp4y < crossy && cp2y > crossy) { count++; }
+                        if (cp4x < crossx && cp2x > crossx) { count++; }
                     }
-                }
-                else if (cp2x < cp4x)
-                {
-                    if (cp2x < crossx && cp4x > crossx) { count++; }
-                }
-                else
-                {
-                    if (cp4x < crossx && cp2x > crossx) { count++; }
                 }
             }
 

@@ -329,5 +329,14 @@ namespace ProCon28.Windows
         {
             PieceList.Pieces.AddRange(ShapeQRManager.GeneratePieces(e.Result));
         }
+
+        private void TestAlgoB_Click(object sender, RoutedEventArgs e)
+        {
+            Linker.Temp.Algorithm algo = new Linker.Temp.Algorithm(PieceList.Pieces);
+            var ps = algo.Run();
+
+            PieceList.Pieces.Clear();
+            PieceList.Pieces.AddRange(ps);
+        }
     }
 }

@@ -51,6 +51,7 @@
                             <Slider x:Name="RatioS" Maximum="1" Minimum="0" Value="0" ValueChanged="RatioS_ValueChanged" IsSnapToTickEnabled="True"/>
                             <TextBox x:Name="RatioT" Text="1"/>
                             <Button x:Name="ContoursB" Content="輪郭抽出" Margin="0,20,0,0" Click="ContoursB_Click"/>
+                            <Button x:Name="TestAlgoB" Content="試験的機能" Click="TestAlgoB_Click"/>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>

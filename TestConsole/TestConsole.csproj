@@ -98,6 +98,7 @@
     <Compile Include="SortedLineData.cs" />
     <Compile Include="TcpClient.cs" />
     <Compile Include="TcpServer.cs" />
+    <Compile Include="Tester.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -386,7 +386,7 @@ namespace ProCon28.Algo
             public Piece Piece2 { get; set; }
         }
 
-        public bool Rounding(double Value1, double Value2)
+        public  static bool Rounding(double Value1, double Value2)
         {
             return Math.Abs(Value1 - Value2) < Config.Current.Threshold;
         }

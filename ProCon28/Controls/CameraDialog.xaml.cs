@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using OpenCvSharp;
 using ProCon28.OpenCV;
 using ProCon28.Linker.Extensions;
+using OpenCvSharp.Extensions;
 
 namespace ProCon28.Controls
 {
@@ -480,7 +481,6 @@ namespace ProCon28.Controls
 
             if (Square != null)
                 Cv2.DrawContours(Image, new OpenCvSharp.Point[][] { Square }, -1, Scalar.LightBlue, 3);
-
             return Image;
         }
 
@@ -620,8 +620,12 @@ namespace ProCon28.Controls
             Mat gray = new Mat();
             Cv2.CvtColor(Image, gray, ColorConversionCodes.BGR2GRAY);
             Cv2.GaussianBlur(gray, gray, new OpenCvSharp.Size(5, 5), 0);
+            Cv2.MedianBlur(gray, gray, 3);
+            //Cv2.FastNlMeansDenoising(gray, gray);
             Cv2.Threshold(gray, gray, 0, 255, ThresholdTypes.Binary | ThresholdTypes.Otsu);
-            Cv2.AdaptiveThreshold(gray, gray, 255, AdaptiveThresholdTypes.GaussianC, ThresholdTypes.Binary, 11, 2);
+            Cv2.AdaptiveThreshold(gray, gray, 255, AdaptiveThresholdTypes.MeanC, ThresholdTypes.Binary, 11, 2);
+
+            Cv2.ImWrite("test.jpg", gray);
 
             Cv2.FindContours(gray, out OpenCvSharp.Point[][] contours, out _,
                 RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);

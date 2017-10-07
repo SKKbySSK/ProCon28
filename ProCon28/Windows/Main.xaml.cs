@@ -302,13 +302,61 @@ namespace ProCon28.Windows
 
             dp = dp.Convert();
             double angle = Math.Atan2(Math.Abs(p1.Y - p2.Y), Math.Abs(p1.X - p2.X));
-            dp = dp.UnsafeRotate(angle);
+
+            DoublePiece rp = new DoublePiece();
+            foreach (var point in dp.Vertexes)
+            {
+                double retX, retY;
+                retX = point.X * Math.Cos(angle) - point.Y * Math.Sin(angle);
+                retY = point.X * Math.Sin(angle) + point.Y * Math.Cos(angle);
+
+                rp.Vertexes.Add((retX, retY));
+            }
 
             Linker.Piece scaled
-                = new Linker.Piece(dp.Vertexes.Select(p =>
-                new Linker.Point((int)(Math.Round(p.X * e.Scale)), (int)(Math.Round(p.Y * e.Scale)))));
+                = new Linker.Piece(rp.Vertexes.Select(p =>
+                new Linker.Point((int)(Math.Round(p.Item1 * e.Scale)), (int)(Math.Round(p.Item2 * e.Scale))))).Convert();
+            int c = 0;
+            foreach (var p in scaled.Vertexes)
+            {
+                if (p.X == 0)
+                    c++;
+            }
+            if (c < 2)
+            {
+                for(int i = 1; 360 >= i; i++)
+                {
+                    rp.Vertexes.Clear();
+                    double ag = ((Math.PI / 360) * i) - angle;
+                    foreach (var point in dp.Vertexes)
+                    {
+                        double retX, retY;
+                        retX = point.X * Math.Cos(ag) - point.Y * Math.Sin(ag);
+                        retY = point.X * Math.Sin(ag) + point.Y * Math.Cos(ag);
+
+                        rp.Vertexes.Add((retX, retY));
+                    }
+                    scaled = new Linker.Piece(rp.Vertexes.Select(p =>
+                    new Linker.Point((int)(Math.Round(p.Item1 * e.Scale)), (int)(Math.Round(p.Item2 * e.Scale))))).Convert();
+
+                    c = 0;
+                    foreach (var p in scaled.Vertexes)
+                    {
+                        if (p.X == 0)
+                            c++;
+                    }
+
+                    if (c >= 2) break;
+                }
+
+            }
 
             PieceList.Pieces.Add(scaled);
+        }
+
+        class DoublePiece
+        {
+            public List<(double, double)> Vertexes { get; } = new List<(double, double)>();
         }
 
         private void TransferPiecesView_RequestingPieces(object sender, Controls.RoutedPieceEventArgs e)

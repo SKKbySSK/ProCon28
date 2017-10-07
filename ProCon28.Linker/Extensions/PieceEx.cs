@@ -347,8 +347,9 @@ namespace ProCon28.Linker.Extensions
             for (int i = 0; i < p.Vertexes.Count; i++)
             {
                 Point clone = p.Vertexes[i];
-                clone.X *= -1;
-                clone.Y *= -1;
+                int change = clone.X;
+                clone.X = clone.Y;
+                clone.Y = change;
                 p.Vertexes[i] = clone;
             }
             p = p.Convert();

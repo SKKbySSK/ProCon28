@@ -115,7 +115,7 @@ namespace ProCon28.Controls
                     i++;
                 }
             }
-            else
+            
             {
                 GeometryGroup gg = new GeometryGroup();
                 var lines = Piece.Vertexes.AsLines();

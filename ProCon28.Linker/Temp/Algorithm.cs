@@ -171,13 +171,18 @@ namespace ProCon28.Linker.Temp
             }
             else
             {
-                foreach(var pair in Pairs)
+                List<(int, int)> pairsint = new List<(int, int)>();
+                foreach (var pair in Pairs)
                 {
                     if (!pieces.Contains(pair.Piece1))
                         pieces.Add(pair.Piece1);
                     if (!pieces.Contains(pair.Piece2))
                         pieces.Add(pair.Piece2);
+                    pairsint.Add((pair.StartIndex1, pair.EndIndex1));
+                    pairsint.Add((pair.StartIndex2, pair.EndIndex2));
                 }
+
+                return Composer(pieces, pairsint);
             }
         }
     }
@@ -190,14 +195,35 @@ namespace ProCon28.Linker.Temp
             this.Start1 = Piece1.Vertexes[Start1];
             this.End1 = Piece1.Vertexes[End1];
             StartIndex1 = Start1;
-            EndIndex1 = end
+            EndIndex1 = End1;
             
+            Length1 = this.Start1.GetLength(this.End1);
+
+            this.Piece2 = Piece2;
+            this.Start2 = Piece2.Vertexes[Start2];
+            this.End2 = Piece2.Vertexes[End2];
+            StartIndex2 = Start2;
+            EndIndex2 = End2;
+
+            Length2 = this.Start2.GetLength(this.End2);
+
+            Difference = Length1 - Length2;
+            AbsDifference = Math.Abs(Difference);
+        }
+
+        public PairInfo(Piece Piece1, Point Start1, Point End1, Piece Piece2, Point Start2, Point End2)
+        {
+            this.Piece1 = Piece1;
+            this.Start1 = Start1;
+            this.End1 = End1;
+
             Length1 = this.Start1.GetLength(this.End1);
 
             this.Piece2 = Piece2;
             this.Start2 = Start2;
             this.End2 = End2;
-            Length2 = Start2.GetLength(End2);
+
+            Length2 = this.Start2.GetLength(this.End2);
 
             Difference = Length1 - Length2;
             AbsDifference = Math.Abs(Difference);

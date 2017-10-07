@@ -40,6 +40,22 @@ namespace ProCon28.Controls
 
         public string Result { get; }
     }
+    
+    public enum CaptureMode
+    {
+        Pieces,
+        ShapeQR
+    }
+
+    public class InitializingEventArgs : EventArgs
+    {
+        public InitializingEventArgs(CaptureMode Mode)
+        {
+            this.Mode = Mode;
+        }
+
+        public CaptureMode Mode { get; }
+    }
 
     /// <summary>
     /// CameraDialog.xaml の相互作用ロジック
@@ -48,7 +64,7 @@ namespace ProCon28.Controls
     {
         public event EventHandler<ContoursEventArgs> Recognized;
         public event EventHandler<QrReaderEventArgs> QrRecognized;
-        public event EventHandler Initializing;
+        public event EventHandler<InitializingEventArgs> Initializing;
 
         public double PieceCoefficient { get; private set; } = 1.0;
         public double PieceRotation { get; private set; } = 0;
@@ -159,7 +175,7 @@ namespace ProCon28.Controls
             if (int.TryParse(CamT.Text, out int dev) && dev > -1)
                 Config.Current.Camera = dev;
 
-            Initializing?.Invoke(this, new EventArgs());
+            Initializing?.Invoke(this, new InitializingEventArgs(CaptureMode.ShapeQR));
             if (Capture == null) return;
             Locked = true;
 
@@ -179,10 +195,13 @@ namespace ProCon28.Controls
                     FileStorage.Mode.FormatXml | FileStorage.Mode.Read);
                 Intrinsic = fs["Intrinsic"].ReadMat();
                 Distortion = fs["Distortion"].ReadMat();
+                Capture.Width = fs["Width"].ReadInt();
+                Capture.Height = fs["Height"].ReadInt();
                 fs.Dispose();
 
                 Capture.Filters.Add(Calibrate);
             }
+
             Capture.Interruptions.Add(QrRecognize);
             Capture.Begin();
         }
@@ -210,7 +229,7 @@ namespace ProCon28.Controls
             if (int.TryParse(CamT.Text, out int dev) && dev > -1)
                 Config.Current.Camera = dev;
 
-            Initializing?.Invoke(this, new EventArgs());
+            Initializing?.Invoke(this, new InitializingEventArgs(CaptureMode.Pieces));
             if (Capture == null) return;
             Locked = true;
 

@@ -33,6 +33,17 @@ namespace ProCon28.Controls
             KeyboardHook.HookEvent += KeyboardHook_HookEvent;
         }
 
+        bool _rec = true;
+        public bool UseRecognizerPoints
+        {
+            get { return _rec; }
+            set
+            {
+                _rec = value;
+                if (!value) Worker?.RecognizerPoints.Clear();
+            }
+        }
+
         private void KeyboardHook_HookEvent(ref KeyboardHook.StateKeyboard state)
         {
             if(state.Stroke == KeyboardHook.Stroke.KEY_UP)
@@ -91,8 +102,11 @@ namespace ProCon28.Controls
 
         private void MatView_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var pos = e.GetPosition(MatView);
-            Worker?.RecognizerPoints.Add(new OpenCvSharp.Point(Math.Round(pos.X), Math.Round(pos.Y)));
+            if (UseRecognizerPoints)
+            {
+                var pos = e.GetPosition(MatView);
+                Worker?.RecognizerPoints.Add(new OpenCvSharp.Point(Math.Round(pos.X), Math.Round(pos.Y)));
+            }
         }
 
         private void MatView_MouseRightButtonDown(object sender, MouseButtonEventArgs e)

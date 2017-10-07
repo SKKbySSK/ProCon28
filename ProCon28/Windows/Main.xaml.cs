@@ -316,10 +316,12 @@ namespace ProCon28.Windows
             ShapeQRManager.Reset();
         }
 
-        private void Camera_Initializing(object sender, EventArgs e)
+        private void Camera_Initializing(object sender, Controls.InitializingEventArgs e)
         {
             OpenCV.WorkerCapture worker = new OpenCV.WorkerCapture(Config.Current.Camera);
+
             Camera.Capture = worker;
+            OpenCvCapture.UseRecognizerPoints = e.Mode == Controls.CaptureMode.Pieces;
             OpenCvCapture.Initialize(worker);
             OpenCvCapture.Visibility = Visibility.Visible;
             PieceG.Visibility = Visibility.Hidden;
@@ -337,6 +339,11 @@ namespace ProCon28.Windows
 
             PieceList.Pieces.Clear();
             PieceList.Pieces.AddRange(ps);
+        }
+
+        private void LogClearItem_Click(object sender, RoutedEventArgs e)
+        {
+            ConsoleL.Items.Clear();
         }
     }
 }

@@ -94,14 +94,18 @@ namespace ProCon28.OpenCV
             {
                 if (retr)
                 {
-                    Mat img = capture.RetrieveMat();
+                    try
+                    {
+                        Mat img = capture.RetrieveMat();
 
-                    foreach (var filter in Filters)
-                        img = filter(img);
-                    foreach (Action<Mat> interrupt in Interruptions)
-                        interrupt(img);
+                        foreach (var filter in Filters)
+                            img = filter(img);
+                        foreach (Action<Mat> interrupt in Interruptions)
+                            interrupt(img);
 
-                    worker.ReportProgress(0, img);
+                        worker.ReportProgress(0, img);
+                    }
+                    catch (Exception ex) { Log.Write("Unhandled Error : " + ex); }
                 }
             }
 

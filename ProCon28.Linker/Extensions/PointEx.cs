@@ -54,12 +54,12 @@ namespace ProCon28.Linker.Extensions
             return Convert(Points, bp);
         }
 
-        public static PointCollection Move(this PointCollection Points, Point Delta)
+        public static void Move(this PointCollection Points, Point Delta)
         {
-            PointCollection col = new PointCollection();
-            foreach (var p in Points)
-                col.Add(p + Delta);
-            return col;
+            for(int i = 0;Points.Count > i; i++)
+            {
+                Points[i] -= Delta;
+            }
         }
 
         /// <summary>

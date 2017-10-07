@@ -113,7 +113,7 @@ namespace ProCon28.Controls
                     i++;
                 }
             }
-            else
+            
             {
                 GeometryGroup gg = new GeometryGroup();
                 Polygon poly = new Polygon();

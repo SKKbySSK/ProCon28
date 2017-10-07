@@ -323,6 +323,24 @@ namespace ProCon28.Algo
             }
             Piece rt = new Piece();
             rt.Vertexes.AddRange(Return);
+            List<(int, int)> rem = new List<(int, int)>();
+            for(int i = 0; i < Return.Count; i++)
+            {
+                for(int j = 0;j < Return.Count; i++)
+                {
+                    if(Return[i] == Return[j])
+                    {
+                        rem.Add((i, j));
+                        break;
+                    }
+                }
+            }
+            for(int i = 0; i < rem.Count; i++)
+            {
+
+            }
+
+
             for (int i = 0; i < Return.Count; i++)
             {
                 if (Rounding(rt.GetAngle(i), Math.PI) || Rounding(rt.GetAngle(i), Math.PI * 2) || Rounding(rt.GetAngle(i), 0))

@@ -33,11 +33,19 @@ namespace TestConsole
                 Console.WriteLine("デバイス番号");
                 int dev = int.Parse(Console.ReadLine());
 
+                Console.WriteLine("横幅");
+                int w = int.Parse(Console.ReadLine());
+
+                Console.WriteLine("縦幅");
+                int h = int.Parse(Console.ReadLine());
+
                 Console.WriteLine("撮影回数");
                 if (int.TryParse(Console.ReadLine(), out times))
                 {
                     using (ProCon28.OpenCV.CameraCapture cam = new ProCon28.OpenCV.CameraCapture(dev, "Camera"))
                     {
+                        cam.Width = w;
+                        cam.Height = h;
                         CalibDialog dialog = new CalibDialog(cam, times);
                         dialog.ShowDialog();
                     }
@@ -118,9 +126,11 @@ namespace TestConsole
                 }
             }
 
-            FileStorage fs = new FileStorage("Calibration.xml", FileStorage.Mode.FormatXml | FileStorage.Mode.Write);
+            FileStorage fs = new FileStorage(string.Format("Calibration_{0}x{1}.xml", imgSize.Width, imgSize.Height), FileStorage.Mode.FormatXml | FileStorage.Mode.Write);
             fs.Write("Intrinsic", intrinsic);
             fs.Write("Distortion", distortion);
+            fs.Write("Width", imgSize.Width);
+            fs.Write("Height", imgSize.Height);
             fs.Dispose();
         }
     }

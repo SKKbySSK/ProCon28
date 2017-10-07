@@ -6,12 +6,9 @@
              xmlns:local="clr-namespace:ProCon28.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid x:Name="Grid" Background="Black" MouseDown="Grid_MouseDown" MouseUp="Grid_MouseUp" MouseMove="Grid_MouseMove">
+    <Grid x:Name="Grid" Background="Black" MouseDown="Grid_MouseDown" MouseUp="Grid_MouseUp">
         <Viewbox>
-            <Grid x:Name="MatParent">
-                <Image x:Name="MatView" MouseLeftButtonDown="MatView_MouseLeftButtonDown" MouseRightButtonDown="MatView_MouseRightButtonDown"/>
-                <Rectangle x:Name="MatCrop" Fill="#4C3869CE"/>
-            </Grid>
+            <Image x:Name="MatView" MouseLeftButtonDown="MatView_MouseLeftButtonDown" MouseRightButtonDown="MatView_MouseRightButtonDown"/>
         </Viewbox>
     </Grid>
 </UserControl>

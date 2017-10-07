@@ -14,6 +14,7 @@ namespace ProCon28.OpenCV
         Mat RetrieveMat(bool UseFilters);
         IList<Action<Mat>> Interruptions { get; }
         IList<Func<Mat, Mat>> Filters { get; }
+        IList<Func<Mat, Mat>> Drawings { get; }
         int Width { get; set; }
         int Height { get; set; }
         IList<Point> RecognizerPoints { get; }

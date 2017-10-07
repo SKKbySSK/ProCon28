@@ -144,7 +144,7 @@ namespace ProCon28.Linker.Extensions
                     }
                 }
             }
-            if (count % 2 == 0) { rad += Math.PI; }
+            if (count % 2 == 0) { rad = -rad  + Math.PI * 2; }
 
             //180度以上を判定する処理ここまで
 
@@ -179,7 +179,6 @@ namespace ProCon28.Linker.Extensions
 
         public static Piece Convert(this Piece Piece)
         {
-
             if (Piece.Vertexes.Count == 0) return Piece;
             Point bp = Piece.Vertexes[0];
             foreach (Point p in Piece.Vertexes)
@@ -190,6 +189,92 @@ namespace ProCon28.Linker.Extensions
                     bp.Y = p.Y;
             }
             return Convert(Piece, bp);
+        }
+
+        public static IList<Piece> RemoveIncorrectPieces(this IList<Piece> Pieces)
+        {
+            List<Piece> ret = new List<Piece>();
+            if (Pieces.Count == 0) return new List<Piece>();
+
+            for(int i = 0; Pieces.Count > i; i++)
+            {
+                var p1 = Pieces[i];
+
+                for(int j = 0;Pieces.Count > j; j++)
+                {
+                    if(j != i)
+                    {
+                        var p2 = Pieces[j];
+
+                        if (IsCorrectPieces(p1, p2))
+                        {
+                            ret.Add(p1);
+                            ret.Add(p2);
+                            Pieces.Remove(p1);
+                            Pieces.Remove(p2);
+                            i--;
+                            j--;
+                        }
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        public static bool IsCorrectPieces(Piece Piece1, Piece Piece2)
+        {
+            Func<(Point, Point), (Point, Point), bool> func = (l1, l2) =>
+            {
+                Point p1 = l1.Item1, p2 = l1.Item2;
+                Point p3 = l2.Item1, p4 = l2.Item2;
+
+                double t1 = (p1.X - p2.X) * (p3.Y - p1.Y) + (p1.Y - p2.Y) * (p1.X - p3.X);
+                double t2 = (p1.X - p2.X) * (p4.Y - p1.Y) + (p1.Y - p2.Y) * (p1.X - p4.X);
+
+                double t3 = (p3.X - p4.X) * (p1.Y - p3.Y) + (p3.Y - p4.Y) * (p3.X - p1.X);
+                double t4 = (p3.X - p4.X) * (p2.Y - p3.Y) + (p3.Y - p4.Y) * (p3.X - p2.X);
+
+                if (t1 * t2 < 0 && t3 * t4 < 0)
+                    return true;
+                else
+                    return false;
+            };
+            
+            var lines1 = Piece1.Vertexes.AsLines();
+            var lines2 = Piece2.Vertexes.AsLines();
+            
+            foreach (var l1 in lines1)
+            {
+                foreach (var l2 in lines2)
+                {
+                    bool incorrect = func(l1, l2);
+                    if (incorrect)
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool IsCorrect(this IList<Piece> Pieces)
+        {
+            int len = Pieces.Count;
+            for(int i = 0;len > i; i++)
+            {
+                var p1 = Pieces[i];
+                for(int j = 0;len > j; j++)
+                {
+                    if(i != j)
+                    {
+                        var p2 = Pieces[j];
+                        if (!IsCorrectPieces(p1, p2))
+                            return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         public static Piece RotatePiece(this Piece Piece, double rad)
@@ -262,8 +347,9 @@ namespace ProCon28.Linker.Extensions
             for (int i = 0; i < p.Vertexes.Count; i++)
             {
                 Point clone = p.Vertexes[i];
-                clone.X *= -1;
-                clone.Y *= -1;
+                int change = clone.X;
+                clone.X = clone.Y;
+                clone.Y = change;
                 p.Vertexes[i] = clone;
             }
             p = p.Convert();

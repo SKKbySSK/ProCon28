@@ -64,6 +64,19 @@ namespace ProCon28.Algo
         private void Algorithm_Sleeping(object sender, RoutedSleepEventArgs e)
         {
             TempPieces.Pieces.Clear();
+
+            //List<Linker.CompositePiece> pieces = new List<CompositePiece>();
+            //foreach (var cp in e.TempResults)
+            //{
+            //    IList<Piece> ps = cp.Source.RemoveIncorrectPieces();
+
+            //    if(ps.Count > 1)
+            //    {
+            //        cp.Source = ps;
+            //        pieces.Add(cp);
+            //    }
+            //}
+
             TempPieces.Pieces.AddRange(e.TempResults);
             _ev = e;
         }

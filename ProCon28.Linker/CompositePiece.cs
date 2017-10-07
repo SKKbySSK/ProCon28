@@ -18,6 +18,6 @@ namespace ProCon28.Linker
                 Vertexes.Add(v);
         }
 
-        public PieceCollection Source { get; set; }
+        public IList<Piece> Source { get; set; }
     }
 }

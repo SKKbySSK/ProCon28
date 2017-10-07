@@ -40,6 +40,22 @@ namespace ProCon28.Controls
 
         public string Result { get; }
     }
+    
+    public enum CaptureMode
+    {
+        Pieces,
+        ShapeQR
+    }
+
+    public class InitializingEventArgs : EventArgs
+    {
+        public InitializingEventArgs(CaptureMode Mode)
+        {
+            this.Mode = Mode;
+        }
+
+        public CaptureMode Mode { get; }
+    }
 
     /// <summary>
     /// CameraDialog.xaml の相互作用ロジック
@@ -48,17 +64,12 @@ namespace ProCon28.Controls
     {
         public event EventHandler<ContoursEventArgs> Recognized;
         public event EventHandler<QrReaderEventArgs> QrRecognized;
-        public event EventHandler Initializing;
+        public event EventHandler<InitializingEventArgs> Initializing;
+        public event EventHandler CameraFixed;
 
         public double PieceCoefficient { get; private set; } = 1.0;
         public double PieceRotation { get; private set; } = 0;
-
-        double PieceApproxVal { get; set; }
-        double SquareApproxVal { get; set; }
-        double MinimumArea { get; set; }
-        double SquareMaximumArcLength { get; set; }
-        int ContourIndex { get; set; }
-        double Gamma { get; set; }
+        
         Mat PerspectiveTransform { get; set; }
         bool UsePerspective { get; set; } = false;
 
@@ -76,25 +87,27 @@ namespace ProCon28.Controls
 
             CamT.Text = Config.Current.Camera.ToString();
 
-            ThreshS.ValueChanged += (sender, e) => PieceApproxVal = ThreshS.Value;
-            SqThreshS.ValueChanged += (sender, e) => SquareApproxVal = SqThreshS.Value;
-            PiAreaS.ValueChanged += (sender, e) => MinimumArea = PiAreaS.Value;
-            SqArcS.ValueChanged += (sender, e) => SquareMaximumArcLength = SqArcS.Value;
-            ContourS.ValueChanged += (sender, e) => ContourIndex = (int)ContourS.Value;
-            GammaS.ValueChanged += (sender, e) => Gamma = GammaS.Value;
-            ResetB_Click(null, null);
+            GammaS.Value = Config.Current.Gamma;
+            SqArcS.Value = Config.Current.SquareMaximumArcLength;
+            PiAreaS.Value = Config.Current.MinimumArea;
+            ThreshS.Value = Config.Current.PieceApprox;
+            SqThreshS.Value = Config.Current.SquareApprox;
+            ThreshS.ValueChanged += (sender, e) => Config.Current.PieceApprox = ThreshS.Value;
+            SqThreshS.ValueChanged += (sender, e) => Config.Current.SquareApprox = SqThreshS.Value;
+            PiAreaS.ValueChanged += (sender, e) => Config.Current.MinimumArea = PiAreaS.Value;
+            SqArcS.ValueChanged += (sender, e) => Config.Current.SquareMaximumArcLength = SqArcS.Value;
+            GammaS.ValueChanged += (sender, e) => Config.Current.Gamma = GammaS.Value;
 
             KeyboardHook.HookEvent += OnKeyStateChanged;
         }
 
         private void ResetB_Click(object sender, RoutedEventArgs e)
         {
-            GammaS.Value = Config.Current.Gamma;
-            ContourS.Value = Config.Current.ContourIndex;
-            SqArcS.Value = Config.Current.SquareMaximumArcLength;
-            PiAreaS.Value = Config.Current.MinimumArea;
-            ThreshS.Value = Config.Current.PieceApprox;
-            SqThreshS.Value = Config.Current.SquareApprox;
+            GammaS.Value = CameraParams.Gamma;
+            SqArcS.Value = CameraParams.SquareMaximumArcLength;
+            PiAreaS.Value = CameraParams.MinimumArea;
+            ThreshS.Value = CameraParams.PieceApprox;
+            SqThreshS.Value = CameraParams.SquareApprox;
         }
 
         ICamera cam = null;
@@ -122,7 +135,7 @@ namespace ProCon28.Controls
                 }
                 if (State.Key == System.Windows.Forms.Keys.F)
                 {
-                    using(Mat img = Capture.RetrieveMat(false))
+                    using(Mat img = Capture.RetrieveMat(true))
                     {
                         FixCamera(img.Size(), ReduceContours(img).ToArray());
                     }
@@ -159,7 +172,7 @@ namespace ProCon28.Controls
             if (int.TryParse(CamT.Text, out int dev) && dev > -1)
                 Config.Current.Camera = dev;
 
-            Initializing?.Invoke(this, new EventArgs());
+            Initializing?.Invoke(this, new InitializingEventArgs(CaptureMode.ShapeQR));
             if (Capture == null) return;
             Locked = true;
 
@@ -171,6 +184,7 @@ namespace ProCon28.Controls
 
             Capture.Filters.Clear();
             Capture.Interruptions.Clear();
+            Capture.Drawings.Clear();
 
             Capture.Filters.Add(ApplyGamma);
             if (CalibC.SelectedIndex > 0)
@@ -179,10 +193,13 @@ namespace ProCon28.Controls
                     FileStorage.Mode.FormatXml | FileStorage.Mode.Read);
                 Intrinsic = fs["Intrinsic"].ReadMat();
                 Distortion = fs["Distortion"].ReadMat();
+                Capture.Width = fs["Width"].ReadInt();
+                Capture.Height = fs["Height"].ReadInt();
                 fs.Dispose();
 
                 Capture.Filters.Add(Calibrate);
             }
+
             Capture.Interruptions.Add(QrRecognize);
             Capture.Begin();
         }
@@ -210,7 +227,7 @@ namespace ProCon28.Controls
             if (int.TryParse(CamT.Text, out int dev) && dev > -1)
                 Config.Current.Camera = dev;
 
-            Initializing?.Invoke(this, new EventArgs());
+            Initializing?.Invoke(this, new InitializingEventArgs(CaptureMode.Pieces));
             if (Capture == null) return;
             Locked = true;
 
@@ -222,6 +239,7 @@ namespace ProCon28.Controls
 
             Capture.Filters.Clear();
             Capture.Interruptions.Clear();
+            Capture.Drawings.Clear();
 
             Capture.Filters.Add(ApplyGamma);
             if (CalibC.SelectedIndex > 0)
@@ -230,11 +248,13 @@ namespace ProCon28.Controls
                     FileStorage.Mode.FormatXml | FileStorage.Mode.Read);
                 Intrinsic = fs["Intrinsic"].ReadMat();
                 Distortion = fs["Distortion"].ReadMat();
+                Capture.Width = fs["Width"].ReadInt();
+                Capture.Height = fs["Height"].ReadInt();
                 fs.Dispose();
 
                 Capture.Filters.Add(Calibrate);
             }
-            Capture.Filters.Add(Contours);
+            Capture.Drawings.Add(Contours);
 
             KeyboardHook.Start();
             Capture.Begin();
@@ -291,7 +311,7 @@ namespace ProCon28.Controls
             byte[] lut = new byte[256];
             for (int i = 0; 256 > i; i++)
             {
-                lut[i] = (byte)(Math.Pow(i / 255.0, 1.0 / Gamma) * 255);
+                lut[i] = (byte)(Math.Pow(i / 255.0, 1.0 / Config.Current.Gamma) * 255);
             }
             Mat gamma = new Mat();
             Cv2.LUT(Image, lut, gamma);
@@ -304,7 +324,7 @@ namespace ProCon28.Controls
         /// </summary>
         private void CaptureCurrent()
         {
-            using(Mat capture = Capture.RetrieveMat(false))
+            using(Mat capture = Capture.RetrieveMat(true))
             {
                 List<OpenCvSharp.Point[]> changed;
                 if (CalibC.SelectedIndex > 0)
@@ -334,8 +354,13 @@ namespace ProCon28.Controls
             if (sqpoints == null) return;
             sqpoints = AsAntiClockwise(sqpoints);
 
-            double arclen = Cv2.ArcLength(sqpoints, true);
-            PieceCoefficient = (6 * 4) / arclen;
+            double ratio = 0;
+            for (int i = 0;4 > i; i++)
+            {
+                int ind = i + 1 == sqpoints.Length ? 0 : i + 1;
+                ratio += 6 / sqpoints[i].DistanceTo(sqpoints[ind]);
+            }
+            PieceCoefficient = ratio / 4;
 
             OpenCvSharp.Point p1 = sqpoints[0], p2 = sqpoints[1];
             int x = Math.Abs(p1.X - p2.X), y = Math.Abs(p1.Y - p2.Y);
@@ -343,6 +368,8 @@ namespace ProCon28.Controls
             PieceRotation = Math.Atan2(y, x);
 
             Log.Write("Scale : {0}, Rotation : {1}", PieceCoefficient, PieceRotation);
+
+            CameraFixed?.Invoke(this, new EventArgs());
 
             bool shouldConvert = false;
 
@@ -432,6 +459,7 @@ namespace ProCon28.Controls
                 OpenCvSharp.Size size = Image.Size();
                 Mat newMatrix = Cv2.GetOptimalNewCameraMatrix(Intrinsic, Distortion, size, 0, size, out _);
                 Cv2.Undistort(Image, ret, Intrinsic, Distortion, newMatrix);
+                newMatrix.Dispose();
                 return ret;
             }
         }
@@ -474,7 +502,7 @@ namespace ProCon28.Controls
                 {
                     var contour = Contours[i];
 
-                    if(Cv2.ContourArea(contour) >= MinimumArea)
+                    if(Cv2.ContourArea(contour) >= Config.Current.MinimumArea)
                     {
                         foreach (var p in contour)
                         {
@@ -516,10 +544,10 @@ namespace ProCon28.Controls
                 }
                 if (!f)
                 {
-                    if(Cv2.ContourArea(points, false) >= MinimumArea)
+                    if(Cv2.ContourArea(points, false) >= Config.Current.MinimumArea)
                     {
                         double len = Cv2.ArcLength(points, true);
-                        var approx = Cv2.ApproxPolyDP(points, PieceApproxVal * len, true);
+                        var approx = Cv2.ApproxPolyDP(points, Config.Current.PieceApprox * len, true);
                         changed.Add(approx);
                     }
                 }
@@ -553,9 +581,9 @@ namespace ProCon28.Controls
                 {
                     double len = Cv2.ArcLength(points, true);
 
-                    if(Cv2.ContourArea(points, false) >= MinimumArea && len <= SquareMaximumArcLength)
+                    if(Cv2.ContourArea(points, false) >= Config.Current.MinimumArea && len <= Config.Current.SquareMaximumArcLength)
                     {
-                        changed.Add(Cv2.ApproxPolyDP(points, SquareApproxVal * len, true));
+                        changed.Add(Cv2.ApproxPolyDP(points, Config.Current.SquareApprox * len, true));
                     }
                 }
             }

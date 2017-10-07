@@ -13,6 +13,7 @@ namespace TestConsole
         [STAThread]
         static void Main(string[] args)
         {
+            commands.Add(new Tester());
             commands.Add(new ReadCalibration());
             commands.Add(new CameraCalibration());
             commands.Add(new TcpClient());

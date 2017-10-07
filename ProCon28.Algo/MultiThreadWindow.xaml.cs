@@ -20,7 +20,7 @@ namespace ProCon28.Algo
     /// </summary>
     public partial class MultiThreadWindow : Window
     {
-        List<AlgoInfo> Tasks = new List<AlgoInfo>();
+        List<(AlgoInfo, TabPage)> Tasks = new List<(AlgoInfo, TabPage)>();
         Linker.PieceCollection PieceCollection;
 
         public MultiThreadWindow(Linker.PieceCollection Pieces)
@@ -47,19 +47,36 @@ namespace ProCon28.Algo
                 Algorithm algo = new Algorithm(ClonePieces(), Dispatcher);
                 algo.Sleeping += Algo_Sleeping;
                 AlgoInfo info = new AlgoInfo(algo, Dispatcher);
-                info.Finished = (ps) =>
+                Action<AlgoInfo, Linker.PieceCollection> prog = (a, ps) =>
                 {
-                    AddTab(ps);
+                    AddTab(a, ps);
                 };
+
+                info.Finished = prog;
+                info.Progress = prog;
                 info.Begin();
-                Tasks.Add(info);
+                Tasks.Add((info, AddTab(info, algo.PieceCollection)));
             }
         }
 
         private void Algo_Sleeping(object sender, RoutedSleepEventArgs e)
         {
-            Random rnd = new Random();
-            e.Index = rnd.Next(e.TempResults.Length);
+            List<int> usable = new List<int>();
+
+            int i = 0;
+            foreach(var cp in e.TempResults)
+            {
+                if (cp.Source.IsCorrect())
+                {
+                    usable.Add(i);
+                }
+                i++;
+            }
+
+            if (usable.Count == 0)
+                e.Index = -1;
+            else
+                e.Index = usable.OrderBy(_ => Guid.NewGuid().ToString()).First();
             e.Wait = false;
         }
 
@@ -71,11 +88,22 @@ namespace ProCon28.Algo
             return pcol;
         }
 
-        TabPage AddTab(IList<Linker.Piece> Pieces)
+        TabPage AddTab(AlgoInfo Info, IList<Linker.Piece> Pieces)
         {
+            foreach(TabPage tb in ResultTab.Items)
+            {
+                if(tb.Info == Info)
+                {
+                    tb.Header = Pieces.Count + "個";
+                    tb.Pieces = Pieces;
+                    return tb;
+                }
+            }
+
             TabPage tp = new TabPage();
             tp.Header = Pieces.Count + "個";
             tp.Pieces = Pieces;
+            tp.Info = Info;
             ResultTab.Items.Add(tp);
             return tp;
         }
@@ -89,9 +117,9 @@ namespace ProCon28.Algo
         {
             foreach (var val in Tasks)
             {
-                val.Cancel = true;
+                val.Item1.Cancel = true;
             }
-            Task.WhenAll(Tasks.Select(t => t.CurrentTask));
+            Task.WhenAll(Tasks.Select(t => t.Item1.CurrentTask));
             Tasks.Clear();
         }
     }
@@ -104,6 +132,7 @@ namespace ProCon28.Algo
             Content = pcolv;
         }
 
+        public AlgoInfo Info { get; set; }
         Linker.PieceCollection ps = new Linker.PieceCollection();
         public IList<Linker.Piece> Pieces
         {
@@ -122,7 +151,8 @@ namespace ProCon28.Algo
 
         public Algorithm Algorithm { get; }
         public int TryCount { get; private set; } = 0;
-        public Action<Linker.PieceCollection> Finished { get; set; }
+        public Action<AlgoInfo, Linker.PieceCollection> Finished { get; set; }
+        public Action<AlgoInfo, Linker.PieceCollection> Progress { get; set; }
         private System.Windows.Threading.Dispatcher Dispatcher;
         public Task CurrentTask { get; private set; }
 
@@ -141,6 +171,10 @@ namespace ProCon28.Algo
                         break;
 
                     Algorithm.search();
+                    if(Progress != null)
+                    {
+                        Dispatcher.BeginInvoke(new Action(() => Progress(this, Algorithm.PieceCollection)));
+                    }
 
                     if (Cancel)
                         break;
@@ -159,7 +193,7 @@ namespace ProCon28.Algo
 
                 if(Finished != null)
                 {
-                    Dispatcher.BeginInvoke(new Action(() => Finished(Algorithm.PieceCollection)));
+                    Dispatcher.BeginInvoke(new Action(() => Finished(this, Algorithm.PieceCollection)));
                 }
             });
         }

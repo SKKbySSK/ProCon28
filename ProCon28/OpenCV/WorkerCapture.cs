@@ -28,6 +28,8 @@ namespace ProCon28.OpenCV
 
         public IList<Action<Mat>> Interruptions { get; } = new List<Action<Mat>>();
         public IList<Func<Mat, Mat>> Filters { get; } = new List<Func<Mat, Mat>>();
+        public IList<Func<Mat, Mat>> Drawings { get; } = new List<Func<Mat, Mat>>();
+
         public int Width { get => capture.FrameWidth; set => capture.FrameWidth = value; }
         public int Height { get => capture.FrameHeight; set => capture.FrameHeight = value; }
 
@@ -54,7 +56,11 @@ namespace ProCon28.OpenCV
 
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            Retrieved?.Invoke(this, new RetrievedEventArgs((Mat)e.UserState));
+            if(e.UserState != null)
+            {
+                Retrieved?.Invoke(this, new RetrievedEventArgs((Mat)e.UserState));
+                ((IDisposable)e.UserState).Dispose();
+            }
         }
 
         private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -90,14 +96,20 @@ namespace ProCon28.OpenCV
             {
                 if (retr)
                 {
-                    Mat img = capture.RetrieveMat();
+                    try
+                    {
+                        Mat img = capture.RetrieveMat();
 
-                    foreach (var filter in Filters)
-                        img = filter(img);
-                    foreach (Action<Mat> interrupt in Interruptions)
-                        interrupt(img);
+                        foreach (var filter in Filters)
+                            img = filter(img);
+                        foreach (var drawer in Drawings)
+                            img = drawer(img);
+                        foreach (Action<Mat> interrupt in Interruptions)
+                            interrupt(img);
 
-                    worker.ReportProgress(0, img);
+                        worker.ReportProgress(0, img);
+                    }
+                    catch (Exception ex) { Log.Write("Unhandled Error : " + ex); }
                 }
             }
 

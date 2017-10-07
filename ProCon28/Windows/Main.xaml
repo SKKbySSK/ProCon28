@@ -20,13 +20,19 @@
         <Controls:OpenCvCapture x:Name="OpenCvCapture" Margin="293,0,0.143,0.143" Visibility="Hidden"/>
         <Controls:PieceViewer x:Name="PieceList" Background="#FFF7F7F7" Margin="0.857,6,-0.286,10.143" Grid.Column="1" MouseDoubleClick="PieceList_MouseDoubleClick"/>
         <Controls:PieceView x:Name="PieceP" HorizontalAlignment="Left" Width="293" Height="144" VerticalAlignment="Bottom" Margin="0,0,0,2.143"/>
-        <ListBox x:Name="ConsoleL" Background="Black" Foreground="White" Margin="0,2.857,0.143,0" Grid.Row="1"/>
+        <ListBox x:Name="ConsoleL" Background="Black" Foreground="White" Margin="0,2.857,0.143,0" Grid.Row="1">
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="クリア" x:Name="LogClearItem" Click="LogClearItem_Click"/>
+                </ContextMenu>
+            </ListBox.ContextMenu>
+        </ListBox>
         <Controls:TransferPiecesView x:Name="TransferPiecesView" Grid.Row="1" RequestingPieces="TransferPiecesView_RequestingPieces" Margin="0.857,28.857,-0.286,0" Grid.Column="1"/>
         <Button x:Name="ClearPB" Content="クリア" Grid.Column="1" Margin="9.857,0,9.714,79" VerticalAlignment="Bottom" Click="ClearPB_Click" Height="21" Grid.Row="1"/>
         <TabControl HorizontalAlignment="Left" Margin="5,10,0,146.143" Width="283">
             <TabItem Header="カメラ認識">
                 <Grid Background="#FFE5E5E5">
-                    <Controls:Camera x:Name="Camera" Recognized="Camera_Recognized" QrRecognized="Camera_QrRecognized" Initializing="Camera_Initializing"/>
+                    <Controls:Camera x:Name="Camera" Recognized="Camera_Recognized" QrRecognized="Camera_QrRecognized" Initializing="Camera_Initializing" CameraFixed="Camera_CameraFixed"/>
                 </Grid>
             </TabItem>
             <TabItem Header="ツール">
@@ -51,6 +57,7 @@
                             <Slider x:Name="RatioS" Maximum="1" Minimum="0" Value="0" ValueChanged="RatioS_ValueChanged" IsSnapToTickEnabled="True"/>
                             <TextBox x:Name="RatioT" Text="1"/>
                             <Button x:Name="ContoursB" Content="輪郭抽出" Margin="0,20,0,0" Click="ContoursB_Click"/>
+                            <Button x:Name="TestAlgoB" Content="試験的機能" Click="TestAlgoB_Click"/>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>

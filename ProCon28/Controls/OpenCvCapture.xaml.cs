@@ -33,6 +33,17 @@ namespace ProCon28.Controls
             KeyboardHook.HookEvent += KeyboardHook_HookEvent;
         }
 
+        bool _rec = true;
+        public bool UseRecognizerPoints
+        {
+            get { return _rec; }
+            set
+            {
+                _rec = value;
+                if (!value) Worker?.RecognizerPoints.Clear();
+            }
+        }
+
         private void KeyboardHook_HookEvent(ref KeyboardHook.StateKeyboard state)
         {
             if(state.Stroke == KeyboardHook.Stroke.KEY_UP)
@@ -49,8 +60,6 @@ namespace ProCon28.Controls
             this.Worker = Worker;
             Worker.Retrieved += Worker_Retrieved;
             Worker.Finished += Worker_Finished;
-            MatParent.Width = Worker.Width;
-            MatParent.Height = Worker.Height;
             KeyboardHook.Start();
         }
 
@@ -85,14 +94,19 @@ namespace ProCon28.Controls
                 var img = e.Image.ToBitmapSource();
 
                 MatView.Source = img;
+                MatView.Width = img.Width;
+                MatView.Height = img.Height;
                 Last = e.Image;
             }
         }
 
         private void MatView_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var pos = e.GetPosition(MatView);
-            Worker?.RecognizerPoints.Add(new OpenCvSharp.Point(Math.Round(pos.X), Math.Round(pos.Y)));
+            if (UseRecognizerPoints)
+            {
+                var pos = e.GetPosition(MatView);
+                Worker?.RecognizerPoints.Add(new OpenCvSharp.Point(Math.Round(pos.X), Math.Round(pos.Y)));
+            }
         }
 
         private void MatView_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -117,48 +131,6 @@ namespace ProCon28.Controls
                 Grid.ReleaseMouseCapture();
                 ldrag = false;
             }
-        }
-
-        private void Grid_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (!ldrag) return;
-
-            Point mouse = e.GetPosition(MatView);
-            Point diff = new Point(mouse.X - lastpos.X, mouse.Y - lastpos.Y);
-            double l = 0, t = 0, w = 0, h = 0;
-
-            if (diff.X >= 0 && diff.Y >= 0)
-            {
-                l = lastpos.X;
-                t = lastpos.Y;
-                w = diff.X;
-                h = diff.Y;
-            }
-            else if (diff.X >= 0 && diff.Y <= 0)
-            {
-                l = lastpos.X;
-                t = mouse.Y;
-                w = diff.X;
-                h = -diff.Y;
-            }
-            else if (diff.X <= 0 && diff.Y >= 0)
-            {
-                l = mouse.X;
-                t = lastpos.Y;
-                w = -diff.X;
-                h = diff.Y;
-            }
-            else
-            {
-                l = mouse.X;
-                t = mouse.Y;
-                w = -diff.X;
-                h = -diff.Y;
-            }
-
-            MatCrop.Margin = new Thickness(l, t, 0, 0);
-            MatCrop.Width = w;
-            MatCrop.Height = h;
         }
     }
 }

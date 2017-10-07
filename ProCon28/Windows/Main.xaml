@@ -32,7 +32,7 @@
         <TabControl HorizontalAlignment="Left" Margin="5,10,0,146.143" Width="283">
             <TabItem Header="カメラ認識">
                 <Grid Background="#FFE5E5E5">
-                    <Controls:Camera x:Name="Camera" Recognized="Camera_Recognized" QrRecognized="Camera_QrRecognized" Initializing="Camera_Initializing"/>
+                    <Controls:Camera x:Name="Camera" Recognized="Camera_Recognized" QrRecognized="Camera_QrRecognized" Initializing="Camera_Initializing" CameraFixed="Camera_CameraFixed"/>
                 </Grid>
             </TabItem>
             <TabItem Header="ツール">

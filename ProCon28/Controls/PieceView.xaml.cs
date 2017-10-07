@@ -85,7 +85,7 @@ namespace ProCon28.Controls
             }
         }
 
-        int _sample = 10;
+        int _sample = 1000;
         public int Sample
         {
             get { return _sample; }
@@ -94,6 +94,28 @@ namespace ProCon28.Controls
 
         ImageSource CreateImage(Piece Piece)
         {
+            if(Piece.Vertexes.Count < 2)
+            {
+                return null;
+            }
+
+            Linker.Point bp = Piece.Vertexes[0];
+            Linker.Point mp = Piece.Vertexes[1];
+            foreach (Linker.Point p in Piece.Vertexes)
+            {
+                if (bp.X > p.X)
+                    bp.X = p.X;
+                if (bp.Y > p.Y)
+                    bp.Y = p.Y;
+                if (mp.X < p.X)
+                    mp.X = p.X;
+                if (mp.Y < p.Y)
+                    mp.Y = p.Y;
+            }
+            Linker.Point DeltaP = mp - bp;
+            int maxSize = Math.Max(DeltaP.X, DeltaP.Y);
+            double scale = Sample / maxSize;
+
             DrawingGroup dg = new DrawingGroup();
 
             if (Piece is CompositePiece cp)
@@ -103,8 +125,13 @@ namespace ProCon28.Controls
                 {
                     GeometryGroup gg = new GeometryGroup();
 
-                    Polygon poly = new Polygon();
-                    poly.Points.AddRange(p.Vertexes.Select(point => new System.Windows.Point(point.X * Sample, point.Y * Sample)));
+                    var lines = p.Vertexes.AsLines();
+                    foreach (var line in lines)
+                    {
+                        var p1 = new System.Windows.Point(line.Item1.X * scale, line.Item1.Y * scale);
+                        var p2 = new System.Windows.Point(line.Item2.X * scale, line.Item2.Y * scale);
+                        gg.Children.Add(new LineGeometry(p1, p2));
+                    }
 
                     int seed = Environment.TickCount + i;
                     SolidColorBrush brush = new SolidColorBrush(Color.FromArgb(255, (byte)new Random(seed + 50).Next(100, 255),
@@ -115,10 +142,14 @@ namespace ProCon28.Controls
             }
             
             {
+                var lines = Piece.Vertexes.AsLines();
                 GeometryGroup gg = new GeometryGroup();
-                Polygon poly = new Polygon();
-                poly.Points.AddRange(p.Vertexes.Select(point => new System.Windows.Point(point.X * Sample, point.Y * Sample)));
-                gg.Children.Add(gg);
+                foreach (var line in lines)
+                {
+                    var p1 = new System.Windows.Point(line.Item1.X * scale, line.Item1.Y * scale);
+                    var p2 = new System.Windows.Point(line.Item2.X * scale, line.Item2.Y * scale);
+                    gg.Children.Add(new LineGeometry(p1, p2));
+                }
                 dg.Children.Add(new GeometryDrawing(Brushes.Transparent, new Pen(Brushes.Black, 10), gg));
             }
 

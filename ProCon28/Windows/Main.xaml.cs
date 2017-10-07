@@ -354,5 +354,10 @@ namespace ProCon28.Windows
         {
             ConsoleL.Items.Clear();
         }
+
+        private void Camera_CameraFixed(object sender, EventArgs e)
+        {
+
+        }
     }
 }

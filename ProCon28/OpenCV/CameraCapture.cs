@@ -124,6 +124,8 @@ namespace ProCon28.OpenCV
 
                         foreach (var filter in Filters)
                             img = filter(img);
+                        foreach (var drawer in Drawings)
+                            img = drawer(img);
                         foreach (Action<Mat> interrupt in Interruptions)
                             interrupt(img);
 
@@ -145,6 +147,8 @@ namespace ProCon28.OpenCV
 
         public IList<Action<Mat>> Interruptions { get; } = new List<Action<Mat>>();
         public IList<Func<Mat, Mat>> Filters { get; } = new List<Func<Mat, Mat>>();
+        public IList<Func<Mat, Mat>> Drawings { get; } = new List<Func<Mat, Mat>>();
+
         public int Width { get => capture.FrameWidth; set => capture.FrameWidth = value; }
         public int Height { get => capture.FrameHeight; set => capture.FrameHeight = value; }
 

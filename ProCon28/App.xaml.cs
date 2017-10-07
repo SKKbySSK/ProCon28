@@ -15,12 +15,27 @@ namespace ProCon28
     {
         public App()
         {
-            Current.Exit += Current_Exit;
-            //Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
+            Exit += App_Exit;
+            Startup += App_Startup;
+
             System.IO.Directory.CreateDirectory("Batch");
         }
 
-        private void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        private void App_Startup(object sender, StartupEventArgs e)
+        {
+            foreach(string arg in e.Args)
+            {
+                switch (arg.ToUpper())
+                {
+                    case "PROCON":
+                        Instance.ProConMode = true;
+                        DispatcherUnhandledException += App_DispatcherUnhandledException;
+                        break;
+                }
+            }
+        }
+
+        private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             switch (e.Exception)
             {
@@ -37,7 +52,7 @@ namespace ProCon28
             }
         }
 
-        private void Current_Exit(object sender, ExitEventArgs e)
+        private void App_Exit(object sender, ExitEventArgs e)
         {
             var result = Config.Save();
             if (!result.Item1)

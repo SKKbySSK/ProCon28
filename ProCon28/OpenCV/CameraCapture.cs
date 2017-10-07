@@ -21,6 +21,7 @@ namespace ProCon28.OpenCV
         public CameraCapture(int Device, string Window)
         {
             capture = new VideoCapture(Device);
+            capture.Fps = 30;
             window = new Window(Window);
             window.OnMouseCallback += Window_OnMouseCallback;
 

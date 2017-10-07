@@ -82,6 +82,7 @@
     <Compile Include="Tcp\RemotePiece.cs" />
     <Compile Include="Tcp\RemotePieces.cs" />
     <Compile Include="Tcp\Server.cs" />
+    <Compile Include="Temp\Algorithm.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

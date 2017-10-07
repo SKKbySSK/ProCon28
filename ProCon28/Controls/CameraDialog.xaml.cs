@@ -230,6 +230,8 @@ namespace ProCon28.Controls
                     FileStorage.Mode.FormatXml | FileStorage.Mode.Read);
                 Intrinsic = fs["Intrinsic"].ReadMat();
                 Distortion = fs["Distortion"].ReadMat();
+                Capture.Width = fs["Width"].ReadInt();
+                Capture.Height = fs["Height"].ReadInt();
                 fs.Dispose();
 
                 Capture.Filters.Add(Calibrate);
@@ -334,8 +336,13 @@ namespace ProCon28.Controls
             if (sqpoints == null) return;
             sqpoints = AsAntiClockwise(sqpoints);
 
-            double arclen = Cv2.ArcLength(sqpoints, true);
-            PieceCoefficient = (6 * 4) / arclen;
+            double ratio = 0;
+            for (int i = 0;4 > i; i++)
+            {
+                int ind = i + 1 == sqpoints.Length ? 0 : i + 1;
+                ratio += 6 / sqpoints[i].DistanceTo(sqpoints[ind]);
+            }
+            PieceCoefficient = ratio / 4;
 
             OpenCvSharp.Point p1 = sqpoints[0], p2 = sqpoints[1];
             int x = Math.Abs(p1.X - p2.X), y = Math.Abs(p1.Y - p2.Y);
@@ -432,6 +439,7 @@ namespace ProCon28.Controls
                 OpenCvSharp.Size size = Image.Size();
                 Mat newMatrix = Cv2.GetOptimalNewCameraMatrix(Intrinsic, Distortion, size, 0, size, out _);
                 Cv2.Undistort(Image, ret, Intrinsic, Distortion, newMatrix);
+                newMatrix.Dispose();
                 return ret;
             }
         }

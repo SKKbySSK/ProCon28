@@ -39,18 +39,21 @@ namespace ProCon28.Algo.Views
 
         private void Pieces_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            switch (e.Action)
+            Dispatcher.BeginInvoke(new Action(() =>
             {
-                case NotifyCollectionChangedAction.Add:
-                    Views.Add(new PieceView() { Piece = (Piece)e.NewItems[0] });
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    Views.RemoveAt(e.OldStartingIndex);
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    Views.Clear();
-                    break;
-            }
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        Views.Add(new PieceView() { Piece = (Piece)e.NewItems[0] });
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        Views.RemoveAt(e.OldStartingIndex);
+                        break;
+                    case NotifyCollectionChangedAction.Reset:
+                        Views.Clear();
+                        break;
+                }
+            }));
         }
 
         public Piece SelectedPiece

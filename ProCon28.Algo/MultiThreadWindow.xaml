@@ -21,11 +21,12 @@
         <Views:PieceCollectionView x:Name="BasePiecesView"/>
         <Label Content="最大処理数" Grid.Column="1" Margin="5,0,10,0" VerticalAlignment="Top"/>
         <TextBox x:Name="ProcessT" Grid.Column="1" Height="23" Margin="5,26,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <Button x:Name="BeginB" Content="開始" Grid.Column="1" Margin="10,207,10,10" Grid.Row="2" Click="BeginB_Click"/>
+        <Button x:Name="BeginB" Content="開始" Grid.Column="1" Margin="10,0,10.286,10.143" Grid.Row="2" Click="BeginB_Click" Height="29" VerticalAlignment="Bottom"/>
         <Label Content="再試行回数" Grid.Column="1" Margin="5,54,10,0" VerticalAlignment="Top"/>
         <TextBox x:Name="RetryT" Grid.Column="1" Height="23" Margin="5,80,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
         <TabControl x:Name="ResultTab" Grid.Row="2"/>
-        <Button x:Name="CancelB" Content="停止" Grid.Column="1" Margin="10,174,10,43" Grid.Row="2" Click="CancelB_Click"/>
+        <Button x:Name="CancelB" Content="停止" Grid.Column="1" Margin="10,0,10.286,43.143" Grid.Row="2" Click="CancelB_Click" Height="29" VerticalAlignment="Bottom"/>
+        <Label x:Name="TaskStateL" Grid.Column="1" Margin="0,4.714,0.286,219.143" Grid.Row="1" Grid.RowSpan="2"/>
 
     </Grid>
 </Window>

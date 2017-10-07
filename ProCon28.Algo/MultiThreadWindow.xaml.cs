@@ -22,6 +22,7 @@ namespace ProCon28.Algo
     {
         List<(AlgoInfo, TabPage)> Tasks = new List<(AlgoInfo, TabPage)>();
         Linker.PieceCollection PieceCollection;
+        int completed = 0;
 
         public MultiThreadWindow(Linker.PieceCollection Pieces)
         {
@@ -35,6 +36,7 @@ namespace ProCon28.Algo
 
         private void BeginB_Click(object sender, RoutedEventArgs e)
         {
+            completed = 0;
             Stop();
 
             if (int.TryParse(RetryT.Text, out int retry))
@@ -42,21 +44,44 @@ namespace ProCon28.Algo
             if (int.TryParse(ProcessT.Text, out int limit))
                 Config.Current.MT_Limitation = limit;
 
-            for(int i = 0;Config.Current.MT_Limitation > i; i++)
+            Action<AlgoInfo, Linker.PieceCollection> prog = (a, ps) =>
+            {
+                AddTab(a, ps);
+                TaskStateL.Content = string.Format("完了:{0}個, 進行中:{1}個", completed, Config.Current.MT_Limitation - completed);
+            };
+            Action<AlgoInfo, Linker.PieceCollection> fin = (a, ps) =>
+            {
+                AddTab(a, ps);
+                completed++;
+                TaskStateL.Content = string.Format("完了:{0}個, 進行中:{1}個", completed, Config.Current.MT_Limitation - completed);
+
+                if(completed >= Config.Current.MT_Limitation)
+                {
+                    List<TabPage> tp = new List<TabPage>();
+                    foreach (TabPage t in ResultTab.Items)
+                        tp.Add(t);
+                    tp = tp.OrderBy(t => t.Info.Algorithm.PieceCollection.Count).ToList();
+
+                    ResultTab.Items.Clear();
+                    foreach (var t in tp)
+                        ResultTab.Items.Add(t);
+                    BeginB.IsEnabled = true;
+                }
+            };
+
+            for (int i = 0;Config.Current.MT_Limitation > i; i++)
             {
                 Algorithm algo = new Algorithm(ClonePieces(), Dispatcher);
                 algo.Sleeping += Algo_Sleeping;
                 AlgoInfo info = new AlgoInfo(algo, Dispatcher);
-                Action<AlgoInfo, Linker.PieceCollection> prog = (a, ps) =>
-                {
-                    AddTab(a, ps);
-                };
 
-                info.Finished = prog;
+                info.Finished = fin;
                 info.Progress = prog;
                 info.Begin();
                 Tasks.Add((info, AddTab(info, algo.PieceCollection)));
             }
+            TaskStateL.Content = string.Format("完了:{0}個, 進行中:{1}個", completed, Config.Current.MT_Limitation - completed);
+            BeginB.IsEnabled = false;
         }
 
         private void Algo_Sleeping(object sender, RoutedSleepEventArgs e)
@@ -119,7 +144,7 @@ namespace ProCon28.Algo
             {
                 val.Item1.Cancel = true;
             }
-            Task.WhenAll(Tasks.Select(t => t.Item1.CurrentTask));
+            Task.WhenAll(Tasks.Select(t => t.Item1.CurrentTask)).Wait();
             Tasks.Clear();
         }
     }

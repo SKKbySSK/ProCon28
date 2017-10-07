@@ -9,6 +9,8 @@ namespace ProCon28.Linker.Temp
 {
     public class Algorithm
     {
+        public Func<List<Piece>, List<(int, int)>, CompositePiece> Composer { get; set; }
+
         public double Threshold { get; set; } = 0.1;
 
         PieceCollection PieceCollection { get; }
@@ -112,7 +114,9 @@ namespace ProCon28.Linker.Temp
             {
                 Processed.Add(GenerateCompositePiece(sorted.First()));
                 if (c == LastCount)
+                {
                     return Processed.Select(p => (Piece)p).ToList();
+                }
                 else
                 {
                     LastCount = c;
@@ -147,32 +151,48 @@ namespace ProCon28.Linker.Temp
         CompositePiece GenerateCompositePiece(List<PairInfo> Pairs)
         {
             List<Piece> pieces = new List<Piece>();
-            List<Point> points = new List<Point>();
-            foreach(var pair in Pairs)
+            if (Composer == null)
             {
-                if (!pieces.Contains(pair.Piece1))
-                    pieces.Add(pair.Piece1);
-                if (!pieces.Contains(pair.Piece2))
-                    pieces.Add(pair.Piece2);
+                List<Point> points = new List<Point>();
+                foreach (var pair in Pairs)
+                {
+                    if (!pieces.Contains(pair.Piece1))
+                        pieces.Add(pair.Piece1);
+                    if (!pieces.Contains(pair.Piece2))
+                        pieces.Add(pair.Piece2);
 
-                points.Add(pair.Start1);
-                points.Add(pair.End1);
-                points.Add(pair.Start2);
-                points.Add(pair.End2);
+                    points.Add(pair.Start1);
+                    points.Add(pair.End1);
+                    points.Add(pair.Start2);
+                    points.Add(pair.End2);
+                }
+
+                return new CompositePiece(points, pieces);
             }
-
-            return new CompositePiece(points, pieces);
+            else
+            {
+                foreach(var pair in Pairs)
+                {
+                    if (!pieces.Contains(pair.Piece1))
+                        pieces.Add(pair.Piece1);
+                    if (!pieces.Contains(pair.Piece2))
+                        pieces.Add(pair.Piece2);
+                }
+            }
         }
     }
 
     class PairInfo
     {
-        public PairInfo(Piece Piece1, Point Start1, Point End1, Piece Piece2, Point Start2, Point End2)
+        public PairInfo(Piece Piece1, int Start1, int End1, Piece Piece2, int Start2, int End2)
         {
             this.Piece1 = Piece1;
-            this.Start1 = Start1;
-            this.End1 = End1;
-            Length1 = Start1.GetLength(End1);
+            this.Start1 = Piece1.Vertexes[Start1];
+            this.End1 = Piece1.Vertexes[End1];
+            StartIndex1 = Start1;
+            EndIndex1 = end
+            
+            Length1 = this.Start1.GetLength(this.End1);
 
             this.Piece2 = Piece2;
             this.Start2 = Start2;
@@ -186,9 +206,13 @@ namespace ProCon28.Linker.Temp
         public Piece Piece1 { get; }
         public Point Start1 { get; }
         public Point End1 { get; }
+        public int StartIndex1 { get; }
+        public int EndIndex1 { get; }
         public Piece Piece2 { get; }
         public Point Start2 { get; }
         public Point End2 { get; }
+        public int StartIndex2 { get; }
+        public int EndIndex2 { get; }
 
         public double Length1 { get; }
         public double Length2 { get; }

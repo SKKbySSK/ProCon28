@@ -83,6 +83,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Config.cs" />
+    <Compile Include="MTProcessor.cs" />
     <Compile Include="MultiThreadWindow.xaml.cs">
       <DependentUpon>MultiThreadWindow.xaml</DependentUpon>
     </Compile>

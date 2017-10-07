@@ -39,9 +39,8 @@ namespace ProCon28.Linker
         }
 
         public bool Fixed { get; protected set; }
-        public PointCollection Vertexes { get; private set; }
+        public PointCollection Vertexes { get; protected set; }
         public double Rotation { get; set; }
-        public string GUID { get; private set; } = Guid.NewGuid().ToString();
 
         /// <summary>
         /// ピースのクローンを作成します
@@ -52,7 +51,6 @@ namespace ProCon28.Linker
             Piece p = new Piece();
             p.Vertexes.AddRange(Vertexes);
             p.Rotation = Rotation;
-            p.GUID = GUID;
             return p;
         }
 

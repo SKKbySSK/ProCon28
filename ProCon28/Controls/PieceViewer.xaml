@@ -17,6 +17,7 @@
                     <ContextMenu>
                         <MenuItem x:Name="CopyItem" Header="コピー" Click="CopyItem_Click"/>
                         <MenuItem x:Name="RemoveItem" Header="削除" Click="RemoveItem_Click"/>
+                        <MenuItem x:Name="AsFrameItem" Header="フレームとして追加" Click="AsFrameItem_Click"/>
                     </ContextMenu>
                 </StackPanel.ContextMenu>
             </StackPanel>

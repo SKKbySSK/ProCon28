@@ -173,5 +173,13 @@ namespace ProCon28.Controls
                 Pieces.Add((Linker.Piece)SelectedPiece.Clone());
             }
         }
+
+        private void AsFrameItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedPiece != null)
+            {
+                Pieces.Add(new Linker.Frame(SelectedPiece));
+            }
+        }
     }
 }

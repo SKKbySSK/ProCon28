@@ -27,13 +27,14 @@
         <Button x:Name="import" Content="import" Grid.Column="1" HorizontalAlignment="Left" Margin="450,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Height="120" Click="import_Click"/>
         <Button x:Name="auto" Content="auto" Grid.Column="1" HorizontalAlignment="Left" Margin="345,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Height="120" Click="auto_Click"/>
         <Button x:Name="back" Content="back" Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Height="120"/>
-        <Button x:Name="next" Content="next" Grid.Column="1" HorizontalAlignment="Left" Margin="115,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Height="120"/>
+        <Button x:Name="next" Content="next" Grid.Column="1" HorizontalAlignment="Left" Margin="115,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Height="120" Click="next_Click"/>
         <Button x:Name="undo" Content="undo" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Grid.Column="1" Margin="220,10,0,0" Grid.Row="1" Height="57"/>
         <Button x:Name="redo" Content="redo" Grid.Column="1" HorizontalAlignment="Left" Margin="220,73,0,0" Grid.Row="1" VerticalAlignment="Top" Width="120" Height="57"/>
         <Views:PieceCollectionView x:Name="PieceView" Grid.Column="1" Margin="10.143,105,33,32.857">
             <Views:PieceCollectionView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="削除" Click="RemoveI_Click"/>
+                    <MenuItem Header="フレームへ変換" Click="CvFrame_Click"/>
                 </ContextMenu>
             </Views:PieceCollectionView.ContextMenu>
         </Views:PieceCollectionView>

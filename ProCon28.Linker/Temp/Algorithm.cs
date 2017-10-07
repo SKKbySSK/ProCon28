@@ -9,14 +9,15 @@ namespace ProCon28.Linker.Temp
 {
     public class Algorithm
     {
-        public Func<List<Piece>, List<(int, int)>, CompositePiece> Composer { get; set; }
+        public Func<Piece, Piece, List<(int, int)>, CompositePiece> Composer { get; set; }
 
         public double Threshold { get; set; } = 0.1;
 
-        PieceCollection PieceCollection { get; }
-        
-        public Algorithm(PieceCollection Pieces)
+        IList<Piece> PieceCollection { get; }
+
+        public Algorithm(Func<Piece, Piece, List<(int, int)>, CompositePiece> PieceBond, IList<Piece> Pieces)
         {
+            Composer = PieceBond;
             PieceCollection = Pieces;
         }
 
@@ -43,7 +44,101 @@ namespace ProCon28.Linker.Temp
             return cps;
         }
 
-        List<Piece> FindPair(double Threshold, List<CompositePiece> Processed = null, int LastCount = 0)
+        List<Piece> FindPair(double Threshold, int SampleIndex = 1, List<Piece> Processed = null, int LastCount = 0)
+        {
+            if (Processed == null) Processed = new List<Piece>();
+
+            List<PairInfo> Pairs = new List<PairInfo>();
+
+            List<Piece> pieces = new List<Piece>();
+
+            Frame f = null;
+            {
+                foreach (Piece p in PieceCollection)
+                {
+                    if (p is Frame frame)
+                    {
+                        f = frame;
+                        break;
+                    }
+                }
+
+                if (f == null) return pieces;
+            }
+
+            foreach (var p in PieceCollection)
+            {
+                Pairs.AddRange(GetPairsFromLines(f, f.Vertexes.AsLinesWithLength(), p, p.Vertexes.AsLinesWithLength(), Threshold));
+            }
+
+            Dictionary<PairedPiece, List<PairInfo>> PairedDictionary = new Dictionary<PairedPiece, List<PairInfo>>();
+            foreach (var info in Pairs)
+            {
+                var pp = new PairedPiece(info.Piece1, info.Piece2);
+
+                if (!PairedDictionary.Keys.Contains(pp))
+                    PairedDictionary.Add(pp, new List<PairInfo>(new PairInfo[] { info }));
+                else
+                    PairedDictionary[pp].Add(info);
+            }
+
+            List<List<PairInfo>> sorted = PairedDictionary.Values.OrderByDescending(val => val.Count).ThenByDescending((val) =>
+            {
+                double sum = 0;
+                foreach (PairInfo pi in val)
+                    sum += pi.AverageLength;
+                return sum;
+            }).ToList();
+
+            int c = sorted.Count;
+            if (c > 1)
+            {
+                var piece = sorted[Math.Min(sorted.Count - 1, SampleIndex)];
+
+                var comp = GenerateCompositePiece(piece);
+                Processed.AddRange(comp);
+
+                foreach(PairInfo pi in piece)
+                {
+                    if (pi.Piece1 != f)
+                        PieceCollection.Remove(pi.Piece1);
+
+                    if (pi.Piece2 != f)
+                        PieceCollection.Remove(pi.Piece2);
+                }
+
+                if (c == LastCount)
+                {
+                    return Processed;
+                }
+                else
+                {
+                    LastCount = c;
+                    return FindPair(Threshold, SampleIndex, Processed, LastCount);
+                }
+            }
+            else
+            {
+                List<Piece> ps = new List<Piece>();
+                ps.AddRange(Processed);
+                ps.AddRange(pieces);
+                return ps;
+            }
+        }
+
+        List<(int, int)> CreateIndexPairs(IList<PairInfo> Infos)
+        {
+            List<(int, int)> ipair = new List<(int, int)>();
+            foreach(PairInfo pi in Infos)
+            {
+                ipair.Add((pi.StartIndex1, pi.EndIndex1));
+                ipair.Add((pi.StartIndex2, pi.EndIndex2));
+            }
+
+            return ipair;
+        }
+
+        List<Piece> FindPairBackup(double Threshold, List<CompositePiece> Processed = null, int LastCount = 0)
         {
             if (Processed == null) Processed = new List<CompositePiece>();
 
@@ -112,7 +207,7 @@ namespace ProCon28.Linker.Temp
             int c = sorted.Count;
             if (c > 1)
             {
-                Processed.Add(GenerateCompositePiece(sorted.First()));
+                //Processed.Add(GenerateCompositePiece(sorted.First()));
                 if (c == LastCount)
                 {
                     return Processed.Select(p => (Piece)p).ToList();
@@ -120,7 +215,7 @@ namespace ProCon28.Linker.Temp
                 else
                 {
                     LastCount = c;
-                    return FindPair(Threshold, Processed, LastCount);
+                    return null; //FindPair(Threshold, Processed, LastCount);
                 }
             }
             else
@@ -148,69 +243,40 @@ namespace ProCon28.Linker.Temp
             return pairs;
         }
 
-        CompositePiece GenerateCompositePiece(List<PairInfo> Pairs)
+        List<Piece> GenerateCompositePiece(List<PairInfo> Pairs)
         {
             List<Piece> pieces = new List<Piece>();
-            if (Composer == null)
+            List<(int, int)> pairsint = new List<(int, int)>();
+            foreach (var pair in Pairs)
             {
-                List<Point> points = new List<Point>();
-                foreach (var pair in Pairs)
+                var p1 = pair.Piece1;
+                var p2 = pair.Piece2;
+                foreach (var pint in Pairs)
                 {
-                    if (!pieces.Contains(pair.Piece1))
-                        pieces.Add(pair.Piece1);
-                    if (!pieces.Contains(pair.Piece2))
-                        pieces.Add(pair.Piece2);
-
-                    points.Add(pair.Start1);
-                    points.Add(pair.End1);
-                    points.Add(pair.Start2);
-                    points.Add(pair.End2);
+                    if (pint.Piece1 == p1 || pint.Piece1 == p2)
+                    {
+                        if (pint.Piece2 == p1 || pint.Piece2 == p2)
+                        {
+                            pairsint.Add((pint.StartIndex1, pint.EndIndex1));
+                            pairsint.Add((pint.StartIndex2, pint.EndIndex2));
+                        }
+                    }
                 }
 
-                return new CompositePiece(points, pieces);
-            }
-            else
-            {
-                List<(int, int)> pairsint = new List<(int, int)>();
-                foreach (var pair in Pairs)
+                try
                 {
-                    if (!pieces.Contains(pair.Piece1))
-                        pieces.Add(pair.Piece1);
-                    if (!pieces.Contains(pair.Piece2))
-                        pieces.Add(pair.Piece2);
-                    pairsint.Add((pair.StartIndex1, pair.EndIndex1));
-                    pairsint.Add((pair.StartIndex2, pair.EndIndex2));
+                    pieces.Add(Composer(p1, p2, pairsint));
                 }
-
-                return Composer(pieces, pairsint);
+                catch (Exception) { }
+                pairsint.Clear();
             }
+
+            return pieces;
         }
     }
 
     class PairInfo
     {
-        public PairInfo(Piece Piece1, int Start1, int End1, Piece Piece2, int Start2, int End2)
-        {
-            this.Piece1 = Piece1;
-            this.Start1 = Piece1.Vertexes[Start1];
-            this.End1 = Piece1.Vertexes[End1];
-            StartIndex1 = Start1;
-            EndIndex1 = End1;
-            
-            Length1 = this.Start1.GetLength(this.End1);
-
-            this.Piece2 = Piece2;
-            this.Start2 = Piece2.Vertexes[Start2];
-            this.End2 = Piece2.Vertexes[End2];
-            StartIndex2 = Start2;
-            EndIndex2 = End2;
-
-            Length2 = this.Start2.GetLength(this.End2);
-
-            Difference = Length1 - Length2;
-            AbsDifference = Math.Abs(Difference);
-        }
-
         public PairInfo(Piece Piece1, Point Start1, Point End1, Piece Piece2, Point Start2, Point End2)
         {
             this.Piece1 = Piece1;
@@ -232,13 +298,18 @@ namespace ProCon28.Linker.Temp
         public Piece Piece1 { get; }
         public Point Start1 { get; }
         public Point End1 { get; }
-        public int StartIndex1 { get; }
-        public int EndIndex1 { get; }
+        public int StartIndex1 { get { return Piece1.Vertexes.IndexOf(Start1); } }
+        public int EndIndex1 { get { return Piece1.Vertexes.IndexOf(End1); } }
         public Piece Piece2 { get; }
         public Point Start2 { get; }
         public Point End2 { get; }
-        public int StartIndex2 { get; }
-        public int EndIndex2 { get; }
+        public int StartIndex2 { get { return Piece2.Vertexes.IndexOf(Start2); } }
+        public int EndIndex2 { get { return Piece2.Vertexes.IndexOf(End2); } }
+
+        public double AverageLength
+        {
+            get { return (Length1 + Length2) / 2; }
+        }
 
         public double Length1 { get; }
         public double Length2 { get; }

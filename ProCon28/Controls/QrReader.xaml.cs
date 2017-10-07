@@ -22,7 +22,7 @@ namespace ProCon28.Controls
     public partial class QrReader : UserControl
     {
         public event EventHandler<QrReaderEventArgs> Recognized;
-
+        
         OpenCV.CameraCapture camera;
 
         public QrReader()

@@ -591,7 +591,7 @@ namespace ProCon28.Controls
 
             Mat gray = new Mat();
             Cv2.CvtColor(Image, gray, ColorConversionCodes.BGR2GRAY);
-            //Cv2.GaussianBlur(gray, gray, new OpenCvSharp.Size(5, 5), 0);
+            Cv2.GaussianBlur(gray, gray, new OpenCvSharp.Size(5, 5), 0);
             Cv2.Threshold(gray, gray, 0, 255, ThresholdTypes.Binary | ThresholdTypes.Otsu);
             Cv2.AdaptiveThreshold(gray, gray, 255, AdaptiveThresholdTypes.GaussianC, ThresholdTypes.Binary, 11, 2);
 

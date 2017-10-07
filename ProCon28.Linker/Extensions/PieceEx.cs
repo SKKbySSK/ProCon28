@@ -144,7 +144,7 @@ namespace ProCon28.Linker.Extensions
                     }
                 }
             }
-            if (count % 2 == 0) { rad += Math.PI; }
+            if (count % 2 == 0) { rad = -rad  + Math.PI * 2; }
 
             //180度以上を判定する処理ここまで
 

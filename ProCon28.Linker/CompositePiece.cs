@@ -32,6 +32,8 @@ namespace ProCon28.Linker
             foreach (var p in Vertexes)
                 cp.Vertexes.Add(p);
 
+            cp.GUID = GUID;
+
             return cp;
         }
     }

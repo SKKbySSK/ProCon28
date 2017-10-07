@@ -31,6 +31,9 @@ namespace ProCon28
                         Instance.ProConMode = true;
                         DispatcherUnhandledException += App_DispatcherUnhandledException;
                         break;
+                    case "SAVE":
+                        Instance.SaveConfig = true;
+                        break;
                 }
             }
         }

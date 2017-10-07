@@ -61,14 +61,22 @@ namespace ProCon28.Algo
 
         private void Algo_Sleeping(object sender, RoutedSleepEventArgs e)
         {
+            List<int> usable = new List<int>();
+
+            int i = 0;
             foreach(var cp in e.TempResults)
             {
-                IList<Linker.Piece> ps = cp.Source.RemoveIncorrectPieces();
-                cp.Source = ps;
+                if (cp.Source.IsCorrect())
+                {
+                    usable.Add(i);
+                }
+                i++;
             }
 
-            Random rnd = new Random();
-            e.Index = rnd.Next(e.TempResults.Length);
+            if (usable.Count == 0)
+                e.Index = -1;
+            else
+                e.Index = usable.OrderBy(_ => Guid.NewGuid().ToString()).First();
             e.Wait = false;
         }
 

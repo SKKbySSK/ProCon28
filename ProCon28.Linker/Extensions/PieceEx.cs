@@ -179,7 +179,6 @@ namespace ProCon28.Linker.Extensions
 
         public static Piece Convert(this Piece Piece)
         {
-
             if (Piece.Vertexes.Count == 0) return Piece;
             Point bp = Piece.Vertexes[0];
             foreach (Point p in Piece.Vertexes)
@@ -252,6 +251,26 @@ namespace ProCon28.Linker.Extensions
                     bool incorrect = func(l1, l2);
                     if (incorrect)
                         return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool IsCorrect(this IList<Piece> Pieces)
+        {
+            int len = Pieces.Count;
+            for(int i = 0;len > i; i++)
+            {
+                var p1 = Pieces[i];
+                for(int j = 0;len > j; j++)
+                {
+                    if(i != j)
+                    {
+                        var p2 = Pieces[j];
+                        if (!IsCorrectPieces(p1, p2))
+                            return false;
+                    }
                 }
             }
 

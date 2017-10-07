@@ -18,25 +18,22 @@
 
         <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.ColumnSpan="2" Margin="0,130,0,0">
             <Grid>
-                <Slider x:Name="ThreshS" Margin="58,31,9.857,0" VerticalAlignment="Top" Height="21" Maximum="0.3" Minimum="0" LargeChange="0.003" SmallChange="0.001" Value="-1"/>
+                <Slider x:Name="ThreshS" Margin="58,31,9.857,0" VerticalAlignment="Top" Height="21" Maximum="0.3" Minimum="0" LargeChange="0.001" SmallChange="0.0001" Value="-1"/>
                 <Label Content="{Binding Value, ElementName=ThreshS}" HorizontalAlignment="Left" Margin="10,26,0,0" VerticalAlignment="Top" Width="43"/>
                 <Label Content="ピース近似値" Margin="10,0,10,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-                <Slider x:Name="SqThreshS" Margin="58,83,10,0" VerticalAlignment="Top" Height="21" Maximum="0.3" Minimum="0" LargeChange="0.003" SmallChange="0.001" Value="-1"/>
+                <Slider x:Name="SqThreshS" Margin="58,83,10,0" VerticalAlignment="Top" Height="21" Maximum="0.3" Minimum="0" LargeChange="0.0001" SmallChange="0.0001" Value="-1"/>
                 <Label Content="{Binding Value, ElementName=SqThreshS}" HorizontalAlignment="Left" Margin="10,78,0,0" VerticalAlignment="Top" Width="43"/>
                 <Label Content="正方形近似値" Margin="10,52,9.857,0" VerticalAlignment="Top"/>
                 <Slider x:Name="PiAreaS" Margin="59,182,8.857,0" VerticalAlignment="Top" Height="21" Maximum="2000" Minimum="0" LargeChange="100" SmallChange="10"/>
                 <Label Content="{Binding Value, ElementName=PiAreaS}" HorizontalAlignment="Left" Margin="11,177,0,0" VerticalAlignment="Top" Width="43"/>
                 <Label Content="ピース最小面積" Margin="11,151,8.857,0" VerticalAlignment="Top"/>
-                <Slider x:Name="SqArcS" Margin="58,234,9.857,0" VerticalAlignment="Top" Height="21" Maximum="500" Minimum="0" LargeChange="100" SmallChange="10"/>
+                <Slider x:Name="SqArcS" Margin="58,234,9.857,0" VerticalAlignment="Top" Height="21" Maximum="1000" Minimum="0" LargeChange="100" SmallChange="10"/>
                 <Label Content="{Binding Value, ElementName=SqArcS}" HorizontalAlignment="Left" Margin="11,229,0,0" VerticalAlignment="Top" Width="43"/>
                 <Label Content="正方形最大周長" Margin="10,203,9.857,0" VerticalAlignment="Top"/>
-                <Slider x:Name="ContourS" Margin="58,281,9.857,0" VerticalAlignment="Top" Height="21" Maximum="100" Minimum="0" LargeChange="10" SmallChange="1" IsSnapToTickEnabled="True"/>
-                <Label Content="{Binding Value, ElementName=ContourS}" HorizontalAlignment="Left" Margin="11,281,0,0" VerticalAlignment="Top" Width="43"/>
-                <Label Content="輪郭番号" Margin="10,255,9.857,0" VerticalAlignment="Top"/>
                 <Slider x:Name="GammaS" Margin="58,130,9.857,0" VerticalAlignment="Top" Height="21" Maximum="5" Minimum="0" LargeChange="1" SmallChange="0.1"/>
                 <Label Content="{Binding Value, ElementName=GammaS}" HorizontalAlignment="Left" Margin="11,128,0,0" VerticalAlignment="Top" Width="43"/>
                 <Label Content="ガンマ" Margin="11,104,9,0" VerticalAlignment="Top"/>
-                <CheckBox x:Name="PerspectiveC" Content="透視変換" HorizontalAlignment="Left" Margin="11,312,0,0" VerticalAlignment="Top" Unchecked="PerspectiveC_StateChanged" Checked="PerspectiveC_StateChanged"/>
+                <CheckBox x:Name="PerspectiveC" Content="透視変換" HorizontalAlignment="Left" Margin="11,260,0,0" VerticalAlignment="Top" Unchecked="PerspectiveC_StateChanged" Checked="PerspectiveC_StateChanged"/>
             </Grid>
         </ScrollViewer>
         <Button x:Name="BeginQrB" Content="形状情報" Margin="10,99,9.714,0" VerticalAlignment="Top" Height="26" Click="BeginQrB_Click"/>

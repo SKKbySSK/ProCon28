@@ -13,12 +13,11 @@ namespace ProCon28
         public int TCP_Port { get; set; } = 50000;
 
         public int Camera { get; set; } = 0;
-        public double PieceApprox { get; set; } = 0.01;
-        public double SquareApprox { get; set; } = 0.02;
-        public double MinimumArea { get; set; } = 700;
-        public double SquareMaximumArcLength { get; set; } = 80;
-        public int ContourIndex { get; set; } = 1;
-        public double Gamma { get; set; } = 1.0;
+        public double PieceApprox { get; set; } = CameraParams.PieceApprox;
+        public double SquareApprox { get; set; } = CameraParams.SquareApprox;
+        public double MinimumArea { get; set; } = CameraParams.MinimumArea;
+        public double SquareMaximumArcLength { get; set; } = CameraParams.SquareMaximumArcLength;
+        public double Gamma { get; set; } = CameraParams.Gamma;
 
         public double BlurThreshold { get; set; } = 10;
         public double StraightThreshold { get; set; } = 0.1;
@@ -48,20 +47,25 @@ namespace ProCon28
 
         public static (bool, Exception) Save()
         {
-            try
+            if (Instance.SaveConfig)
             {
-                XmlSerializer ser = new XmlSerializer(typeof(Config));
-                using (StreamWriter sw = new StreamWriter(Linker.Constants.ConfigFileName))
+                try
                 {
-                    ser.Serialize(sw, Current);
-                }
+                    XmlSerializer ser = new XmlSerializer(typeof(Config));
+                    using (StreamWriter sw = new StreamWriter(Linker.Constants.ConfigFileName))
+                    {
+                        ser.Serialize(sw, Current);
+                    }
 
+                    return (true, null);
+                }
+                catch (Exception ex)
+                {
+                    return (false, ex);
+                }
+            }
+            else
                 return (true, null);
-            }
-            catch(Exception ex)
-            {
-                return (false, ex);
-            }
         }
 
         public static Config Current

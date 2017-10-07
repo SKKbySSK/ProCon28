@@ -14,8 +14,9 @@
         <ScrollViewer Margin="0,26,0,0" Grid.ColumnSpan="2">
             <StackPanel x:Name="PiecesStack">
                 <StackPanel.ContextMenu>
-                    <ContextMenu Opened="ContextMenu_Opened">
-                        <MenuItem x:Name="RemoveItem" Header="削除" IsEnabled="False" Click="RemoveItem_Click"/>
+                    <ContextMenu>
+                        <MenuItem x:Name="CopyItem" Header="コピー" Click="CopyItem_Click"/>
+                        <MenuItem x:Name="RemoveItem" Header="削除" Click="RemoveItem_Click"/>
                     </ContextMenu>
                 </StackPanel.ContextMenu>
             </StackPanel>

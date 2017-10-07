@@ -202,7 +202,7 @@ namespace ProCon28.Algo
         }
 
 
-        public CompositePiece PieceBond(Piece Source1, Piece Source2, List<(int, int)> FitIndex)
+        public static CompositePiece PieceBond(Piece Source1, Piece Source2, List<(int, int)> FitIndex)
         {
             List<Piece> Source = new List<Piece>();
             Piece Piece1 = (Piece)Source1.Clone();
@@ -320,32 +320,27 @@ namespace ProCon28.Algo
                         ri += Piece2.Vertexes.Count;
                     Return.Add(Piece2.Vertexes[ri]);
                 }
-            }
+            } 
+
             Piece rt = new Piece();
             rt.Vertexes.AddRange(Return);
-            List<(int, int)> rem = new List<(int, int)>();
-            for(int i = 0; i < Return.Count; i++)
+
+            for (int i = 0; i < rt.Vertexes.Count; i++)
             {
-                for(int j = 0;j < Return.Count; i++)
+                if (Rounding(rt.GetAngle(i), Math.PI) || Rounding(rt.GetAngle2PI(i), Math.PI * 2) || Rounding(rt.GetAngle(i), 0))
                 {
-                    if(Return[i] == Return[j])
-                    {
-                        rem.Add((i, j));
-                        break;
-                    }
+                    rt.Vertexes.RemoveAt(i);
+                    i--;
                 }
+               
             }
-            for(int i = 0; i < rem.Count; i++)
+            for(int i = 0; i < rt.Vertexes.Count; i++)
             {
-
-            }
-
-
-            for (int i = 0; i < Return.Count; i++)
-            {
-                if (Rounding(rt.GetAngle(i), Math.PI) || Rounding(rt.GetAngle(i), Math.PI * 2) || Rounding(rt.GetAngle(i), 0))
+                int next = i + 1;
+                if (next == rt.Vertexes.Count) { next = 0; }
+                if (rt.Vertexes[i] == rt.Vertexes[next])
                 {
-                    Return.RemoveAt(i);
+                    rt.Vertexes.RemoveAt(i);
                     i--;
                 }
             }

@@ -258,6 +258,26 @@ namespace ProCon28.Linker.Extensions
             return true;
         }
 
+        public static bool IsCorrect(this IList<Piece> Pieces)
+        {
+            int len = Pieces.Count;
+            for(int i = 0;len > i; i++)
+            {
+                var p1 = Pieces[i];
+                for(int j = 0;len > j; j++)
+                {
+                    if(i != j)
+                    {
+                        var p2 = Pieces[j];
+                        if (!IsCorrectPieces(p1, p2))
+                            return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         public static Piece RotatePiece(this Piece Piece, double rad)
         {
             return UnsafeRotate(Piece, rad);

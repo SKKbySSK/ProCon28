@@ -258,6 +258,10 @@ namespace ProCon28.Windows
 
         private void EmptyB_Click(object sender, RoutedEventArgs e)
         {
+            if (PieceG.Piece != null && PieceG.Piece.Vertexes.Count > 0)
+            {
+                PieceList.Pieces.Add(PieceG.Piece);
+            }
             PieceG.Piece = new Linker.Piece();
         }
 
@@ -267,6 +271,11 @@ namespace ProCon28.Windows
             {
                 Linker.Piece piece = PieceList.SelectedPiece;
                 PieceList.Pieces.Remove(piece);
+
+                if (PieceG.Piece != null && PieceG.Piece.Vertexes.Count > 0)
+                {
+                    PieceList.Pieces.Add(PieceG.Piece);
+                }
 
                 PieceG.Piece = piece;
                 ClearLog();

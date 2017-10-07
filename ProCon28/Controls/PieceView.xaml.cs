@@ -102,11 +102,9 @@ namespace ProCon28.Controls
                 foreach(Piece p in cp.Source)
                 {
                     GeometryGroup gg = new GeometryGroup();
-                    var lines = p.Vertexes.AsLines();
-                    foreach (var line in lines)
-                        gg.Children.Add(new LineGeometry(
-                            new System.Windows.Point(line.Item1.X * Sample, line.Item1.Y * Sample),
-                            new System.Windows.Point(line.Item2.X * Sample, line.Item2.Y * Sample)));
+
+                    Polygon poly = new Polygon();
+                    poly.Points.AddRange(p.Vertexes.Select(point => new System.Windows.Point(point.X * Sample, point.Y * Sample)));
 
                     int seed = Environment.TickCount + i;
                     SolidColorBrush brush = new SolidColorBrush(Color.FromArgb(255, (byte)new Random(seed + 50).Next(100, 255),
@@ -118,12 +116,9 @@ namespace ProCon28.Controls
             else
             {
                 GeometryGroup gg = new GeometryGroup();
-                var lines = Piece.Vertexes.AsLines();
-                foreach (var line in lines)
-                    gg.Children.Add(new LineGeometry(
-                        new System.Windows.Point(line.Item1.X * Sample, line.Item1.Y * Sample),
-                        new System.Windows.Point(line.Item2.X * Sample, line.Item2.Y * Sample)));
-
+                Polygon poly = new Polygon();
+                poly.Points.AddRange(p.Vertexes.Select(point => new System.Windows.Point(point.X * Sample, point.Y * Sample)));
+                gg.Children.Add(gg);
                 dg.Children.Add(new GeometryDrawing(Brushes.Transparent, new Pen(Brushes.Black, 10), gg));
             }
 

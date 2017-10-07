@@ -131,14 +131,11 @@ namespace ProCon28.Controls
 
         private void RemoveItem_Click(object sender, RoutedEventArgs e)
         {
-            Pieces.Remove(SelectedPiece);
-            SelectedPiece = null;
-        }
-
-        private void ContextMenu_Opened(object sender, RoutedEventArgs e)
-        {
-            if (SelectedPiece != null) RemoveItem.IsEnabled = true;
-            else RemoveItem.IsEnabled = false;
+            if(SelectedPiece != null)
+            {
+                Pieces.Remove(SelectedPiece);
+                SelectedPiece = null;
+            }
         }
 
         private void LoadB_Click(object sender, RoutedEventArgs e)
@@ -166,6 +163,14 @@ namespace ProCon28.Controls
                     byte[] bs = Pieces.AsBytes();
                     fs.Write(bs, 0, bs.Length);
                 }
+            }
+        }
+
+        private void CopyItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedPiece != null)
+            {
+                Pieces.Add((Linker.Piece)SelectedPiece.Clone());
             }
         }
     }

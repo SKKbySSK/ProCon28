@@ -180,5 +180,23 @@ namespace ProCon28.Algo
             MultiThreadWindow multiThreadWindow = new MultiThreadWindow(Shared.Pieces);
             multiThreadWindow.Show();
         }
+
+        private void next_Click(object sender, RoutedEventArgs e)
+        {
+            Linker.Temp.Algorithm algo = new Linker.Temp.Algorithm(Algorithm.PieceBond, PieceView.Pieces);
+            var ps = algo.Run();
+
+            TempPieces.Pieces.Clear();
+            TempPieces.Pieces.AddRange(ps);
+        }
+
+        private void CvFrame_Click(object sender, RoutedEventArgs e)
+        {
+            if(PieceView.SelectedPiece != null)
+            {
+                PieceView.Pieces.Add(new Linker.Frame(PieceView.SelectedPiece));
+                PieceView.Pieces.Remove(PieceView.SelectedPiece);
+            }
+        }
     }
 }

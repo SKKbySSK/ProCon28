@@ -22,6 +22,7 @@ namespace ProCon28.Algo
     {
         List<(AlgoInfo, TabPage)> Tasks = new List<(AlgoInfo, TabPage)>();
         Linker.PieceCollection PieceCollection;
+        int completed = 0;
 
         public MultiThreadWindow(Linker.PieceCollection Pieces)
         {
@@ -31,31 +32,73 @@ namespace ProCon28.Algo
             BasePiecesView.Pieces = Pieces;
             RetryT.Text = Config.Current.MT_Retry.ToString();
             ProcessT.Text = Config.Current.MT_Limitation.ToString();
+            KeyboardHook.HookEvent += KeyboardHook_HookEvent;
         }
 
         private void BeginB_Click(object sender, RoutedEventArgs e)
         {
+            completed = 0;
             Stop();
+
+            //KeyboardHook.Start();
 
             if (int.TryParse(RetryT.Text, out int retry))
                 Config.Current.MT_Retry = retry;
             if (int.TryParse(ProcessT.Text, out int limit))
                 Config.Current.MT_Limitation = limit;
 
-            for(int i = 0;Config.Current.MT_Limitation > i; i++)
+            Action<AlgoInfo, Linker.PieceCollection> prog = (a, ps) =>
+            {
+                AddTab(a, ps);
+                TaskStateL.Content = string.Format("完了:{0}個, 進行中:{1}個", completed, Config.Current.MT_Limitation - completed);
+            };
+            Action<AlgoInfo, Linker.PieceCollection> fin = (a, ps) =>
+            {
+                AddTab(a, ps);
+                completed++;
+                TaskStateL.Content = string.Format("完了:{0}個, 進行中:{1}個", completed, Config.Current.MT_Limitation - completed);
+
+                if(completed >= Config.Current.MT_Limitation)
+                {
+                    List<TabPage> tp = new List<TabPage>();
+                    foreach (TabPage t in ResultTab.Items)
+                        tp.Add(t);
+                    tp = tp.OrderBy(t => t.Info.Algorithm.PieceCollection.Count).ToList();
+
+                    ResultTab.Items.Clear();
+                    foreach (var t in tp)
+                        ResultTab.Items.Add(t);
+                    BeginB.IsEnabled = true;
+                }
+            };
+
+            for (int i = 0;Config.Current.MT_Limitation > i; i++)
             {
                 Algorithm algo = new Algorithm(ClonePieces(), Dispatcher);
                 algo.Sleeping += Algo_Sleeping;
                 AlgoInfo info = new AlgoInfo(algo, Dispatcher);
-                Action<AlgoInfo, Linker.PieceCollection> prog = (a, ps) =>
-                {
-                    AddTab(a, ps);
-                };
 
-                info.Finished = prog;
+                info.Finished = fin;
                 info.Progress = prog;
                 info.Begin();
                 Tasks.Add((info, AddTab(info, algo.PieceCollection)));
+            }
+            TaskStateL.Content = string.Format("完了:{0}個, 進行中:{1}個", completed, Config.Current.MT_Limitation - completed);
+            BeginB.IsEnabled = false;
+        }
+
+        private void KeyboardHook_HookEvent(ref KeyboardHook.StateKeyboard state)
+        {
+            if(state.Stroke == KeyboardHook.Stroke.KEY_DOWN)
+            {
+                if (state.Key == System.Windows.Forms.Keys.S)
+                {
+                    Stop();
+                }
+                if (state.Key == System.Windows.Forms.Keys.Space && cproc != null)
+                {
+                    cproc.Valiable = false;
+                }
             }
         }
 
@@ -119,8 +162,58 @@ namespace ProCon28.Algo
             {
                 val.Item1.Cancel = true;
             }
-            Task.WhenAll(Tasks.Select(t => t.Item1.CurrentTask));
+            Task.WhenAll(Tasks.Select(t => t.Item1.CurrentTask)).Wait();
             Tasks.Clear();
+            //KeyboardHook.Stop();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Linker.PieceCollection pcol = new Linker.PieceCollection();
+            foreach(TabPage page in ResultTab.Items)
+            {
+                pcol.AddRange(page.Info.Algorithm.PieceCollection);
+            }
+
+            MTProcessor proc = new MTProcessor(pcol, Choice);
+            proc.Completed += Proc_Completed;
+            proc.Begin();
+        }
+
+        private void Proc_Completed(object sender, EventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                SecondProcessL.Pieces = ((MTProcessor)sender).Pieces;
+            }));
+        }
+
+        MTProcessor cproc = null;
+        void Choice(MTProcessor Proc, IList<Linker.CompositePiece> Pieces)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                cproc = Proc;
+                ChoosingL.Pieces = Pieces.Select(p => (Linker.Piece)p).ToList();
+            }));
+        }
+
+        private void ChoosingL_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if(ChoosingL.SelectedPiece != null && cproc != null)
+            {
+                cproc.Choiced = (Linker.CompositePiece)ChoosingL.SelectedPiece;
+                cproc.Waiting = false;
+                cproc = null;
+            }
+        }
+
+        private void ChoosingL_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if(cproc != null)
+            {
+                cproc.Valiable = false;
+            }
         }
     }
 
@@ -191,9 +284,21 @@ namespace ProCon28.Algo
                     }
                 }
 
-                if(Finished != null)
+                if (Finished != null)
                 {
-                    Dispatcher.BeginInvoke(new Action(() => Finished(this, Algorithm.PieceCollection)));
+                    Linker.PieceCollection pcol = new Linker.PieceCollection();
+                    foreach (var piece in Algorithm.PieceCollection)
+                    {
+                        if (piece is Linker.CompositePiece cp)
+                        {
+                            if (cp.Source.IsCorrect())
+                            {
+                                pcol.Add(cp);
+                            }
+                        }
+                    }
+
+                    Dispatcher.BeginInvoke(new Action(() => Finished(this, pcol)));
                 }
             });
         }

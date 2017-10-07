@@ -132,6 +132,10 @@ namespace ProCon28.Algo
             List<(double, bool)> sdl2 = Piece2.PieceSideData();
             if (index1 == 0) { minus1 = Piece1.Vertexes.Count - 1; }
             if (index2 == 0) { minus2 = Piece2.Vertexes.Count - 1; }
+            double rad11 = Piece1.GetAngle(minus1);
+            double rad12 = Piece1.GetAngle(index1);
+            double rad21 = Piece2.GetAngle(minus2);
+            double rad22 = Piece2.GetAngle(index2);
             double Angle11 = Piece1.GetAngle2PI(minus1) + Piece2.GetAngle2PI(minus2);
             double Angle12 = Piece1.GetAngle2PI(index1) + Piece2.GetAngle2PI(index2);
             double Angle21 = Piece1.GetAngle2PI(minus1) + Piece2.GetAngle2PI(index2);
@@ -145,19 +149,19 @@ namespace ProCon28.Algo
                 }
                 else
                 {
-                    if (Rounding(Angle11, Math.PI * 2))
+                    if (Rounding(rad11, rad12))
                     {
                         j = true;
                         p1 = true;
                     }
-                    if (Rounding(Angle12, Math.PI * 2))
+                    if (Rounding(rad21, rad22))
                     {
                         j = true;
                         p2 = true;
                     }
                 }
-                if (Angle11 > Math.PI * 2 || Angle12 > Math.PI * 2)
-                    j = false;
+                //if (Angle11 > Math.PI * 2 || Angle12 > Math.PI * 2)
+                //    j = false;
             }
             else
             {
@@ -167,19 +171,19 @@ namespace ProCon28.Algo
                 }
                 else
                 {
-                    if (Rounding(Angle21, Math.PI * 2))
+                    if (Rounding(rad11, rad22))
                     {
                         j = true;
                         p1 = true;
                     }
-                    if (Rounding(Angle22, Math.PI * 2))
+                    if (Rounding(rad12, rad21))
                     {
                         j = true;
                         p2 = true;
                     }
                 }
-                if (Angle21 > Math.PI * 2 || Angle22 > Math.PI * 2)
-                    j = false;
+                //if (Angle21 > Math.PI * 2 || Angle22 > Math.PI * 2)
+                //    j = false;
             }
             
             //double difSlope = Math.Abs(sdl1[index1].Item1 - sdl2[index2].Item1);

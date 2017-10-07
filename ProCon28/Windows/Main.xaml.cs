@@ -391,11 +391,6 @@ namespace ProCon28.Windows
 
         private void TestAlgoB_Click(object sender, RoutedEventArgs e)
         {
-            Linker.Temp.Algorithm algo = new Linker.Temp.Algorithm(PieceList.Pieces);
-            var ps = algo.Run();
-
-            PieceList.Pieces.Clear();
-            PieceList.Pieces.AddRange(ps);
         }
 
         private void LogClearItem_Click(object sender, RoutedEventArgs e)

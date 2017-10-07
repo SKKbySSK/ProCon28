@@ -6,26 +6,30 @@
         xmlns:local="clr-namespace:ProCon28.Algo"
         xmlns:Views="clr-namespace:ProCon28.Algo.Views" x:Class="ProCon28.Algo.MultiThreadWindow"
         mc:Ignorable="d"
-        Title="MultiThreadWindow" Height="486" Width="792">
+        Title="MultiThreadWindow" Height="765.186" Width="792">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="62*"/>
-            <ColumnDefinition Width="11*"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="130.286"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="119*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="142*"/>
+            <RowDefinition Height="16*"/>
+            <RowDefinition Height="30*"/>
+            <RowDefinition Height="30*"/>
         </Grid.RowDefinitions>
-        <GridSplitter Grid.Row="1" Height="5" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-        <Views:PieceCollectionView x:Name="BasePiecesView"/>
-        <Label Content="最大処理数" Grid.Column="1" Margin="5,0,10,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="ProcessT" Grid.Column="1" Height="23" Margin="5,26,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <Button x:Name="BeginB" Content="開始" Grid.Column="1" Margin="10,207,10,10" Grid.Row="2" Click="BeginB_Click"/>
-        <Label Content="再試行回数" Grid.Column="1" Margin="5,54,10,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="RetryT" Grid.Column="1" Height="23" Margin="5,80,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <TabControl x:Name="ResultTab" Grid.Row="2"/>
-        <Button x:Name="CancelB" Content="停止" Grid.Column="1" Margin="10,174,10,43" Grid.Row="2" Click="CancelB_Click"/>
+        <GridSplitter Height="5" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="0,6.714,0,285.429" Grid.Row="1"/>
+        <Views:PieceCollectionView x:Name="BasePiecesView" Margin="0,0,0,10.286"/>
+        <Label Content="最大処理数" Grid.Column="1" Margin="5,0,10.286,0" VerticalAlignment="Top" Height="26"/>
+        <TextBox x:Name="ProcessT" Grid.Column="1" Height="23" Margin="5,26,9.286,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <Button x:Name="BeginB" Content="開始" Grid.Column="1" Margin="10,79.714,10.286,0" Grid.Row="1" Click="BeginB_Click" Height="29" VerticalAlignment="Top"/>
+        <Label Content="再試行回数" Grid.Column="1" Margin="5,54,10.286,0" VerticalAlignment="Top" Height="26"/>
+        <TextBox x:Name="RetryT" Grid.Column="1" Height="23" Margin="5,80,9.286,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <TabControl x:Name="ResultTab" Grid.Row="1" Margin="0,9.714,0,9.429"/>
+        <Button x:Name="CancelB" Content="停止" Grid.Column="1" Margin="10,45.714,10.286,0" Grid.Row="1" Click="CancelB_Click" Height="29" VerticalAlignment="Top"/>
+        <Label x:Name="TaskStateL" Grid.Column="1" Margin="2,9.714,0.286,0" Grid.Row="1" Height="31" VerticalAlignment="Top"/>
+        <Button Content="2次処理" Margin="10,10.571,10.286,0" Grid.Row="2" VerticalAlignment="Top" Grid.Column="1" Height="27" Click="Button_Click"/>
+        <Views:PieceCollectionView x:Name="SecondProcessL" Margin="0,10.286,0,9.571" Grid.Row="2" HorizontalAlignment="Right" Width="364"/>
+        <Views:PieceCollectionView x:Name="ChoosingL" Margin="10,10.286,369,9.571" Grid.Row="2" MouseDoubleClick="ChoosingL_MouseDoubleClick" MouseRightButtonDown="ChoosingL_MouseRightButtonDown"/>
 
     </Grid>
 </Window>

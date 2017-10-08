@@ -26,12 +26,15 @@ namespace ProCon28.Algo
         public event EventHandler<BondEventArgs> Bonded;
         public event EventHandler<RoutedSleepEventArgs> Sleeping;
 
+        public bool compLim;
+
         public PieceCollection PieceCollection;
         private System.Windows.Threading.Dispatcher disp;
         private bool aborted = false;
         SortedLineDataCollection LineList = new SortedLineDataCollection();
         public Algorithm(PieceCollection pcol, System.Windows.Threading.Dispatcher Dispatcher)
         {
+            compLim = true;
             PieceCollection = pcol;
             disp = Dispatcher;
             foreach(Piece p in PieceCollection )
@@ -82,8 +85,11 @@ namespace ProCon28.Algo
                         }));
                         return;
                     }
-                    if (!Duplicates.Contains(randIndex) && randIndex > -1)
+
+                    if (!Duplicates.Contains(randIndex) && randIndex > -1 && (LineList[randIndex].Piece is CompositePiece || compLim))
+                    {
                         break;
+                    }
                     else
                         randIndex = new Random(Environment.TickCount + seed).Next(LineList.Count);
                     seed++;
@@ -168,6 +174,7 @@ namespace ProCon28.Algo
                             }
                         }
 
+                        compLim = false;
                         PieceCollection.Add(newPiece);
                         PointCollection pcol = newPiece.Vertexes;
                         IList<(Point, Point, double)> pl = pcol.AsLinesWithLength();

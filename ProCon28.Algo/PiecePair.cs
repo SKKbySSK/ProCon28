@@ -65,6 +65,8 @@ namespace ProCon28.Algo
                     jd = OtherJudge(l);
                 }
             }
+            if (Piece2 is CompositePiece)
+                Return = new List<(int, int)>();
 
             return Return; 
         }

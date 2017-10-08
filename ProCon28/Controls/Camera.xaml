@@ -16,7 +16,7 @@
         <Label Content="カメラ" HorizontalAlignment="Left" Margin="10,37,0,0" VerticalAlignment="Top" Width="48"/>
         <TextBox x:Name="CamT" Height="26" Margin="58,37,10,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" VerticalContentAlignment="Center" Grid.ColumnSpan="2"/>
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.ColumnSpan="2" Margin="0,130,0,0">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.ColumnSpan="2" Margin="0,173,0,0">
             <Grid>
                 <Slider x:Name="ThreshS" Margin="58,31,9.857,0" VerticalAlignment="Top" Height="21" Maximum="0.3" Minimum="0" LargeChange="0.001" SmallChange="0.0001" Value="-1"/>
                 <Label Content="{Binding Value, ElementName=ThreshS}" HorizontalAlignment="Left" Margin="10,26,0,0" VerticalAlignment="Top" Width="43"/>
@@ -38,6 +38,8 @@
         </ScrollViewer>
         <Button x:Name="BeginQrB" Content="形状情報" Margin="10,99,9.714,0" VerticalAlignment="Top" Height="26" Click="BeginQrB_Click"/>
         <Button x:Name="ResetB" Content="パラメータ初期化" Margin="10.286,99,10,0" VerticalAlignment="Top" Height="26" Grid.Column="1" Click="ResetB_Click"/>
+        <Button x:Name="LocationB" Content="配置情報" Margin="10,130,9.714,0" VerticalAlignment="Top" Height="30" Click="LocationB_Click"/>
+        <Button x:Name="AddLocationP" Content="形状データの追加" Grid.Column="1" Margin="10.286,130,10,0" VerticalAlignment="Top" Height="30" Click="AddLocationP_Click"/>
 
     </Grid>
 </UserControl>

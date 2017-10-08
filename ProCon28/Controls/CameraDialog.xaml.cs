@@ -45,7 +45,8 @@ namespace ProCon28.Controls
     public enum CaptureMode
     {
         Pieces,
-        ShapeQR
+        ShapeQR,
+        LocationQR
     }
 
     public class InitializingEventArgs : EventArgs
@@ -65,6 +66,7 @@ namespace ProCon28.Controls
     {
         public event EventHandler<ContoursEventArgs> Recognized;
         public event EventHandler<QrReaderEventArgs> QrRecognized;
+        public event EventHandler QrLocation;
         public event EventHandler<InitializingEventArgs> Initializing;
         public event EventHandler CameraFixed;
 
@@ -182,6 +184,7 @@ namespace ProCon28.Controls
             StopB.IsEnabled = true;
             BeginB.IsEnabled = false;
             BeginQrB.IsEnabled = false;
+            LocationB.IsEnabled = false;
 
             Capture.Filters.Clear();
             Capture.Interruptions.Clear();
@@ -237,6 +240,7 @@ namespace ProCon28.Controls
             StopB.IsEnabled = true;
             BeginB.IsEnabled = false;
             BeginQrB.IsEnabled = false;
+            LocationB.IsEnabled = false;
 
             Capture.Filters.Clear();
             Capture.Interruptions.Clear();
@@ -285,6 +289,7 @@ namespace ProCon28.Controls
                 StopB.IsEnabled = false;
                 BeginB.IsEnabled = true;
                 BeginQrB.IsEnabled = true;
+                LocationB.IsEnabled = true;
 
                 Locked = false;
                 Capture?.Stop();
@@ -603,6 +608,62 @@ namespace ProCon28.Controls
         private void PerspectiveC_StateChanged(object sender, RoutedEventArgs e)
         {
             UsePerspective = PerspectiveC.IsChecked ?? false;
+        }
+
+        private void LocationB_Click(object sender, RoutedEventArgs e)
+        {
+            if (int.TryParse(CamT.Text, out int dev) && dev > -1)
+                Config.Current.Camera = dev;
+
+            Initializing?.Invoke(this, new InitializingEventArgs(CaptureMode.LocationQR));
+            if (Capture == null) return;
+            Locked = true;
+
+            RefreshDirB.IsEnabled = false;
+            CalibC.IsEnabled = false;
+            StopB.IsEnabled = true;
+            BeginB.IsEnabled = false;
+            BeginQrB.IsEnabled = false;
+            LocationB.IsEnabled = false;
+
+            Capture.Filters.Clear();
+            Capture.Interruptions.Clear();
+            Capture.Drawings.Clear();
+
+            Capture.Filters.Add(ApplyGamma);
+            if (CalibC.SelectedIndex > 0)
+            {
+                FileStorage fs = new FileStorage(CalibC.SelectedItem.ToString(),
+                    FileStorage.Mode.FormatXml | FileStorage.Mode.Read);
+                Intrinsic = fs["Intrinsic"].ReadMat();
+                Distortion = fs["Distortion"].ReadMat();
+                Capture.Width = fs["Width"].ReadInt();
+                Capture.Height = fs["Height"].ReadInt();
+                fs.Dispose();
+
+                Capture.Filters.Add(Calibrate);
+            }
+
+            Capture.Interruptions.Add(LocationRecognize);
+            Capture.Begin();
+        }
+
+        void LocationRecognize(Mat Image)
+        {
+            string res = OpenCV.QR.Decoder.Decode(Image);
+
+            if (!string.IsNullOrEmpty(res))
+            {
+                if (!LocationQRManager.AddShape(res))
+                {
+                    Log.Write("Could not add shape : " + res);
+                }
+            }
+        }
+
+        private void AddLocationP_Click(object sender, RoutedEventArgs e)
+        {
+            QrLocation?.Invoke(this, new EventArgs());
         }
 
         /// <summary>

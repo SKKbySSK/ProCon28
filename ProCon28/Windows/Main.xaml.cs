@@ -406,7 +406,7 @@ namespace ProCon28.Windows
 
         private void Camera_QrLocation(object sender, EventArgs e)
         {
-            PieceList.Pieces.Add(LocationQRManager.GenerateCompositePiece());
+            PieceP.Piece = LocationQRManager.GenerateCompositePiece();
         }
 
         private void RemoveDiffB_Click(object sender, RoutedEventArgs e)
@@ -450,8 +450,9 @@ namespace ProCon28.Windows
             }
             
             PieceList.Pieces.Clear();
-            PieceList.Pieces.Add(cbp);
             PieceList.Pieces.AddRange(shapes);
+
+            PieceP.Piece = cbp;
         }
     }
 }

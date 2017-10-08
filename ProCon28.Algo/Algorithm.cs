@@ -368,8 +368,12 @@ namespace ProCon28.Algo
             {
                 Source.Add(Piece2);
             }
-
-            return new CompositePiece(rt.Vertexes, Source);
+            CompositePiece ret = new CompositePiece(rt.Vertexes, Source);
+            if (!PieceEx.IsCorrectPieces(Piece1, Piece2))
+            {
+                ret = new CompositePiece(new PointCollection(),new PieceCollection());
+            }
+            return ret;
         }
 
         internal class Judge

@@ -44,7 +44,7 @@ namespace ProCon28.Linker.Temp
             return cps;
         }
 
-        List<Piece> FindPair(double Threshold, int SampleIndex = 1, List<Piece> Processed = null, int LastCount = 0)
+        List<Piece> FindPair(double Threshold, int SampleIndex = 0, List<Piece> Processed = null, int LastCount = 0)
         {
             if (Processed == null) Processed = new List<Piece>();
 
@@ -243,36 +243,88 @@ namespace ProCon28.Linker.Temp
             return pairs;
         }
 
-        List<Piece> GenerateCompositePiece(List<PairInfo> Pairs)
+        List<Piece> GenerateCompositePiece(IList<PairInfo> Pairs)
         {
-            List<Piece> pieces = new List<Piece>();
-            List<(int, int)> pairsint = new List<(int, int)>();
-            foreach (var pair in Pairs)
+            List<DoublePiece> dpieces = new List<DoublePiece>();
+
+            dpieces.Add(new DoublePiece(Pairs[0].Piece1.Vertexes));
+            dpieces.Add(new DoublePiece(Pairs[0].Piece2.Vertexes));
+
+            //TODO GenerateCompositePiece
+
+            return null;
+        }
+    }
+
+    class DoublePiece
+    {
+        public DoublePiece(IEnumerable<Point> Vertexes)
+        {
+            Constructed.AddRange(Vertexes.Select(p => new PointD { X = p.X, Y = p.Y }));
+            this.Vertexes.AddRange(Vertexes.Select(p => new PointD { X = p.X, Y = p.Y }));
+        }
+
+        public List<PointD> Constructed { get; } = new List<PointD>();
+        public List<PointD> Vertexes { get; private set; } = new List<PointD>();
+
+        public DoublePiece UnsafeRotate(double Angle, bool FromConstruct = true)
+        {
+            List<PointD> vs = new List<PointD>();
+            foreach (var point in Vertexes)
             {
-                var p1 = pair.Piece1;
-                var p2 = pair.Piece2;
-                foreach (var pint in Pairs)
+                double retX, retY;
+                retX = point.X * Math.Cos(Angle) - point.Y * Math.Sin(Angle);
+                retY = point.X * Math.Sin(Angle) + point.Y * Math.Cos(Angle);
+
+                vs.Add(new PointD() { X = retX, Y = retY });
+            }
+            Vertexes = vs;
+
+            return this;
+        }
+
+        public void Revert()
+        {
+            Vertexes.Clear();
+            Vertexes.AddRange(Constructed);
+        }
+
+        public double CalculateMinimumDifferences(double MinimumAngle = 0, double MaximumAngle = Math.PI * 2, int Sample = 360)
+        {
+            double perAngle = (MaximumAngle - MinimumAngle) / Sample;
+
+            double mDiff = -1, mAngle = -1;
+            for(int i = 0; Sample >= i; i++)
+            {
+                double diff = 0;
+                double angle = perAngle * i;
+
+                UnsafeRotate(angle);
+
+                foreach(var p in Vertexes)
                 {
-                    if (pint.Piece1 == p1 || pint.Piece1 == p2)
-                    {
-                        if (pint.Piece2 == p1 || pint.Piece2 == p2)
-                        {
-                            pairsint.Add((pint.StartIndex1, pint.EndIndex1));
-                            pairsint.Add((pint.StartIndex2, pint.EndIndex2));
-                        }
-                    }
+                    int d = (int)Math.Round(p.X) + (int)Math.Round(p.Y);
+                    double act = p.X + p.Y;
+                    diff += Math.Abs(act - d);
                 }
 
-                try
+                Revert();
+
+                if(i == 0 || diff < mDiff)
                 {
-                    pieces.Add(Composer(p1, p2, pairsint));
+                    mAngle = angle;
+                    mDiff = diff;
                 }
-                catch (Exception) { }
-                pairsint.Clear();
             }
 
-            return pieces;
+            return mAngle;
         }
+    }
+
+    struct PointD
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
     }
 
     class PairInfo
@@ -305,6 +357,7 @@ namespace ProCon28.Linker.Temp
         public Point End2 { get; }
         public int StartIndex2 { get { return Piece2.Vertexes.IndexOf(Start2); } }
         public int EndIndex2 { get { return Piece2.Vertexes.IndexOf(End2); } }
+        public double Ratation { get; }
 
         public double AverageLength
         {

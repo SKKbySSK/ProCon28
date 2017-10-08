@@ -371,6 +371,7 @@ namespace ProCon28.Windows
         {
             PieceList.Pieces.Clear();
             ShapeQRManager.Reset();
+            LocationQRManager.Reset();
         }
 
         private void Camera_Initializing(object sender, Controls.InitializingEventArgs e)
@@ -401,6 +402,56 @@ namespace ProCon28.Windows
         private void Camera_CameraFixed(object sender, EventArgs e)
         {
 
+        }
+
+        private void Camera_QrLocation(object sender, EventArgs e)
+        {
+            PieceList.Pieces.Add(LocationQRManager.GenerateCompositePiece());
+        }
+
+        private void RemoveDiffB_Click(object sender, RoutedEventArgs e)
+        {
+            List<Linker.Piece> shapes = new List<Linker.Piece>();
+            string[] QrShapes = ShapeQRManager.GetShapes();
+            foreach(string qr in QrShapes)
+            {
+                shapes.AddRange(ShapeQRManager.GeneratePieces(qr));
+            }
+
+            Linker.PieceCollection Rem = new Linker.PieceCollection();
+            Linker.CombinedBlackPiece cbp = LocationQRManager.GenerateCompositePiece();
+
+            for(int i = 0;shapes.Count > i; i++)
+            {
+                var piece1 = shapes[i];
+                var lengths1 = piece1.Vertexes.AsLinesWithLength();
+                double len1 = 0;
+                foreach (var l in lengths1)
+                    len1 += l.Item3;
+
+                bool f = false;
+                for (int j = 0;cbp.Children.Count > j; j++)
+                {
+                    var piece2 = cbp.Children[j];
+                    var lengths2 = piece2.Vertexes.AsLinesWithLength();
+                    double len2 = 0;
+                    foreach (var l in lengths2)
+                        len2 += l.Item3;
+
+                    if (Math.Abs(len1 - len2) <= 1)
+                        f = true;
+                }
+
+                if (f)
+                {
+                    shapes.RemoveAt(i);
+                    i--;
+                }
+            }
+            
+            PieceList.Pieces.Clear();
+            PieceList.Pieces.Add(cbp);
+            PieceList.Pieces.AddRange(shapes);
         }
     }
 }

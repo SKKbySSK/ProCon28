@@ -118,6 +118,29 @@ namespace ProCon28.Controls
 
             DrawingGroup dg = new DrawingGroup();
 
+            if(Piece is CombinedBlackPiece cbp)
+            {
+                int i = 0;
+                foreach (Piece p in cbp.Children)
+                {
+                    GeometryGroup gg = new GeometryGroup();
+
+                    var lines = p.Vertexes.AsLines();
+                    foreach (var line in lines)
+                    {
+                        var p1 = new System.Windows.Point(line.Item1.X * scale, line.Item1.Y * scale);
+                        var p2 = new System.Windows.Point(line.Item2.X * scale, line.Item2.Y * scale);
+                        gg.Children.Add(new LineGeometry(p1, p2));
+                    }
+
+                    int seed = Environment.TickCount + i;
+                    dg.Children.Add(new GeometryDrawing(Brushes.Transparent, new Pen(Brushes.Black, 10), gg));
+                    i++;
+                }
+
+                return new DrawingImage(dg);
+            }
+
             if (Piece is CompositePiece cp)
             {
                 int i = 0;
@@ -154,6 +177,21 @@ namespace ProCon28.Controls
             }
 
             return new DrawingImage(dg);
+        }
+
+        private bool EnableDoubleClick { get; set; } = true;
+
+        private void UserControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if(Piece is CombinedBlackPiece cbp && EnableDoubleClick)
+            {
+                Window window = new Window();
+                window.Width = 1000;
+                window.Height = 1000;
+                window.Topmost = true;
+                window.Content = new PieceView() { Piece = Piece, EnableDoubleClick = false };
+                window.ShowDialog();
+            }
         }
     }
 }

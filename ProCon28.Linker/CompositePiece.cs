@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using ProCon28.Linker.Extensions;
 namespace ProCon28.Linker
 {
     public class CompositePiece : Piece
@@ -38,5 +38,18 @@ namespace ProCon28.Linker
         }
     }
 
-    
+    public class CombinedBlackPiece : Piece
+    {
+        public CombinedBlackPiece(PieceCollection Pieces)
+        {
+            Children = Pieces;
+
+            foreach(var p in Pieces)
+            {
+                Vertexes.AddRange(p.Vertexes);
+            }
+        }
+
+        public PieceCollection Children { get; }
+    }
 }

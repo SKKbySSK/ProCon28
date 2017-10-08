@@ -18,7 +18,7 @@
         </Grid.RowDefinitions>
         <Controls:PieceGenerator x:Name="PieceG" Margin="293,0,0.143,1.143"/>
         <Controls:OpenCvCapture x:Name="OpenCvCapture" Margin="293,0,0.143,0.143" Visibility="Hidden"/>
-        <Controls:PieceViewer x:Name="PieceList" Background="#FFF7F7F7" Margin="0.857,6,-0.286,10.143" Grid.Column="1" MouseDoubleClick="PieceList_MouseDoubleClick"/>
+        <Controls:PieceViewer x:Name="PieceList" Background="#FFF7F7F7" Margin="0.857,42,-0.286,10.143" Grid.Column="1" MouseDoubleClick="PieceList_MouseDoubleClick"/>
         <Controls:PieceView x:Name="PieceP" HorizontalAlignment="Left" Width="293" Height="144" VerticalAlignment="Bottom" Margin="0,0,0,2.143"/>
         <ListBox x:Name="ConsoleL" Background="Black" Foreground="White" Margin="0,2.857,0.143,0" Grid.Row="1">
             <ListBox.ContextMenu>
@@ -32,7 +32,7 @@
         <TabControl HorizontalAlignment="Left" Margin="5,10,0,146.143" Width="283">
             <TabItem Header="カメラ認識">
                 <Grid Background="#FFE5E5E5">
-                    <Controls:Camera x:Name="Camera" Recognized="Camera_Recognized" QrRecognized="Camera_QrRecognized" Initializing="Camera_Initializing" CameraFixed="Camera_CameraFixed"/>
+                    <Controls:Camera x:Name="Camera" Recognized="Camera_Recognized" QrLocation="Camera_QrLocation" QrRecognized="Camera_QrRecognized" Initializing="Camera_Initializing" CameraFixed="Camera_CameraFixed"/>
                 </Grid>
             </TabItem>
             <TabItem Header="ツール">
@@ -65,6 +65,7 @@
         </TabControl>
         <Button x:Name="EmptyB" Content="空ピース" HorizontalAlignment="Left" Margin="133,6,0,0" VerticalAlignment="Top" Width="75" Click="EmptyB_Click" Height="21"/>
         <Button x:Name="AddB" Content="リストへ追加" Margin="213,6,0,0" VerticalAlignment="Top" Click="AddB_Click" HorizontalAlignment="Left" Width="75" Height="20"/>
+        <Button x:Name="RemoveDiffB" Content="差分計算" Grid.Column="1" Margin="9.857,10,9.714,0" VerticalAlignment="Top" Height="27" Click="RemoveDiffB_Click"/>
 
     </Grid>
 </Window>

@@ -363,7 +363,13 @@ namespace ProCon28.Windows
         {
             if(PieceList.Pieces.Count > 0)
             {
-                e.Pieces = PieceList.Pieces;
+                Linker.PieceCollection pcol = new Linker.PieceCollection();
+                foreach(var p in PieceList.Pieces)
+                {
+                    if (!(p is Linker.Frame))
+                        pcol.Add(p);
+                }
+                e.Pieces = pcol;
             }
         }
 

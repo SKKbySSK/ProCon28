@@ -654,10 +654,7 @@ namespace ProCon28.Controls
 
             if (!string.IsNullOrEmpty(res))
             {
-                if (!LocationQRManager.AddShape(res))
-                {
-                    Log.Write("Could not add shape : " + res);
-                }
+                LocationQRManager.AddShape(res);
             }
         }
 

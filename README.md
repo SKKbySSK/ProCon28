@@ -12,6 +12,6 @@
   
 ## サンプル
 ```cs
-///PieceクラスにGetAngle(int Vertex)、PointクラスにGetLength(Point To)を追加します
+//PieceクラスにGetAngle(int Vertex)、PointクラスにGetLength(Point To)等を追加します
 using ProCon28.Linker.Extensions;
 ```
